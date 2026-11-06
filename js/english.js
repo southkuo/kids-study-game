@@ -209,6 +209,159 @@
     return Q(q, ans, shuffle([ans, ...wrong]), `文章裡有寫到答案：<b>${ans}</b>`, `<div class="passage en">${P.p}</div>`, P.p + ' ' + q, 'en');
   }
 
+  // ---------- 7. 時態火山（國一） ----------
+  const V3 = [['My brother', 'watch', 'watches', 'TV every night.'], ['She', 'go', 'goes', 'to school by bus.'], ['Tom', 'study', 'studies', 'English every day.'],
+    ['My sister', 'play', 'plays', 'the piano after school.'], ['He', 'have', 'has', 'a big dog.'], ['Amy', 'do', 'does', 'her homework after dinner.'],
+    ['The bird', 'fly', 'flies', 'high in the sky.'], ['My dad', 'wash', 'washes', 'the dishes after dinner.'], ['Mr. Lee', 'fix', 'fixes', 'bikes in his shop.'],
+    ['Our teacher', 'teach', 'teaches', 'math and science.'], ['The baby', 'cry', 'cries', 'at night.'], ['Ben', 'carry', 'carries', 'a big bag to school.'],
+    ['My mom', 'buy', 'buys', 'milk at the store.'], ['Lisa', 'enjoy', 'enjoys', 'reading books.'], ['The cat', 'sleep', 'sleeps', 'on the sofa.']];
+  const DODOES = [['___ your sister like cats? — Yes, she does.', 'Does', ['Do', 'Is', 'Are']], ['___ you play basketball after school? — No, I don\'t.', 'Do', ['Does', 'Are', 'Is']],
+    ['My dad ___ drink coffee. He drinks tea.', 'doesn\'t', ['don\'t', 'isn\'t', 'not']], ['We ___ have class on Sundays.', 'don\'t', ['doesn\'t', 'aren\'t', 'not']],
+    ['___ Ken and Mike walk to school? — Yes, they do.', 'Do', ['Does', 'Are', 'Is']], ['What time ___ your brother get up?', 'does', ['do', 'is', 'are']],
+    ['Where ___ your parents work?', 'do', ['does', 'is', 'are']], ['This shop ___ sell toys. Let\'s go to another one.', 'doesn\'t', ['don\'t', 'isn\'t', 'not']]];
+  const TV = { play: ['plays', 'played', 'playing'], drive: ['drives', 'drove', 'driving'], watch: ['watches', 'watched', 'watching'], visit: ['visits', 'visited', 'visiting'],
+    eat: ['eats', 'ate', 'eating'], sleep: ['sleeps', 'slept', 'sleeping'], finish: ['finishes', 'finished', 'finishing'], walk: ['walks', 'walked', 'walking'],
+    rain: ['rains', 'rained', 'raining'], cook: ['cooks', 'cooked', 'cooking'], speak: ['speaks', 'spoke', 'speaking'], lose: ['loses', 'lost', 'losing'],
+    write: ['writes', 'wrote', 'writing'], go: ['goes', 'went', 'going'], swim: ['swims', 'swam', 'swimming'] };
+  // [句子, 動詞, 答案種類, 主詞用的 be 動詞, 提示字]
+  const TENSE = [['Look! The children ___ in the park.', 'play', 'ing', 'are', 'Look!'], ['Listen! Someone ___ the piano.', 'play', 'ing', 'is', 'Listen!'],
+    ['My father ___ to work every day.', 'drive', 's', 'is', 'every day'], ['We ___ a movie last night.', 'watch', 'past', 'are', 'last night'],
+    ['She ___ her grandparents two days ago.', 'visit', 'past', 'is', 'two days ago'], ['I ___ breakfast at seven every morning.', 'eat', 'base', 'am', 'every morning'],
+    ['Be quiet! The baby ___ .', 'sleep', 'ing', 'is', 'Be quiet!'], ['Tom ___ his homework yesterday.', 'finish', 'past', 'is', 'yesterday'],
+    ['They usually ___ to school.', 'walk', 'base', 'are', 'usually'], ['It ___ a lot last summer.', 'rain', 'past', 'is', 'last summer'],
+    ['Mom ___ dinner in the kitchen now.', 'cook', 'ing', 'is', 'now'], ['Amy ___ English very well.', 'speak', 's', 'is', '一直都是（事實、習慣）'],
+    ['I ___ my keys this morning, so I can\'t open the door.', 'lose', 'past', 'am', 'this morning（已經過去）'], ['Ben ___ a letter to his friend right now.', 'write', 'ing', 'is', 'right now'],
+    ['We ___ to Tainan last weekend.', 'go', 'past', 'are', 'last weekend'], ['Kevin ___ in the pool every Saturday.', 'swim', 's', 'is', 'every Saturday']];
+  const TENSE_WHY = { ing: '表示「正在發生」，用現在進行式：be 動詞 + V-ing', past: '表示「過去發生」，用過去式', s: '表示習慣或事實，主詞是第三人稱單數，動詞要加 s／es', base: '表示習慣或事實，主詞是 I／you／we／they，動詞用原形' };
+  const MODAL = [['You ___ wear a helmet when you ride a motorcycle. It\'s the law.', 'must', ['mustn\'t', 'are', 'do'], 'must 表示「一定要」，是規定。'],
+    ['You ___ run in the hallway. It\'s dangerous.', 'mustn\'t', ['must', 'can', 'will'], 'mustn\'t 表示「禁止、不可以」。'],
+    ['Next Saturday, I ___ visit my grandma.', 'am going to', ['is going to', 'going to', 'am go to'], 'be going to + 原形動詞，表示已經計畫好的未來；主詞 I 用 am。'],
+    ['Look at those dark clouds! It ___ rain.', 'is going to', ['are going to', 'will be', 'is go to'], '看到烏雲，推測快要下雨：It is going to rain.'],
+    ['They ___ have a picnic tomorrow.', 'are going to', ['is going to', 'going to', 'are go to'], '主詞 they 用 are going to + 原形動詞。'],
+    ['My little brother is only two. He ___ read yet.', 'can\'t', ['can', 'isn\'t', 'don\'t'], 'can\'t 表示「還不會、不能」。'],
+    ['___ I open the window? — Sure, go ahead.', 'May', ['Do', 'Am', 'Does'], 'May I…? 是有禮貌地請求允許。'],
+    ['It\'s late. You ___ go to bed now.', 'should', ['shouldn\'t', 'are', 'do'], 'should 表示「應該」，是建議。'],
+    ['I ___ call you tomorrow, OK?', 'will', ['am', 'did', 'was'], 'will + 原形動詞，表示未來要做的事。'],
+    ['___ you be free next Friday?', 'Will', ['Do', 'Are', 'Did'], '問未來：Will you be…?'],
+    ['She ___ play the guitar when she was five.', 'could', ['can', 'is', 'does'], 'when she was five 是過去，can 的過去式是 could。'],
+    ['We ___ to clean our room every Saturday.', 'have', ['has', 'are', 'must'], 'have to 表示「必須」，主詞 we 用 have to。'],
+    ['My sister ___ to get up early on weekdays.', 'has', ['have', 'is', 'must'], '主詞是第三人稱單數，用 has to。']];
+  function genTense(d) {
+    if (d === 1) {
+      if (Math.random() < 0.6) {
+        const [sj, b, ans, tail] = pick(V3);
+        const cands = [b, b + 's', b + 'es', b + 'ing', b.replace(/y$/, 'ies')].filter((x) => x !== ans);
+        const rule = /ies$/.test(ans) ? '子音 + y 結尾：去 y 加 ies' : ans === 'has' ? 'have 是不規則變化，要變成 has' : /(ch|sh|x|o)es$/.test(ans) ? '字尾是 ch、sh、x、o：加 es' : '大部分的動詞：直接加 s';
+        return Q(`${sj} ___ ${tail}（${b}）`, ans, strOpts(ans, cands, null),
+          `主詞「${sj}」是第三人稱單數，現在式動詞要變化：<br>${rule} → ${b} → <b>${ans}</b>`, '', `${sj} ${ans} ${tail}`, 'en');
+      }
+      const [st, ans, wrong] = pick(DODOES);
+      return Q(st, ans, shuffle([ans, ...wrong]),
+        `一般動詞的問句和否定句要用助動詞：主詞是 he／she／it 或一個人時用 does／doesn't，其他用 do／don't，後面的動詞用原形。<br>${st.replace('___', `<b>${ans}</b>`)}`, '', st.replace('___', ans), 'en');
+    }
+    if (d === 2) {
+      const [st, b, type, be, clue] = pick(TENSE), f = TV[b];
+      const forms = { base: b, s: f[0], past: f[1], ing: `${be} ${f[2]}` }, ans = forms[type];
+      return Q(`${st}（${b}）`, ans, shuffle(Object.values(forms)),
+        `線索：<b>${clue}</b><br>${TENSE_WHY[type]}。<br>${st.replace('___', `<b>${ans}</b>`).replace(' .', '.')}`, '', st.replace('___', ans).replace(' .', '.'), 'en');
+    }
+    const [st, ans, wrong, why] = pick(MODAL);
+    return Q(st, ans, shuffle([ans, ...wrong]), `${why}<br>${st.replace('___', `<b>${ans}</b>`)}`, '', st.replace('___', ans), 'en');
+  }
+
+  // ---------- 8. 單字峽谷（國一） ----------
+  const JH = [['museum', '博物館'], ['restaurant', '餐廳'], ['airport', '機場'], ['dangerous', '危險的'], ['delicious', '美味的'], ['expensive', '昂貴的'],
+    ['important', '重要的'], ['popular', '受歡迎的'], ['famous', '有名的'], ['interesting', '有趣的'], ['difficult', '困難的'], ['careful', '小心的'],
+    ['comfortable', '舒服的'], ['healthy', '健康的'], ['special', '特別的'], ['borrow', '借入'], ['invite', '邀請'], ['remember', '記得'], ['forget', '忘記'],
+    ['practice', '練習'], ['believe', '相信'], ['decide', '決定'], ['arrive', '抵達'], ['explain', '解釋'], ['prepare', '準備'], ['choose', '選擇'],
+    ['worry', '擔心'], ['enough', '足夠的'], ['always', '總是'], ['usually', '通常'], ['sometimes', '有時候'], ['never', '從不'], ['together', '一起'],
+    ['weekend', '週末'], ['vacation', '假期'], ['neighbor', '鄰居'], ['classmate', '同學'], ['subject', '科目'], ['history', '歷史'], ['geography', '地理'],
+    ['scientist', '科學家'], ['engineer', '工程師'], ['dentist', '牙醫'], ['vegetable', '蔬菜'], ['dessert', '甜點'], ['library card', '借書證'],
+    ['convenience store', '便利商店'], ['department store', '百貨公司'], ['umbrella', '雨傘'], ['weather', '天氣']];
+  // [原級, 比較級, 最高級, 常見錯誤]
+  const ADJ = { big: ['bigger', 'biggest', 'more big'], tall: ['taller', 'tallest', 'more tall'], happy: ['happier', 'happiest', 'happyer'], good: ['better', 'best', 'gooder'],
+    bad: ['worse', 'worst', 'badder'], beautiful: ['more beautiful', 'most beautiful', 'beautifuler'], interesting: ['more interesting', 'most interesting', 'interestinger'],
+    easy: ['easier', 'easiest', 'more easy'], heavy: ['heavier', 'heaviest', 'heavyer'], hot: ['hotter', 'hottest', 'hoter'], fast: ['faster', 'fastest', 'more fast'],
+    expensive: ['more expensive', 'most expensive', 'expensiver'], high: ['higher', 'highest', 'more high'], long: ['longer', 'longest', 'more long'], difficult: ['more difficult', 'most difficult', 'difficulter'] };
+  const COMP = [['An elephant is ___ than a mouse.', 'big'], ['My father is ___ than me.', 'tall'], ['Your idea is ___ than mine.', 'good'], ['The weather today is ___ than yesterday.', 'bad'],
+    ['This flower is ___ than that one.', 'beautiful'], ['This book is ___ than that movie.', 'interesting'], ['Math is ___ than science for me.', 'easy'],
+    ['A rock is ___ than a feather.', 'heavy'], ['Summer is ___ than spring.', 'hot'], ['A plane is ___ than a train.', 'fast'], ['A car is ___ than a bike.', 'expensive']];
+  const SUP = [['Jade Mountain is the ___ mountain in Taiwan.', 'high'], ['Russia is the ___ country in the world.', 'big'], ['Tom is the ___ boy in our class.', 'tall'],
+    ['Today is the ___ day of my life!', 'good'], ['The Nile is the ___ river in the world.', 'long'], ['I am the ___ kid in the world!', 'happy'],
+    ['This is the ___ question on the test.', 'difficult'], ['The cheetah is the ___ animal on land.', 'fast'], ['That is the ___ watch in the store.', 'expensive']];
+  const PREP = [['My birthday is ___ May.', 'in', '月份用 in'], ['The party is ___ Friday.', 'on', '星期幾用 on'], ['School starts ___ eight o\'clock.', 'at', '幾點鐘用 at'],
+    ['Christmas is ___ December 25th.', 'on', '某月某日用 on'], ['I was born ___ 2014.', 'in', '年份用 in'], ['I go to bed ___ night.', 'at', 'at night 是固定用法'],
+    ['We play outside ___ the afternoon.', 'in', 'in the morning／afternoon／evening'], ['The book is ___ the desk.', 'on', '在表面上用 on'],
+    ['My cat is ___ the box.', 'in', '在裡面用 in'], ['There is a picture ___ the wall.', 'on', '貼在牆面上用 on'], ['It is cold ___ winter.', 'in', '季節用 in'],
+    ['He lives ___ Taipei.', 'in', '城市、國家用 in'], ['Let\'s have lunch ___ noon.', 'at', 'at noon 是固定用法'], ['I watch TV ___ Sunday evening.', 'on', '「星期幾 + 早上／晚上」用 on']];
+  function genVocabJH(d) {
+    if (d === 1) {
+      const [en, zh] = pick(JH);
+      if (Math.random() < 0.5) return Q(`「${en}」是什麼意思？`, zh, shuffle([zh, ...others(JH.map((x) => x[1]), [zh], 3)]), `${en} = <b>${zh}</b>`, '', en, 'en');
+      return Q(`「${zh}」的英文是？`, en, shuffle([en, ...others(JH.map((x) => x[0]), [en], 3)]), `${zh} = <b>${en}</b>`, '', en, 'en');
+    }
+    if (d === 2) {
+      const sup = Math.random() < 0.5, [st, a] = pick(sup ? SUP : COMP), [c, su, wrong] = ADJ[a];
+      const ans = sup ? su : c;
+      const rule = sup ? '有 the … in／of 範圍，表示「最…」，用最高級' : '有 than，表示兩個東西在比較，用比較級';
+      const how = ['good', 'bad'].includes(a) ? `${a} 是不規則變化：${a} → ${c} → ${su}` : /^more/.test(c) ? `${a} 是比較長的字，前面加 more／most` : /ier$/.test(c) ? '子音 + y 結尾：去 y 加 ier／iest' : c === a + a.slice(-1) + 'er' ? '短母音 + 子音結尾：重複字尾再加 er／est' : '直接加 er／est';
+      return Q(`${st}（${a}）`, ans, shuffle([ans, sup ? c : su, a, wrong]), `${rule}。<br>${how}<br>${st.replace('___', `<b>${ans}</b>`)}`, '', st.replace('___', ans), 'en');
+    }
+    const [st, ans, why] = pick(PREP);
+    return Q(st, ans, ['in', 'on', 'at'], `${why}。<br>${st.replace('___', `<b>${ans}</b>`)}`, '', st.replace('___', ans), 'en');
+  }
+
+  // ---------- 9. 閱讀城塞（國一） ----------
+  const DIALOG = [['Would you like some cake?', 'Yes, please.', ['No, I\'m not.', 'Yes, I am.', 'That\'s right.']],
+    ['I\'m sorry I\'m late.', 'That\'s OK.', ['You\'re welcome.', 'Me too.', 'Here you are.']], ['How was your trip?', 'It was great!', ['It is on Monday.', 'By train.', 'I\'m fine.']],
+    ['What\'s wrong?', 'I have a headache.', ['I\'m a student.', 'It\'s ten o\'clock.', 'Yes, it is.']], ['Can I borrow your pen?', 'Sure. Here you are.', ['You\'re welcome.', 'No, I\'m not.', 'Me neither.']],
+    ['Thank you for your help.', 'You\'re welcome.', ['Excuse me.', 'I\'m sorry.', 'See you.']], ['How often do you play basketball?', 'Twice a week.', ['For two hours.', 'With my friends.', 'In the gym.']],
+    ['How long does it take to get to school?', 'About ten minutes.', ['Twice a week.', 'By bike.', 'At seven.']], ['Whose bag is this?', 'It\'s Mary\'s.', ['It\'s red.', 'It\'s on the chair.', 'It\'s ten dollars.']],
+    ['Let\'s go to the movies.', 'Good idea!', ['You\'re welcome.', 'No, I\'m not.', 'Yes, I do.']], ['Happy birthday! This is for you.', 'Thank you! It\'s lovely.', ['Happy birthday!', 'You\'re welcome.', 'Here you are.']],
+    ['What do you do in your free time?', 'I like to draw pictures.', ['I\'m twelve.', 'It\'s free.', 'At three o\'clock.']]];
+  const ORDER = [['She goes to school by bus.', '她搭公車上學。', ['She by bus goes to school.', 'Goes she to school by bus.', 'She goes by bus school to.']],
+    ['Do you like playing basketball?', '你喜歡打籃球嗎？', ['Do like you playing basketball?', 'Like you do playing basketball?', 'Do you playing like basketball?']],
+    ['My brother is taller than me.', '我哥哥比我高。', ['My brother taller is than me.', 'My brother is than me taller.', 'My taller brother is than me.']],
+    ['There are many books in the library.', '圖書館裡有很多書。', ['There many are books in the library.', 'There are in the library books many.', 'Many there are books in the library.']],
+    ['What time do you get up every day?', '你每天幾點起床？', ['What time you do get up every day?', 'What do you time get up every day?', 'Do you what time get up every day?']],
+    ['I am going to visit my uncle tomorrow.', '我明天要去拜訪我叔叔。', ['I going am to visit my uncle tomorrow.', 'I am going visit to my uncle tomorrow.', 'I am to going visit my uncle tomorrow.']],
+    ['He didn\'t finish his homework last night.', '他昨晚沒寫完功課。', ['He finish didn\'t his homework last night.', 'He didn\'t his homework finish last night.', 'Didn\'t finish he his homework last night.']],
+    ['Where did you go last weekend?', '你上週末去了哪裡？', ['Where you did go last weekend?', 'Did where you go last weekend?', 'Where did go you last weekend?']],
+    ['Can you help me with my English?', '你可以教我英文嗎？', ['Can help you me with my English?', 'Can you me help with my English?', 'Help can you me with my English?']],
+    ['The movie was very interesting.', '那部電影非常有趣。', ['The movie very was interesting.', 'The movie was interesting very.', 'Very the movie was interesting.']]];
+  const LONG = [
+    { p: 'Dear Kevin,<br>Thank you for inviting me to your birthday party next Saturday. I\'m sorry, but I can\'t go. My family is going to Hualien that weekend to visit my grandparents. We will leave on Friday night and come back on Sunday. I hope you have a great party! I will give you your present at school on Monday.<br>Your friend,<br>Leo',
+      q: [['Why is Leo writing to Kevin?', 'To say he can\'t go to the party.', ['To invite Kevin to a party.', 'To ask Kevin for a present.', 'To plan a trip with Kevin.']],
+        ['When will Leo give Kevin the present?', 'On Monday.', ['On Saturday.', 'On Friday night.', 'On Sunday.']],
+        ['Where will Leo be on Saturday?', 'In Hualien.', ['At Kevin\'s party.', 'At school.', 'At home.']]] },
+    { p: 'Sara loves animals. Every Sunday morning, she works at an animal shelter near her home. She feeds the dogs, cleans their rooms, and takes them for walks. Last month, a family took home Lucky, a small brown dog that Sara took care of. Sara was sad, but she was also happy because Lucky found a new home.',
+      q: [['What does Sara do on Sunday mornings?', 'She helps at an animal shelter.', ['She walks her own dog.', 'She goes to school.', 'She visits a zoo.']],
+        ['Who is Lucky?', 'A dog from the shelter.', ['Sara\'s brother.', 'A cat from the shelter.', 'Sara\'s classmate.']],
+        ['How did Sara feel when Lucky left?', 'Both sad and happy.', ['Very angry.', 'Only sad.', 'Bored.']]] },
+    { p: 'GREEN PARK LIBRARY<br>Opening hours:<br>Tuesday – Friday: 9:00 a.m. – 8:00 p.m.<br>Saturday – Sunday: 10:00 a.m. – 5:00 p.m.<br>Closed on Mondays.<br>• You can borrow five books for two weeks.<br>• Please keep quiet.<br>• No food or drinks in the library.',
+      q: [['Can you visit the library on Monday?', 'No, it\'s closed.', ['Yes, from 9 to 8.', 'Yes, from 10 to 5.', 'Only in the morning.']],
+        ['How many books can you borrow?', 'Five.', ['Two.', 'Eight.', 'Ten.']],
+        ['Which is NOT allowed in the library?', 'Eating a sandwich.', ['Reading a book.', 'Borrowing books.', 'Studying quietly.']],
+        ['What time does the library close on Saturday?', 'At 5:00 p.m.', ['At 8:00 p.m.', 'At 10:00 a.m.', 'At 9:00 a.m.']]] },
+    { p: 'Many students in Taiwan ride bikes to school. Riding a bike is good for your health, and it doesn\'t make the air dirty. But riders must be careful. They should wear helmets and stop at red lights. Some schools even have bike clubs, and students in the clubs ride together on weekends.',
+      q: [['What is this passage mainly about?', 'Riding bikes.', ['Taking the bus.', 'Driving cars.', 'Walking to school.']],
+        ['Why is riding a bike good?', 'It\'s healthy and keeps the air clean.', ['It\'s faster than a car.', 'It\'s fun in the rain.', 'It\'s easy to park cars.']],
+        ['What should riders do?', 'Wear helmets.', ['Ride very fast.', 'Ride at night.', 'Listen to music.']]] },
+  ];
+  function genReadJH(d) {
+    if (d === 1) {
+      const [a, ans, wrong] = pick(DIALOG);
+      return Q(`A: ${a}<br>B: ___<br>B 最適合怎麼回答？`, ans, shuffle([ans, ...wrong]), `A: ${a}<br>B: <b>${ans}</b>`, '', a, 'en');
+    }
+    if (d === 2) {
+      const [ans, zh, wrong] = pick(ORDER);
+      return Q(`「${zh}」<br>哪一句的順序是正確的？`, ans, shuffle([ans, ...wrong]),
+        `正確的句子：<b>${ans}</b><br>英文的基本順序：主詞 → 動詞 → 受詞 → 地點 → 時間；問句把助動詞或 be 動詞放到主詞前面。`, '', ans, 'en');
+    }
+    const P = pick(LONG), [q, ans, wrong] = pick(P.q);
+    return Q(q, ans, shuffle([ans, ...wrong]), `回到文章找線索，答案是：<b>${ans}</b>`, `<div class="passage en">${P.p}</div>`, P.p.replace(/<br>/g, '. ') + ' ' + q, 'en');
+  }
+
   const REGIONS = [
     { id: 'en-abc', name: '字母海港', grade: 2, icon: '⚓', color: '#1e88e5', levels: ['大寫和小寫', '開頭字母', '字母順序'], boss: { name: '字母海盜', icon: '🏴‍☠️' }, treasure: '🧭', gen: genLetters },
     { id: 'en-word', name: '單字叢林', grade: 3, icon: '🌴', color: '#2e7d32', levels: ['動物和食物', '顏色和數字', '拼字'], boss: { name: '吞字大猩猩', icon: '🦍' }, treasure: '🍌', gen: genWords },
@@ -216,6 +369,9 @@
     { id: 'en-sent', name: '句型小鎮', grade: 4, icon: '🏪', color: '#f4511e', levels: ['日常用語', '問答', 'am、is、are'], boss: { name: '答非所問鸚鵡', icon: '🦜' }, treasure: '🎤', gen: genSentence },
     { id: 'en-gram', name: '文法高塔', grade: 5, icon: '🗼', color: '#6d4c41', levels: ['複數和 a／an', '進行式和過去式', '疑問詞'], boss: { name: '文法石像鬼', icon: '🗿' }, treasure: '🔮', gen: genGrammar },
     { id: 'en-read', name: '閱讀天空', grade: 5, icon: '🎈', color: '#5e35b1', levels: ['生活單字', '句子翻譯', '短文閱讀'], boss: { name: '亂碼飛龍', icon: '🐲' }, treasure: '📚', gen: genReading },
+    { id: 'en-tense', name: '時態火山', grade: 7, icon: '🌋', color: '#d84315', levels: ['第三人稱單數', '時態大考驗', '助動詞和未來式'], boss: { name: '時態暴龍', icon: '🦖' }, treasure: '⏳', gen: genTense },
+    { id: 'en-jhword', name: '單字峽谷', grade: 7, icon: '🏜️', color: '#ef6c00', levels: ['國一單字', '比較級和最高級', '介係詞 in／on／at'], boss: { name: '沙漠字蠍王', icon: '🦂' }, treasure: '🏺', gen: genVocabJH },
+    { id: 'en-jhread', name: '閱讀城塞', grade: 7, icon: '🏯', color: '#37474f', levels: ['對話填空', '句子重組', '長篇閱讀'], boss: { name: '暗黑書魔', icon: '👻' }, treasure: '👑', gen: genReadJH },
   ];
   g.EN = { REGIONS };
 })(window);

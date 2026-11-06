@@ -9,6 +9,7 @@
   const HERO = { name: 'Ivan勇士', avatar: '<svg class="hero-svg" viewBox="0 0 100 100" aria-hidden="true"><path d="M30 52 Q50 45 70 52 L77 89 Q50 95 23 89 Z" fill="#d84343"/><path d="M30 52 Q50 45 70 52 L72 60 Q50 54 28 60 Z" fill="#b52f2f"/><rect x="38" y="80" width="9" height="11" rx="3" fill="#6d4c2f"/><rect x="53" y="80" width="9" height="11" rx="3" fill="#6d4c2f"/><path d="M34 58 Q50 52 66 58 L68 83 Q50 87 32 83 Z" fill="#3f7ee8"/><path d="M44 55 L50 64 L56 55" fill="none" stroke="#f2c14e" stroke-width="2.5" stroke-linejoin="round"/><rect x="33" y="71" width="34" height="5" fill="#8a5a2b"/><rect x="46.5" y="70" width="7" height="7" rx="1.5" fill="#f2c14e"/><g transform="rotate(28 72 67)"><rect x="70" y="22" width="5.5" height="38" rx="2.5" fill="#e8eef5" stroke="#8a97a6" stroke-width="1.2"/><line x1="72.75" y1="26" x2="72.75" y2="56" stroke="#b8c4d1" stroke-width="1"/><rect x="63.5" y="58" width="18.5" height="4.5" rx="2.2" fill="#f2c14e" stroke="#b9821f" stroke-width="1"/><rect x="70.8" y="62.5" width="4" height="8" rx="1.5" fill="#8a5a2b"/><circle cx="72.8" cy="72" r="2.2" fill="#f2c14e"/></g><circle cx="69" cy="68" r="5.2" fill="#ffd2ad" stroke="#e8b48c" stroke-width="1"/><circle cx="30" cy="70" r="12" fill="#a06a35" stroke="#f2c14e" stroke-width="3.2"/><path d="M30 62.5 L32.2 67.6 L37.6 67.9 L33.4 71.3 L34.8 76.6 L30 73.6 L25.2 76.6 L26.6 71.3 L22.4 67.9 L27.8 67.6 Z" fill="#ffe08a"/><circle cx="50" cy="37" r="20" fill="#ffd9b8"/><path d="M30.5 37 Q31 25 50 24 Q69 25 69.5 37 Q66 33 60 33.5 Q56 30 50 32 Q44 30 40 33.5 Q34 33 30.5 37 Z" fill="#6b3f1f"/><path d="M27.5 31 Q29 11 50 10 Q71 11 72.5 31 Z" fill="#cfd8e2" stroke="#8a97a6" stroke-width="1.5"/><path d="M37 16 Q42 13 46 13" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".8"/><rect x="26" y="28.5" width="48" height="6.5" rx="3.2" fill="#aab6c3" stroke="#8a97a6" stroke-width="1"/><path d="M50 10.5 Q45 1 54 -1 Q52 5 59 3 Q56 10 50 10.5 Z" fill="#e53935"/><ellipse cx="42.5" cy="42" rx="3.2" ry="3.9" fill="#2b1d0e"/><ellipse cx="57.5" cy="42" rx="3.2" ry="3.9" fill="#2b1d0e"/><circle cx="43.6" cy="40.6" r="1.2" fill="#fff"/><circle cx="58.6" cy="40.6" r="1.2" fill="#fff"/><ellipse cx="37" cy="48" rx="3.6" ry="2.2" fill="#ff9e9e" opacity=".7"/><ellipse cx="63" cy="48" rx="3.6" ry="2.2" fill="#ff9e9e" opacity=".7"/><path d="M45 48.5 Q50 53.5 55 48.5" fill="none" stroke="#8a3b1f" stroke-width="2.2" stroke-linecap="round"/></svg>' };
   const BOSS_HP = 6, HEARTS = 3, FINAL_HP = 10, FINAL_HEARTS = 5;
   const GRADE = ['', '', '二', '三', '四', '五', '六'];
+  const gradeName = (g) => (g >= 7 ? '國' + ['一', '二', '三'][g - 7] : GRADE[g] + '年級');
 
   // 目前的國度（數學／國文／英文）。最終關要打敗全部魔王才會出現
   let SUB, REGIONS, STORY, FINAL, ALL;
@@ -228,7 +229,7 @@
     }
     const nodes = ALL.map((r, i) => {
       const open = regionOpen(i), done = !!S.bosses[r.id];
-      const sub = r.final ? (done ? `${r.boss.name}被打敗了！` : '最終決戰') : `${GRADE[r.grade]}年級・★ ${regionStars(r)}/12`;
+      const sub = r.final ? (done ? `${r.boss.name}被打敗了！` : '最終決戰') : `${gradeName(r.grade)}・★ ${regionStars(r)}/12`;
       return `<button class="node ${open ? '' : 'locked'} ${done ? 'done' : ''} ${r.final ? 'final' : ''}" data-i="${i}" style="left:${XS[i]}%;top:${TOP + i * GAP}px;--c:${r.color}">
         <span class="ic">${open ? r.icon : '🔒'}</span>${done ? '<span class="crown">👑</span>' : ''}
         <span class="lbl"><b>${r.name}</b><small>${sub}</small></span>
@@ -290,7 +291,7 @@
     }).join('');
     const bo = bossOpen(r), bst = S.stars[`${r.id}-boss`] || 0;
     const m = modal(`
-      <div class="rhead" style="--c:${r.color}"><span class="ric">${r.icon}</span><div><h2>${r.name}</h2><small>${GRADE[r.grade]}年級</small></div><button class="x">✕</button></div>
+      <div class="rhead" style="--c:${r.color}"><span class="ric">${r.icon}</span><div><h2>${r.name}</h2><small>${gradeName(r.grade)}</small></div><button class="x">✕</button></div>
       <div class="lvs">${rows}
         <button class="lv boss ${bo ? '' : 'locked'}" data-lv="boss"><span class="n">${bo ? r.boss.icon : '🔒'}</span><span class="t">魔王：${r.boss.name}<small>打敗它就能拿回 ${r.treasure}</small></span><span class="s">${bo ? starStr(bst) : ''}</span></button>
       </div>
