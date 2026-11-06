@@ -25,7 +25,7 @@
   setSub('math');
 
   // ---------- 存檔 ----------
-  const fresh = () => ({ player: null, stars: {}, bosses: {}, stats: {}, seen: {}, settings: { unlockAll: false, count: 6, autoRead: false, sound: true } });
+  const fresh = () => ({ player: null, stars: {}, bosses: {}, stats: {}, seen: {}, settings: { count: 6, autoRead: false, sound: true } });
   let S = fresh();
   try {
     const raw = localStorage.getItem(SAVE_KEY);
@@ -37,9 +37,10 @@
   const save = () => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) { /* 忽略 */ } };
 
   const allBosses = () => REGIONS.every((r) => S.bosses[r.id]);
-  const regionOpen = (i) => S.settings.unlockAll || i === 0 || (i === REGIONS.length ? allBosses() : !!S.bosses[REGIONS[i - 1].id]);
-  const levelOpen = (r, lv) => S.settings.unlockAll || lv === 0 || (S.stars[`${r.id}-${lv - 1}`] || 0) > 0;
-  const bossOpen = (r) => S.settings.unlockAll || [0, 1, 2].every((lv) => (S.stars[`${r.id}-${lv}`] || 0) > 0);
+  // 全部地區、關卡、魔王和最終城堡一開始就開放，想玩哪一關就玩哪一關
+  const regionOpen = () => true;
+  const levelOpen = () => true;
+  const bossOpen = () => true;
   const regionStars = (r) => [0, 1, 2, 'boss'].reduce((s, lv) => s + (S.stars[`${r.id}-${lv}`] || 0), 0);
   const totalStars = () => ALL.reduce((s, r) => s + regionStars(r), 0);
   const currentIdx = () => { let i = 0; while (i < ALL.length - 1 && S.bosses[ALL[i].id]) i++; return i; };
@@ -295,7 +296,7 @@
       <div class="lvs">${rows}
         <button class="lv boss ${bo ? '' : 'locked'}" data-lv="boss"><span class="n">${bo ? r.boss.icon : '🔒'}</span><span class="t">魔王：${r.boss.name}<small>打敗它就能拿回 ${r.treasure}</small></span><span class="s">${bo ? starStr(bst) : ''}</span></button>
       </div>
-      <p class="note">${S.bosses[r.id] ? `已經拿回寶物 ${r.treasure}！` : '打敗三隻手下，魔王就會出現！'}</p>`);
+      <p class="note">${S.bosses[r.id] ? `已經拿回寶物 ${r.treasure}！` : '打敗魔王，就能拿回寶物！'}</p>`);
     m.querySelector('.x').onclick = () => m.remove();
     m.querySelectorAll('.lv').forEach((b) => b.onclick = () => {
       const lv = b.dataset.lv === 'boss' ? 'boss' : +b.dataset.lv;
@@ -465,7 +466,7 @@
       extra = `<div class="treasure">${r.treasure}</div><p>${r.final ? `你是${SUB.land}的${SUB.name}勇者！` : `拿回寶物 ${r.treasure}！`}</p>`;
       if (first && !r.final) {
         const next = ALL[P.i + 1];
-        extra += next.final ? `<p class="unlock">${next.icon} ${next.name}的大門打開了！</p>` : `<p class="unlock">🗺️ 新地區開放：<b>${next.name}</b></p>`;
+        extra += `<p class="unlock">🗺️ 下一站：<b>${next.icon} ${next.name}</b></p>`;
       }
     } else if (P.boss) {
       title = `${r.boss.name}逃走了…`;
@@ -514,7 +515,6 @@
     }).join('')).join('');
     const m = modal(`<div class="rhead" style="--c:#546e7a"><span class="ric">⚙️</span><div><h2>家長設定</h2><small>${esc(S.player.name)} 的學習紀錄</small></div><button class="x">✕</button></div>
       <table class="stats"><thead><tr><th>地區</th><th>作答</th><th>答對率</th><th>星星</th></tr></thead><tbody>${rows}</tbody></table>
-      <label class="set"><input type="checkbox" id="ua" ${st.unlockAll ? 'checked' : ''}> 開放全部地區和關卡（三科都適用，不用照順序）</label>
       <label class="set"><input type="checkbox" id="ar" ${st.autoRead ? 'checked' : ''}> 自動念題目和劇情</label>
       <label class="set">每隻手下的血量（題數） <select id="cnt">${[4, 6, 8, 10].map((n) => `<option ${n === st.count ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
       <label class="set"><input type="checkbox" id="rs"> 下次重新播放全部劇情</label>
@@ -522,7 +522,6 @@
     const close = () => { m.remove(); if ($app.querySelector('.home')) showHome(); else showMap(); };
     m.querySelector('.x').onclick = close;
     m.querySelector('#done').onclick = close;
-    m.querySelector('#ua').onchange = (e) => { st.unlockAll = e.target.checked; save(); };
     m.querySelector('#ar').onchange = (e) => { st.autoRead = e.target.checked; save(); };
     m.querySelector('#cnt').onchange = (e) => { st.count = +e.target.value; save(); };
     m.querySelector('#rs').onchange = (e) => { if (e.target.checked) { S.seen = {}; save(); } };
