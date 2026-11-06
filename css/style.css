@@ -210,7 +210,6 @@ body:has(.play), body:has(.result) { background: color-mix(in srgb, var(--c, #4f
 .fighter.hero { left: 4%; }
 .fighter.foe { right: 4%; }
 .fighter .body { font-size: 76px; line-height: 1.05; filter: drop-shadow(0 6px 4px rgba(0,0,0,.3)); display: inline-block; }
-.fighter.hero .body { transform: scaleX(-1); }
 .fighter b { padding: 2px 12px; border-radius: 999px; background: rgba(255,255,255,.92); font-size: 15px; white-space: nowrap; }
 .fighter .tag { min-height: 34px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: 100%; }
 .fighter .hp { width: 100%; max-width: 150px; height: 16px; border-radius: 999px; background: #ffd9d6; overflow: hidden; box-shadow: inset 0 0 0 2px #e5484d, 0 2px 0 rgba(0,0,0,.15); }
@@ -223,12 +222,12 @@ body:has(.play), body:has(.result) { background: color-mix(in srgb, var(--c, #4f
 @keyframes idle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 .hero.lunge .body { animation: lungeR .45s ease-in-out; }
 .foe.lunge .body { animation: lungeL .45s ease-in-out; }
-@keyframes lungeR { 40% { transform: scaleX(-1) translateX(-40px); } }
+@keyframes lungeR { 40% { transform: translateX(40px) rotate(8deg); } }
 @keyframes lungeL { 40% { transform: translateX(-40px); } }
 .foe.hit .body { animation: hitR .5s; }
 .hero.hit .body { animation: hitL .5s; }
 @keyframes hitR { 20% { transform: translateX(14px) rotate(12deg); filter: brightness(2.2) drop-shadow(0 0 10px #fff); } 50% { transform: translateX(-8px) rotate(-6deg); } }
-@keyframes hitL { 20% { transform: scaleX(-1) translateX(14px) rotate(12deg); filter: hue-rotate(-40deg) brightness(1.6); } 50% { transform: scaleX(-1) translateX(-8px); } }
+@keyframes hitL { 20% { transform: translateX(-14px) rotate(-12deg); filter: brightness(1.6) saturate(.6); } 50% { transform: translateX(8px); } }
 .foe.ko .body { animation: koFall 1.1s ease-in forwards; }
 @keyframes koFall { 30% { transform: translateY(-30px) rotate(-20deg); } 100% { transform: translateY(60px) rotate(200deg) scale(.3); opacity: 0; } }
 .proj { position: absolute; bottom: 70px; font-size: 46px; z-index: 4; pointer-events: none; }
@@ -295,3 +294,6 @@ body:has(.play), body:has(.result) { background: color-mix(in srgb, var(--c, #4f
 .hero-big { font-size: clamp(96px, 28vw, 140px); line-height: 1.1; animation: bob 2s ease-in-out infinite; filter: drop-shadow(0 8px 8px rgba(0,0,0,.25)); }
 .sub.big { font-size: clamp(24px, 6vw, 32px); font-weight: 900; color: #fff; text-shadow: 0 3px 0 #2b6d9a; margin: 0; }
 .start .sub:not(.big) { position: relative; padding: 6px 16px; border-radius: 999px; background: rgba(255,255,255,.85); }
+.hero-svg { display: inline-block; width: 1em; height: 1em; vertical-align: -0.14em; overflow: visible; }
+.chip .hero-svg, .banner .hero-svg { width: 1.3em; height: 1.3em; vertical-align: -0.3em; }
+.fighter.hero .hero-svg { width: 1.2em; height: 1.2em; vertical-align: -0.2em; }
