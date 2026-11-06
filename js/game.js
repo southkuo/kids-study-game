@@ -1,21 +1,26 @@
-/* 數字島大冒險：劇情、地圖、戰鬥關卡、魔王戰、存檔、家長設定 */
+/* 學習大冒險：選擇國度、劇情、地圖、戰鬥關卡、魔王戰、存檔、家長設定 */
 (function () {
   'use strict';
-  const { REGIONS, R, pick } = window.MQ;
-  const STORY = window.STORY;
+  const { R, pick } = window.MQ;
+  const SUBJECTS = window.SUBJECTS;
   const $app = document.getElementById('app');
   const SAVE_KEY = 'mathAdventure.v1';
   const AVATARS = ['🦊', '🐼', '🐯', '🐰', '🐨', '🦁', '🐸', '🐧'];
   const BOSS_HP = 6, HEARTS = 3, FINAL_HP = 10, FINAL_HEARTS = 5;
-  const GRADE = ['', '', '二', '三', '四'];
+  const GRADE = ['', '', '二', '三', '四', '五', '六'];
 
-  // 最終關：混沌城堡（9 個魔王都打敗才會出現）
-  const FINAL = {
-    id: 'final', name: '混沌城堡', icon: '🏰', color: '#6a1b9a', final: true,
-    boss: { name: STORY.villain.name, icon: STORY.villain.icon }, treasure: '🏆',
-    gen: () => pick(REGIONS).gen(pick([1, 1, 2, 2, 3])),
-  };
-  const ALL = [...REGIONS, FINAL];
+  // 目前的國度（數學／國文／英文）。最終關要打敗全部魔王才會出現
+  let SUB, REGIONS, STORY, FINAL, ALL;
+  function setSub(id) {
+    SUB = SUBJECTS.find((x) => x.id === id) || SUBJECTS[0];
+    REGIONS = SUB.regions; STORY = SUB.story;
+    FINAL = Object.assign({}, SUB.final, {
+      final: true, boss: { name: STORY.villain.name, icon: STORY.villain.icon }, treasure: '🏆',
+      gen: () => pick(REGIONS).gen(pick([1, 1, 2, 2, 3])),
+    });
+    ALL = [...REGIONS, FINAL];
+  }
+  setSub('math');
 
   // ---------- 存檔 ----------
   const fresh = () => ({ player: null, stars: {}, bosses: {}, stats: {}, seen: {}, settings: { unlockAll: false, count: 6, autoRead: false, sound: true } });
@@ -45,8 +50,19 @@
     .replace(/\{treasure\}/g, r ? r.treasure : '').replace(/\{region\}/g, r ? r.name : '').replace(/\{boss\}/g, r ? r.boss.name : '');
 
   // 朗讀（二年級還在練習認字，可以聽題目）
-  function speak(text) {
+  function speak(text, lang) {
     if (!('speechSynthesis' in window)) return;
+    if (lang === 'en') {
+      try {
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(String(text).replace(/<[^>]+>/g, ' ').replace(/___/g, 'blank').replace(/[\u{1F000}-\u{1FFFF}\u2600-\u27BF]/gu, ''));
+        u.lang = 'en-US'; u.rate = 0.85;
+        const v = speechSynthesis.getVoices().find((x) => /^en[-_]US/i.test(x.lang)) || speechSynthesis.getVoices().find((x) => /^en/i.test(x.lang));
+        if (v) u.voice = v;
+        speechSynthesis.speak(u);
+      } catch (e) { /* 忽略 */ }
+      return;
+    }
     const t = String(text).replace(/<br>/g, '。').replace(/<[^>]+>/g, '')
       .replace(/\[(\d+)\/(\d+)\]/g, '$2分之$1').replace(/×/g, '乘以').replace(/÷/g, '除以').replace(/−/g, '減')
       .replace(/\+/g, '加').replace(/=/g, '等於').replace(/[？?□]/g, '多少').replace(/(\d),(\d)/g, '$1$2')
@@ -98,7 +114,7 @@
       if (w === 'h') return { name: S.player.name, icon: S.player.avatar, side: 'r' };
       if (w === 'x') return { name: STORY.villain.name, icon: STORY.villain.icon, side: 'r', bad: true };
       if (w === 'b') return { name: r.boss.name, icon: r.boss.icon, side: 'r', bad: true };
-      return { name: '', icon: (r && r.icon) || '🏝️', side: 'n' };
+      return { name: '', icon: (r && r.icon) || SUB.scene || '🏝️', side: 'n' };
     };
     let k = 0, timer = null, typing = false, full = '';
     $app.innerHTML = `
@@ -152,8 +168,8 @@
     $app.innerHTML = `
       <section class="start">
         <div class="logo">🏝️</div>
-        <h1>數字島大冒險</h1>
-        <p class="sub">打敗亂數魔王，把島上的寶物拿回來！</p>
+        <h1>學習大冒險</h1>
+        <p class="sub">數學、國文、英文三個國度，等你來冒險！</p>
         <label class="field">勇者，你叫什麼名字？<input id="nm" maxlength="8" value="${esc((S.player && S.player.name) || '')}" placeholder="輸入名字"></label>
         <div class="field">選一個角色：</div>
         <div class="avatars">${AVATARS.map((a) => `<button class="av ${a === chosen ? 'on' : ''}" data-a="${a}">${a}</button>`).join('')}</div>
@@ -166,8 +182,37 @@
     $app.querySelector('#go').onclick = () => {
       const name = $app.querySelector('#nm').value.trim() || '小勇士';
       S.player = { name, avatar: chosen }; save(); beep('win');
-      storyOnce('intro', STORY.intro, null, () => showMap(true));
+      showHome();
     };
+  }
+
+  // ---------- 選擇國度 ----------
+  function showHome() {
+    hush(); P = null;
+    const tiles = SUBJECTS.map((sb) => {
+      const got = sb.regions.filter((r) => S.bosses[r.id]).length, beat = !!S.bosses[sb.final.id];
+      return `<button class="land" data-id="${sb.id}" style="--c:${sb.color}">
+        <span class="lic">${sb.icon}</span><span class="lname">${sb.name}</span><span class="lland">${sb.land}</span>
+        <span class="ldesc">${sb.desc}<br>${sb.grades}</span>
+        <span class="lprog">${beat ? '👑 全破！' : `寶物 ${got} / ${sb.regions.length}`}</span><span class="lgo">▶ 出發</span></button>`;
+    }).join('');
+    $app.innerHTML = `
+      <section class="home">
+        <header class="top">
+          <button class="chip" id="who">${esc(S.player.avatar)} ${esc(S.player.name)}</button><span class="sp"></span>
+          <button class="icon" id="snd" title="音效">${S.settings.sound ? '🔊' : '🔇'}</button>
+          <button class="icon" id="par" title="家長設定">⚙️</button>
+        </header>
+        <div class="hhead"><h1>選擇國度</h1><p>每個國度都被魔王占領了，去把寶物拿回來吧！</p></div>
+        <div class="lands">${tiles}</div>
+      </section>`;
+    $app.querySelectorAll('.land').forEach((b) => b.onclick = () => {
+      beep('tap'); setSub(b.dataset.id); S.lastSub = SUB.id; save();
+      storyOnce(SUB.introKey, STORY.intro, null, () => showMap(true));
+    });
+    $app.querySelector('#who').onclick = showStart;
+    $app.querySelector('#snd').onclick = () => { S.settings.sound = !S.settings.sound; save(); showHome(); };
+    $app.querySelector('#par').onclick = parentGate;
   }
 
   // ---------- 地圖 ----------
@@ -191,7 +236,7 @@
     }
     const nodes = ALL.map((r, i) => {
       const open = regionOpen(i), done = !!S.bosses[r.id];
-      const sub = r.final ? (done ? '亂數魔王被打敗了！' : '最終決戰') : `${GRADE[r.grade]}年級・★ ${regionStars(r)}/12`;
+      const sub = r.final ? (done ? `${r.boss.name}被打敗了！` : '最終決戰') : `${GRADE[r.grade]}年級・★ ${regionStars(r)}/12`;
       return `<button class="node ${open ? '' : 'locked'} ${done ? 'done' : ''} ${r.final ? 'final' : ''}" data-i="${i}" style="left:${XS[i]}%;top:${TOP + i * GAP}px;--c:${r.color}">
         <span class="ic">${open ? r.icon : '🔒'}</span>${done ? '<span class="crown">👑</span>' : ''}
         <span class="lbl"><b>${r.name}</b><small>${sub}</small></span>
@@ -200,15 +245,14 @@
     }).join('');
     $app.innerHTML = `
       <header class="top">
-        <button class="chip" id="who">${esc(S.player.avatar)} ${esc(S.player.name)}</button>
-        <span class="chip">⭐ ${totalStars()}</span>
+        <button class="icon" id="home" title="選擇國度">🏠</button>
+        <span class="chip">${SUB.icon} ⭐ ${totalStars()}</span>
         <span class="sp"></span>
-        <button class="icon" id="tale" title="重看故事">📜</button>
+        <button class="icon" id="tale" title="重看故事">📖</button>
         <button class="icon" id="bag" title="寶物箱">🎒</button>
-        <button class="icon" id="snd" title="音效">${S.settings.sound ? '🔊' : '🔇'}</button>
         <button class="icon" id="par" title="家長設定">⚙️</button>
       </header>
-      <section class="map" style="height:${H}px">
+      <section class="map" style="height:${H}px;background:linear-gradient(180deg, ${SUB.bg})">
         <svg class="path" viewBox="0 0 100 ${H}" preserveAspectRatio="none" aria-hidden="true"><path d="${path}"/></svg>
         ${decoHTML}${nodes}
       </section>`;
@@ -216,17 +260,16 @@
       const i = +b.dataset.i, r = ALL[i];
       if (!regionOpen(i)) {
         beep('bad');
-        toast(r.final ? '把 9 個地區的魔王都打敗，混沌城堡才會打開！' : `先打敗「${ALL[i - 1].name}」的魔王，才能來這裡喔！`);
+        toast(r.final ? `把 ${REGIONS.length} 個地區的魔王都打敗，${r.name}才會打開！` : `先打敗「${ALL[i - 1].name}」的魔王，才能來這裡喔！`);
         return;
       }
       beep('tap');
-      if (r.final) storyOnce('final', STORY.final.intro, r, () => startLevel(i, 'boss'));
+      if (r.final) storyOnce(r.id, STORY.final.intro, r, () => startLevel(i, 'boss'));
       else storyOnce('r-' + r.id, STORY.regions[r.id].intro, r, () => { showMap(); showRegion(i); });
     });
-    $app.querySelector('#who').onclick = showStart;
+    $app.querySelector('#home').onclick = showHome;
     $app.querySelector('#tale').onclick = () => playStory(STORY.intro, null, () => showMap());
     $app.querySelector('#bag').onclick = showBag;
-    $app.querySelector('#snd').onclick = () => { S.settings.sound = !S.settings.sound; save(); showMap(); };
     $app.querySelector('#par').onclick = parentGate;
     if (scrollToCurrent) {
       const el = $app.querySelector(`.node[data-i="${cur}"]`);
@@ -349,11 +392,14 @@
         <div class="qt">${fmt(q.text)}</div>
         ${q.visual ? `<div class="vis">${q.visual}</div>` : ''}
       </div>
-      <div class="opts ${q.options.length === 2 ? 'two' : ''}">${q.options.map((o, k) => `<button class="opt ${o.replace(/\[.*?\]/g, '#').length > 7 ? 'long' : ''}" data-k="${k}">${fmt(o)}</button>`).join('')}</div>
+      <div class="opts ${q.options.length === 2 ? 'two' : ''} ${q.options.some((o) => o.replace(/\[.*?\]/g, '#').length > 12) ? 'wide' : ''}">${q.options.map((o, k) => `<button class="opt ${o.replace(/\[.*?\]/g, '#').length > 7 ? 'long' : ''}" data-k="${k}">${fmt(o)}</button>`).join('')}</div>
       <div id="fb"></div>`;
-    qa.querySelector('#read').onclick = () => speak(q.text);
+    const read = () => speak(q.say || q.text, q.lang);
+    qa.querySelector('#read').onclick = read;
+    qa.querySelectorAll('.listen').forEach((b) => b.onclick = read);
     qa.querySelectorAll('.opt').forEach((b) => b.onclick = () => answer(b));
-    if (S.settings.autoRead) speak(q.text);
+    if (q.visual.includes('class="listen"')) setTimeout(read, 300);
+    else if (S.settings.autoRead) speak(q.lang === 'en' ? q.text.replace(/[A-Za-z]/g, '') : q.text);
   }
   async function answer(btn) {
     if (P.busy) return; P.busy = true;
@@ -422,11 +468,11 @@
     const r = P.r;
     let title, extra = '';
     if (P.boss && win) {
-      title = r.final ? '你打敗了亂數魔王！' : `打敗${r.boss.name}了！`;
-      extra = `<div class="treasure">${r.treasure}</div><p>${r.final ? '你是數字島的數學勇者！' : `拿回寶物 ${r.treasure}！`}</p>`;
+      title = `打敗${r.boss.name}了！`;
+      extra = `<div class="treasure">${r.treasure}</div><p>${r.final ? `你是${SUB.land}的${SUB.name}勇者！` : `拿回寶物 ${r.treasure}！`}</p>`;
       if (first && !r.final) {
         const next = ALL[P.i + 1];
-        extra += next.final ? '<p class="unlock">🏰 混沌城堡的大門打開了！</p>' : `<p class="unlock">🗺️ 新地區開放：<b>${next.name}</b></p>`;
+        extra += next.final ? `<p class="unlock">${next.icon} ${next.name}的大門打開了！</p>` : `<p class="unlock">🗺️ 新地區開放：<b>${next.name}</b></p>`;
       }
     } else if (P.boss) {
       title = `${r.boss.name}逃走了…`;
@@ -451,7 +497,7 @@
   function showBag() {
     const m = modal(`<div class="rhead" style="--c:#8d6e63"><span class="ric">🎒</span><div><h2>寶物箱</h2><small>打敗魔王就能拿回寶物</small></div><button class="x">✕</button></div>
       <div class="bag">${REGIONS.map((r) => `<div class="slot ${S.bosses[r.id] ? 'got' : ''}"><span>${S.bosses[r.id] ? r.treasure : '❔'}</span><small>${r.name}</small></div>`).join('')}</div>
-      ${S.bosses.final ? '<p class="note">🏆 你打敗了亂數魔王！</p>' : ''}
+      ${S.bosses[FINAL.id] ? `<p class="note">🏆 你打敗了${STORY.villain.name}！</p>` : ''}
       <p class="note">共 ${REGIONS.filter((r) => S.bosses[r.id]).length} / ${REGIONS.length} 件寶物・⭐ ${totalStars()} 顆星星</p>`);
     m.querySelector('.x').onclick = () => m.remove();
   }
@@ -469,18 +515,18 @@
   }
   function showParent() {
     const st = S.settings;
-    const rows = REGIONS.map((r) => {
+    const rows = SUBJECTS.map((sb) => `<tr class="grp"><td colspan="4">${sb.icon} ${sb.name}</td></tr>` + sb.regions.map((r) => {
       const s = S.stats[r.id] || { right: 0, wrong: 0 }, t = s.right + s.wrong;
       return `<tr><td>${r.icon} ${r.name}</td><td>${t}</td><td>${t ? Math.round(s.right / t * 100) + '%' : '—'}</td><td>${regionStars(r)}/12</td></tr>`;
-    }).join('');
+    }).join('')).join('');
     const m = modal(`<div class="rhead" style="--c:#546e7a"><span class="ric">⚙️</span><div><h2>家長設定</h2><small>${esc(S.player.name)} 的學習紀錄</small></div><button class="x">✕</button></div>
       <table class="stats"><thead><tr><th>地區</th><th>作答</th><th>答對率</th><th>星星</th></tr></thead><tbody>${rows}</tbody></table>
-      <label class="set"><input type="checkbox" id="ua" ${st.unlockAll ? 'checked' : ''}> 開放全部地區和關卡（不用照順序）</label>
+      <label class="set"><input type="checkbox" id="ua" ${st.unlockAll ? 'checked' : ''}> 開放全部地區和關卡（三科都適用，不用照順序）</label>
       <label class="set"><input type="checkbox" id="ar" ${st.autoRead ? 'checked' : ''}> 自動念題目和劇情</label>
       <label class="set">每隻手下的血量（題數） <select id="cnt">${[4, 6, 8, 10].map((n) => `<option ${n === st.count ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
       <label class="set"><input type="checkbox" id="rs"> 下次重新播放全部劇情</label>
       <div class="rbtns"><button class="btn danger" id="reset">清除全部進度</button><button class="btn gold" id="done">完成</button></div>`);
-    const close = () => { m.remove(); showMap(); };
+    const close = () => { m.remove(); if ($app.querySelector('.home')) showHome(); else showMap(); };
     m.querySelector('.x').onclick = close;
     m.querySelector('#done').onclick = close;
     m.querySelector('#ua').onchange = (e) => { st.unlockAll = e.target.checked; save(); };
@@ -495,6 +541,6 @@
 
   // 開始
   if ('speechSynthesis' in window) { try { speechSynthesis.getVoices(); } catch (e) { /* 忽略 */ } }
-  if (S.player) showMap(true); else showStart();
+  if (S.player) showHome(); else showStart();
   window.__game = { get P() { return P; }, get S() { return S; } }; // 方便測試
 })();

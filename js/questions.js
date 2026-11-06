@@ -45,8 +45,9 @@
     while (set.size < 4 && filler && guard++ < 200) { const c = filler(); if (c) set.add(c); }
     return shuffle([...set]);
   }
-  const Q = (text, answer, options, explain, visual) =>
-    ({ text, answer: String(answer), options: options.map(String), explain, visual: visual || '' });
+  // say：按 🔊 時要念的內容（不給就念題目）；lang：'en' 代表用英文語音念
+  const Q = (text, answer, options, explain, visual, say, lang) =>
+    ({ text, answer: String(answer), options: options.map(String), explain, visual: visual || '', say: say || '', lang: lang || '' });
 
   // 九九乘法口訣，例如 六七四十二
   function koujue(a, b) {
@@ -446,7 +447,7 @@
     { id: 'dec', name: '小數星空', grade: 4, icon: '🌙', color: '#5e35b1', levels: ['認識小數', '小數比大小', '小數加減'], boss: { name: '星點外星人', icon: '👾' }, treasure: '⭐', gen: genDec },
   ];
 
-  const api = { REGIONS, R, pick, shuffle };
+  const api = { REGIONS, R, pick, shuffle, strOpts, numOpts, Q, N };
   g.MQ = api;
   if (typeof module !== 'undefined') module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);
