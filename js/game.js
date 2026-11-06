@@ -5,7 +5,7 @@
   const SUBJECTS = window.SUBJECTS;
   const $app = document.getElementById('app');
   const SAVE_KEY = 'mathAdventure.v1';
-  const AVATARS = ['🦊', '🐼', '🐯', '🐰', '🐨', '🦁', '🐸', '🐧'];
+  const HERO = { name: 'Ivan勇士', avatar: '🦸' }; // 主角固定是 Ivan勇士
   const BOSS_HP = 6, HEARTS = 3, FINAL_HP = 10, FINAL_HEARTS = 5;
   const GRADE = ['', '', '二', '三', '四', '五', '六'];
 
@@ -31,6 +31,7 @@
     S.settings = Object.assign(fresh().settings, S.settings);
     S.seen = S.seen || {};
   } catch (e) { /* 沒有存檔也能玩 */ }
+  S.player = Object.assign({}, HERO);
   const save = () => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) { /* 忽略 */ } };
 
   const allBosses = () => REGIONS.every((r) => S.bosses[r.id]);
@@ -162,28 +163,18 @@
     playStory(lines, r, done);
   }
 
-  // ---------- 開始畫面：取名字、選角色 ----------
+  // ---------- 開始畫面：這個遊戲是給 Ivan 玩的，名字和角色固定 ----------
   function showStart() {
-    let chosen = (S.player && S.player.avatar) || AVATARS[0];
     $app.innerHTML = `
       <section class="start">
         <div class="logo">🏝️</div>
         <h1>學習大冒險</h1>
-        <p class="sub">數學、國文、英文三個國度，等你來冒險！</p>
-        <label class="field">勇者，你叫什麼名字？<input id="nm" maxlength="8" value="${esc((S.player && S.player.name) || '')}" placeholder="輸入名字"></label>
-        <div class="field">選一個角色：</div>
-        <div class="avatars">${AVATARS.map((a) => `<button class="av ${a === chosen ? 'on' : ''}" data-a="${a}">${a}</button>`).join('')}</div>
+        <div class="hero-big">${HERO.avatar}</div>
+        <p class="sub big">${HERO.name}，準備好了嗎？</p>
+        <p class="sub">數學、國文、英文三個國度，等你去拯救！</p>
         <button class="btn big gold" id="go">出發！ ▶</button>
       </section>`;
-    $app.querySelectorAll('.av').forEach((b) => b.onclick = () => {
-      chosen = b.dataset.a; beep('tap');
-      $app.querySelectorAll('.av').forEach((x) => x.classList.toggle('on', x === b));
-    });
-    $app.querySelector('#go').onclick = () => {
-      const name = $app.querySelector('#nm').value.trim() || '小勇士';
-      S.player = { name, avatar: chosen }; save(); beep('win');
-      showHome();
-    };
+    $app.querySelector('#go').onclick = () => { beep('win'); showHome(); };
   }
 
   // ---------- 選擇國度 ----------
@@ -541,6 +532,6 @@
 
   // 開始
   if ('speechSynthesis' in window) { try { speechSynthesis.getVoices(); } catch (e) { /* 忽略 */ } }
-  if (S.player) showHome(); else showStart();
+  showStart();
   window.__game = { get P() { return P; }, get S() { return S; } }; // 方便測試
 })();

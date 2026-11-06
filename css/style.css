@@ -291,3 +291,7 @@ body:has(.play), body:has(.result) { background: color-mix(in srgb, var(--c, #4f
 .opts.wide { grid-template-columns: 1fr; }
 .opts.wide .opt { min-height: 64px; font-size: clamp(18px, 4.6vw, 22px); }
 .stats tr.grp td { padding-top: 14px; font-weight: 900; color: var(--ink); border-bottom: 2px solid #cdb98a; }
+
+.hero-big { font-size: clamp(96px, 28vw, 140px); line-height: 1.1; animation: bob 2s ease-in-out infinite; filter: drop-shadow(0 8px 8px rgba(0,0,0,.25)); }
+.sub.big { font-size: clamp(24px, 6vw, 32px); font-weight: 900; color: #fff; text-shadow: 0 3px 0 #2b6d9a; margin: 0; }
+.start .sub:not(.big) { position: relative; padding: 6px 16px; border-radius: 999px; background: rgba(255,255,255,.85); }
