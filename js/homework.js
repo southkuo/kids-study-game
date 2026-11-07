@@ -3,13 +3,16 @@
    - date：作業日期
    - items：每一題 { q: 英文問題, zh: 中文意思, lines: [要念的句子…] }
    - 每個句子是 { en, zh }；如果小朋友可以選自己的答案，就寫成 { options: [{ pick: '按鈕上的字', en, zh }, …] }
-   - 句子裡的 {today} 會自動換成今天星期幾（英文），{todayZh} 換成中文 */
+   - 句子裡的 {today} 會自動換成今天星期幾（英文），{todayZh} 換成中文
+   - questionAudio：題目語音檔的資料夾（換作業時要重新產生，或留空讓爸媽在遊戲裡錄） */
 (function (g) {
   'use strict';
   g.HOMEWORK = {
     title: '今日作業',
     date: '2026-11-07',
     note: '請用完整句子回答唷！',
+    // 合併錄音時，每題答案前面放的題目語音（q1.m4a～q10.m4a）。爸爸媽媽在遊戲裡錄的題目會優先使用
+    questionAudio: 'audio/hw/2026-11-07/',
     items: [
       { q: 'What day is today?', zh: '今天星期幾？',
         lines: [{ en: 'Today is {today}.', zh: '今天是{todayZh}。' }] },

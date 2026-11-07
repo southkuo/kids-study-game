@@ -522,6 +522,15 @@
     return { get: (k) => run('readonly', (st) => st.get(k)), set: (k, v) => run('readwrite', (st) => st.put(v, k)), del: (k) => run('readwrite', (st) => st.delete(k)) };
   })();
   const recKey = (HW, k) => `${hwKey(HW)}-q${k + 1}`;
+  const qvKey = (HW, k) => `${hwKey(HW)}-qv${k + 1}`; // 爸爸媽媽錄的題目
+  const builtinQ = (HW, k) => (HW.questionAudio ? `${HW.questionAudio}q${k + 1}.m4a` : '');
+  async function questionBlob(HW, k) { // 合併用的題目聲音：爸媽錄的優先，沒有就用內建的
+    const mine = await recDB.get(qvKey(HW, k)).catch(() => null);
+    if (mine) return mine.blob;
+    const url = builtinQ(HW, k);
+    if (!url) return null;
+    try { const r = await fetch(url); return r.ok ? await r.blob() : null; } catch (e) { return null; }
+  }
   const extOf = (type) => (/mp4|m4a|aac/.test(type) ? 'm4a' : /ogg/.test(type) ? 'ogg' : /wav/.test(type) ? 'wav' : 'webm');
   const recFile = (HW, k, r) => new File([r.blob], `Ivan-${HW.date}-Q${k + 1}.${extOf(r.type)}`, { type: r.type });
   async function shareFiles(files) {
@@ -565,7 +574,10 @@
           <div class="zh">${esc(it.zh)}</div>
           <button class="listen" id="hwq">🔊 聽問題</button>
         </div>
-        ${canRec ? `<div class="rec" id="rec"><div class="hwlbl">🎤 錄下我的回答（會自動保存）</div><button class="btn recb" id="recb">🎤 開始錄音</button><div id="recp"></div></div>` : '<p class="note">這個瀏覽器不能錄音，請用 iPad 的 Safari 打開。</p>'}
+        ${canRec ? `<div class="rec" id="rec"><div class="hwlbl">🎤 錄下我的回答（會自動保存）</div><button class="btn recb" id="recb">🎤 開始錄音</button><div id="recp"></div>
+          <details class="qv"><summary>👨‍👩‍👦 合併用的題目聲音（爸爸媽媽可以自己錄）</summary>
+            <p class="tip">合併錄音時，每題會先放題目，再放 Ivan 的回答。可以用內建的電腦語音，也可以由爸爸媽媽念題目錄下來（會優先使用）。</p>
+            <div id="qvp"></div></details></div>` : '<p class="note">這個瀏覽器不能錄音，請用 iPad 的 Safari 打開。</p>'}
         <div class="hwa">
           ${reveal ? `<div class="hwlbl">🗣️ 示範答案（完整句子）${it.lines.length > 1 ? `・共 ${it.lines.length} 句` : ''}${it.lines.some((l) => l.options) ? '・可以點選自己的答案' : ''}</div>${linesHTML}
             <button class="hb hide" id="hide">🙈 把答案藏起來</button>`
@@ -607,6 +619,39 @@
       recp.querySelector('#delr').onclick = async () => { if (!confirm('要刪除這一題的錄音嗎？')) return; await recDB.del(recKey(HW, k)); showSaved(null); };
     };
     recDB.get(recKey(HW, k)).then(showSaved).catch(() => {});
+    // 爸爸媽媽錄題目
+    const qvp = $app.querySelector('#qvp');
+    let qvRec = null;
+    const showQv = async () => {
+      if (!document.body.contains(qvp)) return;
+      const mine = await recDB.get(qvKey(HW, k)).catch(() => null);
+      const url = mine ? URL.createObjectURL(mine.blob) : builtinQ(HW, k);
+      qvp.innerHTML = `<div class="saved">${mine ? '✅ 目前使用：爸爸媽媽的聲音' : url ? '目前使用：內建的電腦語音' : '還沒有題目聲音'}</div>
+        ${url ? `<audio controls src="${url}"></audio>` : ''}
+        <div class="hwbtns"><button class="hb" id="qvrec">🎤 ${mine ? '重錄' : '錄'}爸媽念的題目</button>${mine ? '<button class="hb del" id="qvdel">↩️ 改回內建語音</button>' : ''}</div>`;
+      const dl = qvp.querySelector('#qvdel');
+      if (dl) dl.onclick = async () => { await recDB.del(qvKey(HW, k)); showQv(); };
+      const rb = qvp.querySelector('#qvrec');
+      rb.onclick = async () => {
+        if (qvRec && qvRec.state === 'recording') { qvRec.stop(); return; }
+        try {
+          hush(); stopRecording();
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          const rec = new MediaRecorder(stream), chunks = [];
+          qvRec = rec; recState = { rec };
+          rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+          rec.onstop = async () => {
+            stream.getTracks().forEach((t) => t.stop());
+            const type = (rec.mimeType || (chunks[0] && chunks[0].type) || 'audio/mp4').split(';')[0];
+            try { await recDB.set(qvKey(HW, k), { blob: new Blob(chunks, { type }), type, time: Date.now() }); } catch (e) { toast('題目錄音沒辦法保存。'); }
+            showQv();
+          };
+          rec.start();
+          rb.textContent = `⏹️ 念完「Question ${k + 1}…」了，停止`; rb.classList.add('on');
+        } catch (e) { toast('沒辦法使用麥克風，請在 iPad 的「設定 → Safari → 麥克風」允許使用。'); }
+      };
+    };
+    showQv();
     recb.onclick = async () => {
       if (recState && recState.rec && recState.rec.state === 'recording') { stopRecording(); return; }
       try {
@@ -650,7 +695,8 @@
         <button class="readall" id="readall"><span>📖</span><b>最後一步：10 題全部念一次</b><small>題目和答案從頭念到尾，可以錄成一個檔案交給老師${recAll ? '・✅ 已經錄好了' : ''}</small></button>
         <div class="hwlist"><b>🎧 我的錄音（${nrec} / ${HW.items.length} 題${recAll ? '＋全部念一次' : ''}）</b>
           <div class="recs">${recList}</div>
-          ${nrec >= 2 ? `<div class="merge" id="merge"><button class="btn" id="mergeb">🔗 把 ${nrec} 題的錄音合併成一個檔案</button><div id="mergep"></div></div>` : ''}
+          ${nrec >= 1 ? `<div class="merge" id="merge"><button class="btn" id="mergeb">🔗 把 ${nrec} 題的錄音合併成一個檔案</button>
+            <label class="set qset"><input type="checkbox" id="withq" checked> 每題先念題目，再接 Ivan 的回答</label><div id="mergep"></div></div>` : ''}
           ${nrec || recAll ? '<button class="btn gold" id="shareall">📤 一次傳送全部錄音給老師</button><small class="tip">會打開 iPad 的分享，可以選 LINE、AirDrop 或「儲存到檔案」。</small>' : '<small class="tip">回到題目按「🎤 開始錄音」，錄好的聲音會出現在這裡。</small>'}
         </div>
         <div class="hwlist hidden" id="qa"><b>📋 爸爸媽媽可以照著問，Ivan 用完整句子回答：</b>
@@ -664,11 +710,18 @@
       mb.disabled = true; mb.textContent = '⏳ 合併中，請稍等…';
       try {
         const have = recs.map((r, k) => (r ? { r, k } : null)).filter(Boolean);
-        const wav = await mergeToWav(have.map((x) => x.r.blob));
+        const withQ = $app.querySelector('#withq').checked;
+        const segs = [];
+        let nq = 0;
+        for (const x of have) {
+          if (withQ) { const qb = await questionBlob(HW, x.k); if (qb) { segs.push({ blob: qb, gap: 0.5 }); nq++; } }
+          segs.push({ blob: x.r.blob, gap: 1.2 });
+        }
+        const wav = await mergeToWav(segs);
         const nums = have.map((x) => x.k + 1);
         const file = new File([wav], `Ivan-${HW.date}-Q${nums[0]}-Q${nums[nums.length - 1]}.wav`, { type: 'audio/wav' });
-        mb.textContent = '✅ 合併好了'; beep('good');
-        mp.innerHTML = `<div class="saved">合併了 Q${nums.join('、Q')}（共 ${nums.length} 題）</div><audio controls src="${URL.createObjectURL(wav)}"></audio>
+        mb.disabled = false; mb.textContent = '🔗 重新合併'; beep('good');
+        mp.innerHTML = `<div class="saved">合併了 Q${nums.join('、Q')}（共 ${nums.length} 題${withQ ? `，${nq === nums.length ? '每題都' : `其中 ${nq} 題`}先念題目` : ''}）</div><audio controls src="${URL.createObjectURL(wav)}"></audio>
           <button class="btn gold" id="sharemerged">📤 傳送合併好的檔案</button>`;
         mp.querySelector('#sharemerged').onclick = () => shareFiles([file]);
       } catch (e) {
@@ -686,24 +739,24 @@
 
 
   // ---------- 合併錄音：解碼每一題的錄音，中間留空白，接成一個 WAV 檔 ----------
-  async function mergeToWav(blobs, gapSec, rate) {
-    gapSec = gapSec || 0.8; rate = rate || 22050;
+  async function mergeToWav(segs, rate) { // segs: [{ blob, gap（這段後面空幾秒） }]
+    rate = rate || 22050;
     const AC = window.AudioContext || window.webkitAudioContext;
     const ctx = new AC();
     const decode = (buf) => new Promise((res, rej) => { const pr = ctx.decodeAudioData(buf, res, rej); if (pr && pr.then) pr.then(res, rej); });
     const parts = [];
-    for (const b of blobs) {
-      const ab = await decode(await new Response(b).arrayBuffer());
+    for (const sg of segs) {
+      const ab = await decode(await new Response(sg.blob).arrayBuffer());
       const n = ab.length, ch = ab.numberOfChannels, mono = new Float32Array(n);
       for (let c = 0; c < ch; c++) { const d = ab.getChannelData(c); for (let i = 0; i < n; i++) mono[i] += d[i] / ch; }
       const ratio = ab.sampleRate / rate, len = Math.floor(n / ratio), out = new Float32Array(len); // 線性重新取樣
       for (let i = 0; i < len; i++) { const x = i * ratio, i0 = Math.floor(x), f = x - i0; out[i] = mono[i0] * (1 - f) + (mono[Math.min(i0 + 1, n - 1)] || 0) * f; }
-      parts.push(out);
+      parts.push({ pcm: out, gap: Math.round((sg.gap == null ? 0.8 : sg.gap) * rate) });
     }
     if (ctx.close) ctx.close();
-    const gap = Math.round(gapSec * rate), total = parts.reduce((t, x) => t + x.length, 0) + gap * Math.max(0, parts.length - 1);
+    const total = parts.reduce((t, x, i) => t + x.pcm.length + (i < parts.length - 1 ? x.gap : 0), 0);
     const pcm = new Float32Array(total); let o = 0;
-    parts.forEach((x) => { pcm.set(x, o); o += x.length + gap; });
+    parts.forEach((x) => { pcm.set(x.pcm, o); o += x.pcm.length + x.gap; });
     const buf = new ArrayBuffer(44 + total * 2), v = new DataView(buf);
     const str = (off, t) => { for (let i = 0; i < t.length; i++) v.setUint8(off + i, t.charCodeAt(i)); };
     str(0, 'RIFF'); v.setUint32(4, 36 + total * 2, true); str(8, 'WAVE'); str(12, 'fmt ');
