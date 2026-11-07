@@ -380,3 +380,9 @@ body:has(.hw) { background: #fffaf0; }
 .recbar #recp { display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .recbar .recb { width: min(480px, 100%); }
 .recrow.all b { width: auto; }
+
+.merge { margin: 6px 0 10px; padding: 12px; border-radius: 16px; background: #f1f8e9; display: grid; gap: 8px; }
+.merge .btn { width: 100%; background: #dcedc8; box-shadow: 0 4px 0 #9ccc65; color: #33691e; }
+.merge .btn:disabled { opacity: .8; }
+#mergep { display: grid; gap: 8px; justify-items: center; }
+#mergep audio { width: 100%; }

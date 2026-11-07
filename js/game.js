@@ -650,6 +650,7 @@
         <button class="readall" id="readall"><span>📖</span><b>最後一步：10 題全部念一次</b><small>題目和答案從頭念到尾，可以錄成一個檔案交給老師${recAll ? '・✅ 已經錄好了' : ''}</small></button>
         <div class="hwlist"><b>🎧 我的錄音（${nrec} / ${HW.items.length} 題${recAll ? '＋全部念一次' : ''}）</b>
           <div class="recs">${recList}</div>
+          ${nrec >= 2 ? `<div class="merge" id="merge"><button class="btn" id="mergeb">🔗 把 ${nrec} 題的錄音合併成一個檔案</button><div id="mergep"></div></div>` : ''}
           ${nrec || recAll ? '<button class="btn gold" id="shareall">📤 一次傳送全部錄音給老師</button><small class="tip">會打開 iPad 的分享，可以選 LINE、AirDrop 或「儲存到檔案」。</small>' : '<small class="tip">回到題目按「🎤 開始錄音」，錄好的聲音會出現在這裡。</small>'}
         </div>
         <div class="hwlist hidden" id="qa"><b>📋 爸爸媽媽可以照著問，Ivan 用完整句子回答：</b>
@@ -657,6 +658,24 @@
         <div class="rbtns"><button class="btn" id="again">🔁 從第 1 題再練一次</button><button class="btn gold" id="back">🗺️ 回地圖</button></div>
       </section>`;
     const sa = $app.querySelector('#shareall');
+    const mb = $app.querySelector('#mergeb');
+    if (mb) mb.onclick = async () => {
+      const mp = $app.querySelector('#mergep');
+      mb.disabled = true; mb.textContent = '⏳ 合併中，請稍等…';
+      try {
+        const have = recs.map((r, k) => (r ? { r, k } : null)).filter(Boolean);
+        const wav = await mergeToWav(have.map((x) => x.r.blob));
+        const nums = have.map((x) => x.k + 1);
+        const file = new File([wav], `Ivan-${HW.date}-Q${nums[0]}-Q${nums[nums.length - 1]}.wav`, { type: 'audio/wav' });
+        mb.textContent = '✅ 合併好了'; beep('good');
+        mp.innerHTML = `<div class="saved">合併了 Q${nums.join('、Q')}（共 ${nums.length} 題）</div><audio controls src="${URL.createObjectURL(wav)}"></audio>
+          <button class="btn gold" id="sharemerged">📤 傳送合併好的檔案</button>`;
+        mp.querySelector('#sharemerged').onclick = () => shareFiles([file]);
+      } catch (e) {
+        mb.disabled = false; mb.textContent = '🔗 再試一次合併';
+        mp.innerHTML = '<small class="tip">合併失敗了，可以改用下面的按鈕一次傳送全部錄音。</small>';
+      }
+    };
     if (sa) sa.onclick = () => shareFiles([...(recAll ? [allFile(HW, recAll)] : []), ...recs.map((r, k) => (r ? recFile(HW, k, r) : null)).filter(Boolean)]);
     $app.querySelector('#readall').onclick = () => { beep('tap'); showReadAll(); };
     $app.querySelector('#showans').onclick = (e) => { const qa = $app.querySelector('#qa'); qa.classList.toggle('hidden'); e.target.textContent = qa.classList.contains('hidden') ? '👀 顯示答案' : '🙈 隱藏答案'; };
@@ -664,6 +683,35 @@
     $app.querySelector('#back').onclick = () => showMap('hw');
   }
 
+
+
+  // ---------- 合併錄音：解碼每一題的錄音，中間留空白，接成一個 WAV 檔 ----------
+  async function mergeToWav(blobs, gapSec, rate) {
+    gapSec = gapSec || 0.8; rate = rate || 22050;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    const ctx = new AC();
+    const decode = (buf) => new Promise((res, rej) => { const pr = ctx.decodeAudioData(buf, res, rej); if (pr && pr.then) pr.then(res, rej); });
+    const parts = [];
+    for (const b of blobs) {
+      const ab = await decode(await new Response(b).arrayBuffer());
+      const n = ab.length, ch = ab.numberOfChannels, mono = new Float32Array(n);
+      for (let c = 0; c < ch; c++) { const d = ab.getChannelData(c); for (let i = 0; i < n; i++) mono[i] += d[i] / ch; }
+      const ratio = ab.sampleRate / rate, len = Math.floor(n / ratio), out = new Float32Array(len); // 線性重新取樣
+      for (let i = 0; i < len; i++) { const x = i * ratio, i0 = Math.floor(x), f = x - i0; out[i] = mono[i0] * (1 - f) + (mono[Math.min(i0 + 1, n - 1)] || 0) * f; }
+      parts.push(out);
+    }
+    if (ctx.close) ctx.close();
+    const gap = Math.round(gapSec * rate), total = parts.reduce((t, x) => t + x.length, 0) + gap * Math.max(0, parts.length - 1);
+    const pcm = new Float32Array(total); let o = 0;
+    parts.forEach((x) => { pcm.set(x, o); o += x.length + gap; });
+    const buf = new ArrayBuffer(44 + total * 2), v = new DataView(buf);
+    const str = (off, t) => { for (let i = 0; i < t.length; i++) v.setUint8(off + i, t.charCodeAt(i)); };
+    str(0, 'RIFF'); v.setUint32(4, 36 + total * 2, true); str(8, 'WAVE'); str(12, 'fmt ');
+    v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, rate, true);
+    v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); str(36, 'data'); v.setUint32(40, total * 2, true);
+    for (let i = 0; i < total; i++) { const x = Math.max(-1, Math.min(1, pcm[i])); v.setInt16(44 + i * 2, x < 0 ? x * 0x8000 : x * 0x7fff, true); }
+    return new Blob([buf], { type: 'audio/wav' });
+  }
 
   // ---------- 全部念一次：10 題題目＋答案列在同一頁，錄成一個檔案 ----------
   const allKey = (HW) => `${hwKey(HW)}-all`;
