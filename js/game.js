@@ -634,30 +634,106 @@
     const HW = window.HOMEWORK, st = hwState(HW);
     beep('win'); confetti(36);
     const recs = await Promise.all(HW.items.map((_, k) => recDB.get(recKey(HW, k)).catch(() => null)));
+    const recAll = await recDB.get(allKey(HW)).catch(() => null);
     const nrec = recs.filter(Boolean).length;
     const list = HW.items.map((it, k) => `<li><div class="lq">${k + 1}. ${esc(it.q)}</div><div class="ans">${it.lines.map((line, li) => {
       const opts = line.options || [line], o = opts[Math.min(st.pick[`${k}-${li}`] || 0, opts.length - 1)];
       return `<div class="la">→ ${esc(hwFill(o.en))}</div>`;
     }).join('')}</div></li>`).join('');
-    const recList = HW.items.map((it, k) => `<div class="recrow"><b>Q${k + 1}</b>${recs[k] ? `<audio controls src="${URL.createObjectURL(recs[k].blob)}"></audio>` : '<span class="norec">還沒錄音</span>'}</div>`).join('');
+    const recList = HW.items.map((it, k) => `<div class="recrow"><b>Q${k + 1}</b>${recs[k] ? `<audio controls src="${URL.createObjectURL(recs[k].blob)}"></audio>` : '<span class="norec">還沒錄音</span>'}</div>`).join('')
+      + `<div class="recrow all"><b>全部</b>${recAll ? `<audio controls src="${URL.createObjectURL(recAll.blob)}"></audio>` : '<span class="norec">還沒錄（按上面的「全部念一次」）</span>'}</div>`;
     $app.innerHTML = `
       <section class="result hwdone" style="--c:#ff7043">
         <div class="hero-big">${S.player.avatar}</div>
         <h2>今日作業完成！</h2>
         <p>Ivan勇士，Great job！</p>
-        <div class="hwlist"><b>🎧 我的錄音（${nrec} / ${HW.items.length} 題）</b>
+        <button class="readall" id="readall"><span>📖</span><b>最後一步：10 題全部念一次</b><small>題目和答案從頭念到尾，可以錄成一個檔案交給老師${recAll ? '・✅ 已經錄好了' : ''}</small></button>
+        <div class="hwlist"><b>🎧 我的錄音（${nrec} / ${HW.items.length} 題${recAll ? '＋全部念一次' : ''}）</b>
           <div class="recs">${recList}</div>
-          ${nrec ? '<button class="btn gold" id="shareall">📤 一次傳送全部錄音給老師</button><small class="tip">會打開 iPad 的分享，可以選 LINE、AirDrop 或「儲存到檔案」。</small>' : '<small class="tip">回到題目按「🎤 開始錄音」，錄好的聲音會出現在這裡。</small>'}
+          ${nrec || recAll ? '<button class="btn gold" id="shareall">📤 一次傳送全部錄音給老師</button><small class="tip">會打開 iPad 的分享，可以選 LINE、AirDrop 或「儲存到檔案」。</small>' : '<small class="tip">回到題目按「🎤 開始錄音」，錄好的聲音會出現在這裡。</small>'}
         </div>
         <div class="hwlist hidden" id="qa"><b>📋 爸爸媽媽可以照著問，Ivan 用完整句子回答：</b>
           <button class="hb" id="showans">👀 顯示答案</button><ol>${list}</ol></div>
         <div class="rbtns"><button class="btn" id="again">🔁 從第 1 題再練一次</button><button class="btn gold" id="back">🗺️ 回地圖</button></div>
       </section>`;
     const sa = $app.querySelector('#shareall');
-    if (sa) sa.onclick = () => shareFiles(recs.map((r, k) => (r ? recFile(HW, k, r) : null)).filter(Boolean));
+    if (sa) sa.onclick = () => shareFiles([...(recAll ? [allFile(HW, recAll)] : []), ...recs.map((r, k) => (r ? recFile(HW, k, r) : null)).filter(Boolean)]);
+    $app.querySelector('#readall').onclick = () => { beep('tap'); showReadAll(); };
     $app.querySelector('#showans').onclick = (e) => { const qa = $app.querySelector('#qa'); qa.classList.toggle('hidden'); e.target.textContent = qa.classList.contains('hidden') ? '👀 顯示答案' : '🙈 隱藏答案'; };
     $app.querySelector('#again').onclick = () => showHomework(0);
     $app.querySelector('#back').onclick = () => showMap('hw');
+  }
+
+
+  // ---------- 全部念一次：10 題題目＋答案列在同一頁，錄成一個檔案 ----------
+  const allKey = (HW) => `${hwKey(HW)}-all`;
+  const allFile = (HW, r) => new File([r.blob], `Ivan-${HW.date}-all.${extOf(r.type)}`, { type: r.type });
+  function speakQueue(texts) { // 依序念：題目、答案、題目、答案…
+    if (!('speechSynthesis' in window)) return;
+    try {
+      speechSynthesis.cancel();
+      const v = speechSynthesis.getVoices().find((x) => /^en[-_]US/i.test(x.lang)) || speechSynthesis.getVoices().find((x) => /^en/i.test(x.lang));
+      texts.forEach((t) => { const u = new SpeechSynthesisUtterance(t); u.lang = 'en-US'; u.rate = 0.8; if (v) u.voice = v; speechSynthesis.speak(u); });
+    } catch (e) { /* 忽略 */ }
+  }
+  async function showReadAll() {
+    hush(); stopRecording();
+    const HW = window.HOMEWORK, st = hwState(HW);
+    const items = HW.items.map((it, k) => ({ q: it.q, a: it.lines.map((line, li) => { const opts = line.options || [line]; return hwFill(opts[Math.min(st.pick[`${k}-${li}`] || 0, opts.length - 1)].en); }) }));
+    const canRec = !!(window.MediaRecorder && navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.indexedDB);
+    $app.innerHTML = `
+      <section class="hw readpage" style="--c:#ff7043">
+        <header class="ptop"><button class="icon" id="rax" title="返回">✕</button><span class="pt">📖 全部念一次</span><span class="cnt"></span></header>
+        <div class="hwnote"><span class="hwhero">${S.player.avatar}</span><span>先念題目，再用完整句子念答案。<br>從第 1 題念到第 10 題，念完按「停止」就存好了！</span></div>
+        <button class="hb demo" id="demo">🔊 先聽一遍示範</button>
+        <ol class="readlist">${items.map((x, k) => `<li><div class="rq"><span>Q${k + 1}</span>${esc(x.q)}</div>${x.a.map((a) => `<div class="ra">${esc(a)}</div>`).join('')}</li>`).join('')}</ol>
+        <div class="readend">🎉 念完了！記得按下面的「停止」</div>
+        ${canRec ? `<div class="recbar"><div id="recp"></div><button class="btn recb" id="recb">🎤 開始錄音（從 Q1 念到 Q10）</button></div>` : '<p class="note">這個瀏覽器不能錄音，請用 iPad 的 Safari 打開。</p>'}
+      </section>`;
+    window.scrollTo(0, 0);
+    $app.querySelector('#rax').onclick = () => { hush(); stopRecording(); showHomeworkDone(); };
+    let demoOn = false;
+    $app.querySelector('#demo').onclick = (e) => {
+      if (demoOn) { hush(); demoOn = false; e.target.textContent = '🔊 先聽一遍示範'; return; }
+      demoOn = true; e.target.textContent = '⏹️ 停止示範';
+      speakQueue(items.flatMap((x, k) => [`Question ${k + 1}. ${x.q.replace(/ \/ /g, ', or ')}`, ...x.a]));
+    };
+    if (!canRec) return;
+    const recb = $app.querySelector('#recb'), recp = $app.querySelector('#recp');
+    const showSaved = (r) => {
+      if (!document.body.contains(recp)) return;
+      if (!r) { recp.innerHTML = ''; recb.textContent = '🎤 開始錄音（從 Q1 念到 Q10）'; return; }
+      recb.textContent = '🎤 重新錄一次';
+      recp.innerHTML = `<div class="saved">✅ 已保存「全部念一次」的錄音</div><audio controls src="${URL.createObjectURL(r.blob)}"></audio>
+        <div class="hwbtns"><button class="hb" id="shr">📤 傳給老師／存檔</button><button class="hb del" id="delr">🗑️ 刪除</button></div>`;
+      recp.querySelector('#shr').onclick = () => shareFiles([allFile(HW, r)]);
+      recp.querySelector('#delr').onclick = async () => { if (!confirm('要刪除這段錄音嗎？')) return; await recDB.del(allKey(HW)); showSaved(null); };
+    };
+    recDB.get(allKey(HW)).then(showSaved).catch(() => {});
+    let tick = null;
+    recb.onclick = async () => {
+      if (recState && recState.rec && recState.rec.state === 'recording') { stopRecording(); return; }
+      try {
+        hush();
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const rec = new MediaRecorder(stream), chunks = [], t0 = Date.now();
+        recState = { rec };
+        rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+        rec.onstop = async () => {
+          clearInterval(tick);
+          stream.getTracks().forEach((t) => t.stop());
+          recb.classList.remove('on');
+          const type = (rec.mimeType || (chunks[0] && chunks[0].type) || 'audio/mp4').split(';')[0];
+          const r = { blob: new Blob(chunks, { type }), type, time: Date.now() };
+          try { await recDB.set(allKey(HW), r); } catch (e) { toast('錄音沒辦法保存，但還是可以先聽聽看。'); }
+          showSaved(r); beep('win'); confetti(20);
+        };
+        rec.start(1000);
+        recb.textContent = '⏹️ 念完了，停止錄音'; recb.classList.add('on');
+        const upd = () => { const sec = Math.floor((Date.now() - t0) / 1000); recp.innerHTML = `<span class="recdot">● 錄音中 ${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}　從 Q1 開始大聲念！</span>`; };
+        upd(); tick = setInterval(upd, 500);
+      } catch (e) { toast('沒辦法使用麥克風，請在 iPad 的「設定 → Safari → 麥克風」允許使用。'); }
+    };
   }
 
   // ---------- 寶物箱 ----------
