@@ -500,17 +500,46 @@
   }
 
 
-  // ---------- 今日作業（英文口說：聽問題、跟著念、錄音聽自己） ----------
+  // ---------- 今日作業（英文口說：先自己回答 → 看答案跟著念 → 錄音保存、分享給老師） ----------
   const DAYS = [['Sunday', '星期日'], ['Monday', '星期一'], ['Tuesday', '星期二'], ['Wednesday', '星期三'], ['Thursday', '星期四'], ['Friday', '星期五'], ['Saturday', '星期六']];
   const hwFill = (t) => { const [en, zh] = DAYS[new Date().getDay()]; return String(t).replace(/\{today\}/g, en).replace(/\{todayZh\}/g, zh); };
   const hwKey = (HW) => 'hw-' + HW.date;
   const hwState = (HW) => { S.hw = S.hw || {}; return S.hw[hwKey(HW)] || (S.hw[hwKey(HW)] = { done: [], pick: {} }); };
   const hwDone = (HW) => ((S.hw && S.hw[hwKey(HW)]) ? S.hw[hwKey(HW)].done.length : 0);
-  let recState = null; // { rec, url }
+
+  // 錄音存在這台 iPad 的瀏覽器資料庫（IndexedDB），關掉再開都還在
+  const recDB = (() => {
+    let dbp = null;
+    const open = () => dbp || (dbp = new Promise((res, rej) => {
+      const r = indexedDB.open('ivan-recordings', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('rec');
+      r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+    }));
+    const run = async (mode, fn) => {
+      const db = await open();
+      return new Promise((res, rej) => { const t = db.transaction('rec', mode), req = fn(t.objectStore('rec')); t.oncomplete = () => res(req.result); t.onerror = () => rej(t.error); });
+    };
+    return { get: (k) => run('readonly', (st) => st.get(k)), set: (k, v) => run('readwrite', (st) => st.put(v, k)), del: (k) => run('readwrite', (st) => st.delete(k)) };
+  })();
+  const recKey = (HW, k) => `${hwKey(HW)}-q${k + 1}`;
+  const extOf = (type) => (/mp4|m4a|aac/.test(type) ? 'm4a' : /ogg/.test(type) ? 'ogg' : /wav/.test(type) ? 'wav' : 'webm');
+  const recFile = (HW, k, r) => new File([r.blob], `Ivan-${HW.date}-Q${k + 1}.${extOf(r.type)}`, { type: r.type });
+  async function shareFiles(files) {
+    if (!files.length) return;
+    try {
+      if (navigator.canShare && navigator.canShare({ files })) { await navigator.share({ files, title: 'Ivan 的英文錄音作業' }); return; }
+    } catch (e) { if (e && e.name === 'AbortError') return; }
+    files.forEach((f, i) => setTimeout(() => {
+      const a = document.createElement('a'); a.href = URL.createObjectURL(f); a.download = f.name;
+      document.body.appendChild(a); a.click(); a.remove();
+    }, i * 400));
+  }
+
+  let recState = null;
   function stopRecording() {
     if (recState && recState.rec && recState.rec.state === 'recording') { try { recState.rec.stop(); } catch (e) { /* 忽略 */ } }
   }
-  function showHomework(k) {
+  function showHomework(k, reveal) {
     hush(); stopRecording(); P = null;
     const HW = window.HOMEWORK, st = hwState(HW), n = HW.items.length;
     if (k >= n) return showHomeworkDone();
@@ -524,31 +553,39 @@
         <div class="hwbtns"><button class="hb" data-say="${li}">🔊 聽</button><button class="hb" data-slow="${li}">🐢 慢慢念</button></div>
       </div>`;
     }).join('');
-    const canRec = !!(window.MediaRecorder && navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+    const canRec = !!(window.MediaRecorder && navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.indexedDB);
     $app.innerHTML = `
       <section class="hw" style="--c:#ff7043">
         <header class="ptop"><button class="icon" id="hwx" title="回地圖">✕</button><span class="pt">📝 ${HW.title}</span><span class="cnt">${k + 1}/${n}</span></header>
         <div class="hwprog">${HW.items.map((_, j) => `<i class="${st.done.includes(j) ? 'did' : ''} ${j === k ? 'now' : ''}" data-j="${j}"></i>`).join('')}</div>
-        <div class="hwnote"><span class="hwhero">${S.player.avatar}</span><span>💡 ${HW.note}<br>先聽問題，再跟著念完整的句子。</span></div>
+        <div class="hwnote"><span class="hwhero">${S.player.avatar}</span><span>💡 ${HW.note}<br>先聽問題，自己想想怎麼回答，再看答案跟著念。</span></div>
         <div class="card hwq">
           <div class="hwnum">Q${k + 1}</div>
           <div class="qt en">${esc(it.q)}</div>
           <div class="zh">${esc(it.zh)}</div>
           <button class="listen" id="hwq">🔊 聽問題</button>
         </div>
-        <div class="hwa"><div class="hwlbl">🗣️ 跟著念（完整句子）${it.lines.length > 1 ? `・共 ${it.lines.length} 句` : ''}${it.lines.some((l) => l.options) ? '・可以點選自己的答案' : ''}</div>${linesHTML}</div>
-        ${canRec ? `<div class="rec" id="rec"><button class="btn recb" id="recb">🎤 錄我的回答</button><span id="recp"></span></div>` : ''}
+        ${canRec ? `<div class="rec" id="rec"><div class="hwlbl">🎤 錄下我的回答（會自動保存）</div><button class="btn recb" id="recb">🎤 開始錄音</button><div id="recp"></div></div>` : '<p class="note">這個瀏覽器不能錄音，請用 iPad 的 Safari 打開。</p>'}
+        <div class="hwa">
+          ${reveal ? `<div class="hwlbl">🗣️ 示範答案（完整句子）${it.lines.length > 1 ? `・共 ${it.lines.length} 句` : ''}${it.lines.some((l) => l.options) ? '・可以點選自己的答案' : ''}</div>${linesHTML}
+            <button class="hb hide" id="hide">🙈 把答案藏起來</button>`
+            : `<button class="hwreveal" id="reveal"><span>🙈</span><b>答案藏起來了</b><small>先自己試著用完整句子回答，再按這裡看答案</small><em>👀 看答案</em></button>`}
+        </div>
         <div class="hwnav">
           <button class="btn" id="prev" ${k === 0 ? 'disabled' : ''}>◀ 上一題</button>
           <button class="btn gold" id="next">${st.done.includes(k) ? '下一題 ▶' : '✅ 念好了！'}</button>
         </div>
       </section>`;
-    window.scrollTo(0, 0);
+    if (!reveal) window.scrollTo(0, 0);
     const sayLine = (li, rate) => { const { o } = lineOpt(li, it.lines[li]); speak(hwFill(o.en), 'en', rate); };
     $app.querySelector('#hwq').onclick = () => speak(it.q.replace(/ \/ /g, ', or '), 'en');
+    const rv = $app.querySelector('#reveal');
+    if (rv) rv.onclick = () => { beep('tap'); showHomework(k, true); setTimeout(() => { const a = $app.querySelector('.hwa'); if (a) a.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60); };
+    const hd = $app.querySelector('#hide');
+    if (hd) hd.onclick = () => showHomework(k, false);
     $app.querySelectorAll('[data-say]').forEach((b) => b.onclick = () => sayLine(+b.dataset.say));
     $app.querySelectorAll('[data-slow]').forEach((b) => b.onclick = () => sayLine(+b.dataset.slow, 0.55));
-    $app.querySelectorAll('.pick').forEach((b) => b.onclick = () => { st.pick[`${k}-${b.dataset.li}`] = +b.dataset.j; save(); beep('tap'); showHomework(k); setTimeout(() => sayLine(+b.dataset.li), 150); });
+    $app.querySelectorAll('.pick').forEach((b) => b.onclick = () => { st.pick[`${k}-${b.dataset.li}`] = +b.dataset.j; save(); beep('tap'); showHomework(k, true); setTimeout(() => sayLine(+b.dataset.li), 150); });
     $app.querySelectorAll('.hwprog i').forEach((b) => b.onclick = () => showHomework(+b.dataset.j));
     $app.querySelector('#hwx').onclick = () => { stopRecording(); showMap('hw'); };
     $app.querySelector('#prev').onclick = () => showHomework(k - 1);
@@ -557,45 +594,68 @@
       const next = HW.items.findIndex((_, j) => j > k && !st.done.includes(j));
       setTimeout(() => showHomework(next >= 0 ? next : (st.done.length >= n ? n : k + 1)), 350);
     };
-    if (canRec) {
-      const recb = $app.querySelector('#recb'), recp = $app.querySelector('#recp');
-      recb.onclick = async () => {
-        if (recState && recState.rec && recState.rec.state === 'recording') { stopRecording(); return; }
-        try {
-          hush();
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          const rec = new MediaRecorder(stream), chunks = [];
-          recState = { rec };
-          rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
-          rec.onstop = () => {
-            stream.getTracks().forEach((t) => t.stop());
-            if (!document.body.contains(recb)) return;
-            const url = URL.createObjectURL(new Blob(chunks, { type: rec.mimeType || 'audio/mp4' }));
-            recb.textContent = '🎤 再錄一次'; recb.classList.remove('on');
-            recp.innerHTML = `<audio controls src="${url}"></audio>`;
-            const a = recp.querySelector('audio'); a.play().catch(() => {});
-          };
-          rec.start();
-          recb.textContent = '⏹️ 錄好了，停止'; recb.classList.add('on'); recp.innerHTML = '<span class="recdot">● 錄音中…大聲念出來！</span>';
-        } catch (e) { toast('沒辦法使用麥克風，請允許瀏覽器使用麥克風。'); }
-      };
-    }
+    if (!canRec) return;
+    const recb = $app.querySelector('#recb'), recp = $app.querySelector('#recp');
+    const showSaved = (r) => {
+      if (!document.body.contains(recp)) return;
+      if (!r) { recp.innerHTML = ''; recb.textContent = '🎤 開始錄音'; return; }
+      const url = URL.createObjectURL(r.blob);
+      recb.textContent = '🎤 重新錄一次';
+      recp.innerHTML = `<div class="saved">✅ 已保存 Q${k + 1} 的錄音</div><audio controls src="${url}"></audio>
+        <div class="hwbtns"><button class="hb" id="shr">📤 傳給老師／存檔</button><button class="hb del" id="delr">🗑️ 刪除</button></div>`;
+      recp.querySelector('#shr').onclick = () => shareFiles([recFile(HW, k, r)]);
+      recp.querySelector('#delr').onclick = async () => { if (!confirm('要刪除這一題的錄音嗎？')) return; await recDB.del(recKey(HW, k)); showSaved(null); };
+    };
+    recDB.get(recKey(HW, k)).then(showSaved).catch(() => {});
+    recb.onclick = async () => {
+      if (recState && recState.rec && recState.rec.state === 'recording') { stopRecording(); return; }
+      try {
+        hush();
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const rec = new MediaRecorder(stream), chunks = [];
+        recState = { rec };
+        rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+        rec.onstop = async () => {
+          stream.getTracks().forEach((t) => t.stop());
+          recb.classList.remove('on');
+          const type = (rec.mimeType || (chunks[0] && chunks[0].type) || 'audio/mp4').split(';')[0];
+          const r = { blob: new Blob(chunks, { type }), type, time: Date.now() };
+          try { await recDB.set(recKey(HW, k), r); } catch (e) { toast('錄音沒辦法保存，但還是可以先聽聽看。'); }
+          showSaved(r);
+          const a = recp.querySelector('audio'); if (a) a.play().catch(() => {});
+        };
+        rec.start();
+        recb.textContent = '⏹️ 錄好了，停止'; recb.classList.add('on');
+        recp.innerHTML = '<span class="recdot">● 錄音中…大聲用完整句子回答！</span>';
+      } catch (e) { toast('沒辦法使用麥克風，請在 iPad 的「設定 → Safari → 麥克風」允許使用。'); }
+    };
   }
-  function showHomeworkDone() {
+  async function showHomeworkDone() {
     const HW = window.HOMEWORK, st = hwState(HW);
     beep('win'); confetti(36);
-    const list = HW.items.map((it, k) => `<li><div class="lq">${k + 1}. ${esc(it.q)}</div>${it.lines.map((line, li) => {
+    const recs = await Promise.all(HW.items.map((_, k) => recDB.get(recKey(HW, k)).catch(() => null)));
+    const nrec = recs.filter(Boolean).length;
+    const list = HW.items.map((it, k) => `<li><div class="lq">${k + 1}. ${esc(it.q)}</div><div class="ans">${it.lines.map((line, li) => {
       const opts = line.options || [line], o = opts[Math.min(st.pick[`${k}-${li}`] || 0, opts.length - 1)];
       return `<div class="la">→ ${esc(hwFill(o.en))}</div>`;
-    }).join('')}</li>`).join('');
+    }).join('')}</div></li>`).join('');
+    const recList = HW.items.map((it, k) => `<div class="recrow"><b>Q${k + 1}</b>${recs[k] ? `<audio controls src="${URL.createObjectURL(recs[k].blob)}"></audio>` : '<span class="norec">還沒錄音</span>'}</div>`).join('');
     $app.innerHTML = `
       <section class="result hwdone" style="--c:#ff7043">
         <div class="hero-big">${S.player.avatar}</div>
         <h2>今日作業完成！</h2>
-        <p>Ivan勇士，Great job！記得錄音交給老師喔！</p>
-        <div class="hwlist"><b>📋 爸爸媽媽可以照著問，Ivan 用完整句子回答：</b><ol>${list}</ol></div>
-        <div class="rbtns"><button class="btn" id="again">🔁 從第 1 題再念一次</button><button class="btn gold" id="back">🗺️ 回地圖</button></div>
+        <p>Ivan勇士，Great job！</p>
+        <div class="hwlist"><b>🎧 我的錄音（${nrec} / ${HW.items.length} 題）</b>
+          <div class="recs">${recList}</div>
+          ${nrec ? '<button class="btn gold" id="shareall">📤 一次傳送全部錄音給老師</button><small class="tip">會打開 iPad 的分享，可以選 LINE、AirDrop 或「儲存到檔案」。</small>' : '<small class="tip">回到題目按「🎤 開始錄音」，錄好的聲音會出現在這裡。</small>'}
+        </div>
+        <div class="hwlist hidden" id="qa"><b>📋 爸爸媽媽可以照著問，Ivan 用完整句子回答：</b>
+          <button class="hb" id="showans">👀 顯示答案</button><ol>${list}</ol></div>
+        <div class="rbtns"><button class="btn" id="again">🔁 從第 1 題再練一次</button><button class="btn gold" id="back">🗺️ 回地圖</button></div>
       </section>`;
+    const sa = $app.querySelector('#shareall');
+    if (sa) sa.onclick = () => shareFiles(recs.map((r, k) => (r ? recFile(HW, k, r) : null)).filter(Boolean));
+    $app.querySelector('#showans').onclick = (e) => { const qa = $app.querySelector('#qa'); qa.classList.toggle('hidden'); e.target.textContent = qa.classList.contains('hidden') ? '👀 顯示答案' : '🙈 隱藏答案'; };
     $app.querySelector('#again').onclick = () => showHomework(0);
     $app.querySelector('#back').onclick = () => showMap('hw');
   }
