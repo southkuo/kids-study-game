@@ -1,0 +1,64 @@
+/* 今日作業（英文口說）
+   老師出新作業時，只要改這個檔案：
+   - date：作業日期
+   - items：每一題 { q: 英文問題, zh: 中文意思, lines: [要念的句子…] }
+   - 每個句子是 { en, zh }；如果小朋友可以選自己的答案，就寫成 { options: [{ pick: '按鈕上的字', en, zh }, …] }
+   - 句子裡的 {today} 會自動換成今天星期幾（英文），{todayZh} 換成中文 */
+(function (g) {
+  'use strict';
+  g.HOMEWORK = {
+    title: '今日作業',
+    date: '2026-11-07',
+    note: '請用完整句子回答唷！',
+    items: [
+      { q: 'What day is today?', zh: '今天星期幾？',
+        lines: [{ en: 'Today is {today}.', zh: '今天是{todayZh}。' }] },
+      { q: 'Are your hands big or small?', zh: '你的手是大的還是小的？',
+        lines: [{ options: [{ pick: 'small 小', en: 'My hands are small.', zh: '我的手是小的。' }, { pick: 'big 大', en: 'My hands are big.', zh: '我的手是大的。' }] }] },
+      { q: 'Is your hair long or short?', zh: '你的頭髮是長的還是短的？',
+        lines: [{ options: [{ pick: 'short 短', en: 'My hair is short.', zh: '我的頭髮是短的。' }, { pick: 'long 長', en: 'My hair is long.', zh: '我的頭髮是長的。' }] }] },
+      { q: 'What are you?', zh: '你是做什麼的？（學生）',
+        lines: [{ en: 'I am a student.', zh: '我是一個學生。' }] },
+      { q: 'What do you wear when it\'s hot / cold / rainy?', zh: '天氣熱／冷／下雨的時候，你穿什麼？',
+        lines: [
+          { en: 'When it\'s hot, I wear a T-shirt and shorts.', zh: '天氣熱的時候，我穿 T 恤和短褲。' },
+          { en: 'When it\'s cold, I wear a jacket.', zh: '天氣冷的時候，我穿外套。' },
+          { en: 'When it\'s rainy, I wear a raincoat and rain boots.', zh: '下雨的時候，我穿雨衣和雨鞋。' },
+        ] },
+      { q: 'What do you do before school?', zh: '上學前你會做什麼？',
+        lines: [{ options: [
+          { pick: '刷牙＋吃早餐', en: 'Before school, I brush my teeth and eat breakfast.', zh: '上學前，我刷牙和吃早餐。' },
+          { pick: '洗臉＋穿制服', en: 'Before school, I wash my face and put on my uniform.', zh: '上學前，我洗臉和穿上制服。' },
+          { pick: '起床＋整理書包', en: 'Before school, I get up and pack my school bag.', zh: '上學前，我起床和整理書包。' },
+        ] }] },
+      { q: 'What can you do in the living room / kitchen / bathroom?', zh: '你可以在客廳／廚房／浴室做什麼？',
+        lines: [
+          { en: 'I can watch TV in the living room.', zh: '我可以在客廳看電視。' },
+          { en: 'I can cook in the kitchen.', zh: '我可以在廚房煮東西。' },
+          { en: 'I can take a bath in the bathroom.', zh: '我可以在浴室洗澡。' },
+        ] },
+      { q: 'What are you ready to do?', zh: '你準備好要做什麼了？',
+        lines: [{ options: [
+          { pick: '去上學', en: 'I am ready to go to school.', zh: '我準備好要去上學了。' },
+          { pick: '吃晚餐', en: 'I am ready to eat dinner.', zh: '我準備好要吃晚餐了。' },
+          { pick: '睡覺', en: 'I am ready to go to bed.', zh: '我準備好要睡覺了。' },
+          { pick: '玩', en: 'I am ready to play.', zh: '我準備好要玩了。' },
+        ] }] },
+      { q: 'Where are you now?', zh: '你現在在哪裡？',
+        lines: [{ options: [
+          { pick: '在家', en: 'I am at home.', zh: '我在家。' },
+          { pick: '在客廳', en: 'I am in the living room.', zh: '我在客廳。' },
+          { pick: '在房間', en: 'I am in my bedroom.', zh: '我在我的房間。' },
+          { pick: '在學校', en: 'I am at school.', zh: '我在學校。' },
+        ] }] },
+      { q: 'What do you like to eat?', zh: '你喜歡吃什麼？',
+        lines: [{ options: [
+          { pick: '🍜 noodles', en: 'I like to eat noodles.', zh: '我喜歡吃麵。' },
+          { pick: '🍎 apples', en: 'I like to eat apples.', zh: '我喜歡吃蘋果。' },
+          { pick: '🍗 chicken', en: 'I like to eat chicken.', zh: '我喜歡吃雞肉。' },
+          { pick: '🍦 ice cream', en: 'I like to eat ice cream.', zh: '我喜歡吃冰淇淋。' },
+          { pick: '🍕 pizza', en: 'I like to eat pizza.', zh: '我喜歡吃披薩。' },
+        ] }] },
+    ],
+  };
+})(window);

@@ -54,13 +54,13 @@
     .replace(/\{treasure\}/g, r ? r.treasure : '').replace(/\{region\}/g, r ? r.name : '').replace(/\{boss\}/g, r ? r.boss.name : '');
 
   // 朗讀（二年級還在練習認字，可以聽題目）
-  function speak(text, lang) {
+  function speak(text, lang, rate) {
     if (!('speechSynthesis' in window)) return;
     if (lang === 'en') {
       try {
         speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(String(text).replace(/<[^>]+>/g, ' ').replace(/___/g, 'blank').replace(/[\u{1F000}-\u{1FFFF}\u2600-\u27BF]/gu, ''));
-        u.lang = 'en-US'; u.rate = 0.85;
+        u.lang = 'en-US'; u.rate = rate || 0.85;
         const v = speechSynthesis.getVoices().find((x) => /^en[-_]US/i.test(x.lang)) || speechSynthesis.getVoices().find((x) => /^en/i.test(x.lang));
         if (v) u.voice = v;
         speechSynthesis.speak(u);
@@ -198,12 +198,15 @@
           <button class="icon" id="par" title="家長設定">⚙️</button>
         </header>
         <div class="hhead"><h1>選擇國度</h1><p>每個國度都被魔王占領了，去把寶物拿回來吧！</p></div>
+        ${window.HOMEWORK ? `<button class="hwlink" id="hwlink">📝 ${window.HOMEWORK.title}：英文口說 <b>${hwDone(window.HOMEWORK)}/${window.HOMEWORK.items.length}</b> ▶</button>` : ''}
         <div class="lands">${tiles}</div>
       </section>`;
     $app.querySelectorAll('.land').forEach((b) => b.onclick = () => {
       beep('tap'); setSub(b.dataset.id); S.lastSub = SUB.id; save();
       storyOnce(SUB.introKey, STORY.intro, null, () => showMap(true));
     });
+    const hl = $app.querySelector('#hwlink');
+    if (hl) hl.onclick = () => { beep('tap'); setSub('en'); showHomework(0); };
     $app.querySelector('#who').onclick = showStart;
     $app.querySelector('#snd').onclick = () => { S.settings.sound = !S.settings.sound; save(); showHome(); };
     $app.querySelector('#par').onclick = parentGate;
@@ -214,8 +217,10 @@
   const GAP = 170, TOP = 120;
   function showMap(scrollToCurrent) {
     hush();
-    const H = TOP + (ALL.length - 1) * GAP + 170;
+    const HW = SUB.id === 'en' && window.HOMEWORK ? window.HOMEWORK : null; // 英文地圖最下面多一站「今日作業」
+    const H = TOP + (ALL.length - 1 + (HW ? 1 : 0)) * GAP + 170;
     const pts = ALL.map((r, i) => [XS[i], TOP + i * GAP]);
+    if (HW) pts.push([50, TOP + ALL.length * GAP]);
     let path = `M ${pts[0][0]} ${pts[0][1]}`;
     for (let i = 1; i < pts.length; i++) {
       const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], my = (y0 + y1) / 2;
@@ -236,7 +241,12 @@
         <span class="lbl"><b>${r.name}</b><small>${sub}</small></span>
         ${i === cur ? `<span class="me ${XS[i] > 55 ? 'l' : ''}">${S.player.avatar}</span>` : ''}
       </button>`;
-    }).join('');
+    }).join('') + (HW ? (() => {
+      const done = hwDone(HW), n = HW.items.length;
+      return `<button class="node hwnode ${done === n ? 'done' : ''}" id="hwnode" style="left:50%;top:${TOP + ALL.length * GAP}px;--c:#ff7043">
+        <span class="ic">📝</span>${done === n ? '<span class="crown">✅</span>' : ''}
+        <span class="lbl"><b>${HW.title}</b><small>英文口說・${done}/${n} 題</small></span></button>`;
+    })() : '');
     $app.innerHTML = `
       <header class="top">
         <button class="icon" id="home" title="選擇國度">🏠</button>
@@ -261,12 +271,14 @@
       if (r.final) storyOnce(r.id, STORY.final.intro, r, () => startLevel(i, 'boss'));
       else storyOnce('r-' + r.id, STORY.regions[r.id].intro, r, () => { showMap(); showRegion(i); });
     });
+    const hwn = $app.querySelector('#hwnode');
+    if (hwn) hwn.onclick = () => { beep('tap'); showHomework(0); };
     $app.querySelector('#home').onclick = showHome;
     $app.querySelector('#tale').onclick = () => playStory(STORY.intro, null, () => showMap());
     $app.querySelector('#bag').onclick = showBag;
     $app.querySelector('#par').onclick = parentGate;
     if (scrollToCurrent) {
-      const el = $app.querySelector(`.node[data-i="${cur}"]`);
+      const el = scrollToCurrent === 'hw' ? $app.querySelector('#hwnode') : $app.querySelector(`.node[data-i="${cur}"]`);
       if (el) setTimeout(() => el.scrollIntoView({ block: 'center', behavior: 'smooth' }), 60);
     }
   }
@@ -485,6 +497,107 @@
     const { i, lv, boss } = P;
     $app.querySelector('#again').onclick = () => startLevel(i, lv);
     $app.querySelector('#back').onclick = () => { P = null; showMap(true); if (!r.final && !(boss && win)) showRegion(i); };
+  }
+
+
+  // ---------- 今日作業（英文口說：聽問題、跟著念、錄音聽自己） ----------
+  const DAYS = [['Sunday', '星期日'], ['Monday', '星期一'], ['Tuesday', '星期二'], ['Wednesday', '星期三'], ['Thursday', '星期四'], ['Friday', '星期五'], ['Saturday', '星期六']];
+  const hwFill = (t) => { const [en, zh] = DAYS[new Date().getDay()]; return String(t).replace(/\{today\}/g, en).replace(/\{todayZh\}/g, zh); };
+  const hwKey = (HW) => 'hw-' + HW.date;
+  const hwState = (HW) => { S.hw = S.hw || {}; return S.hw[hwKey(HW)] || (S.hw[hwKey(HW)] = { done: [], pick: {} }); };
+  const hwDone = (HW) => ((S.hw && S.hw[hwKey(HW)]) ? S.hw[hwKey(HW)].done.length : 0);
+  let recState = null; // { rec, url }
+  function stopRecording() {
+    if (recState && recState.rec && recState.rec.state === 'recording') { try { recState.rec.stop(); } catch (e) { /* 忽略 */ } }
+  }
+  function showHomework(k) {
+    hush(); stopRecording(); P = null;
+    const HW = window.HOMEWORK, st = hwState(HW), n = HW.items.length;
+    if (k >= n) return showHomeworkDone();
+    const it = HW.items[k];
+    const lineOpt = (li, line) => { const opts = line.options || [line]; const pi = Math.min(st.pick[`${k}-${li}`] || 0, opts.length - 1); return { opts, pi, o: opts[pi] }; };
+    const linesHTML = it.lines.map((line, li) => {
+      const { opts, pi, o } = lineOpt(li, line);
+      return `<div class="hwline">
+        ${opts.length > 1 ? `<div class="picks">${opts.map((x, j) => `<button class="pick ${j === pi ? 'on' : ''}" data-li="${li}" data-j="${j}">${x.pick}</button>`).join('')}</div>` : ''}
+        <div class="say">${esc(hwFill(o.en))}</div><div class="zh">${esc(hwFill(o.zh))}</div>
+        <div class="hwbtns"><button class="hb" data-say="${li}">🔊 聽</button><button class="hb" data-slow="${li}">🐢 慢慢念</button></div>
+      </div>`;
+    }).join('');
+    const canRec = !!(window.MediaRecorder && navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+    $app.innerHTML = `
+      <section class="hw" style="--c:#ff7043">
+        <header class="ptop"><button class="icon" id="hwx" title="回地圖">✕</button><span class="pt">📝 ${HW.title}</span><span class="cnt">${k + 1}/${n}</span></header>
+        <div class="hwprog">${HW.items.map((_, j) => `<i class="${st.done.includes(j) ? 'did' : ''} ${j === k ? 'now' : ''}" data-j="${j}"></i>`).join('')}</div>
+        <div class="hwnote"><span class="hwhero">${S.player.avatar}</span><span>💡 ${HW.note}<br>先聽問題，再跟著念完整的句子。</span></div>
+        <div class="card hwq">
+          <div class="hwnum">Q${k + 1}</div>
+          <div class="qt en">${esc(it.q)}</div>
+          <div class="zh">${esc(it.zh)}</div>
+          <button class="listen" id="hwq">🔊 聽問題</button>
+        </div>
+        <div class="hwa"><div class="hwlbl">🗣️ 跟著念（完整句子）${it.lines.length > 1 ? `・共 ${it.lines.length} 句` : ''}${it.lines.some((l) => l.options) ? '・可以點選自己的答案' : ''}</div>${linesHTML}</div>
+        ${canRec ? `<div class="rec" id="rec"><button class="btn recb" id="recb">🎤 錄我的回答</button><span id="recp"></span></div>` : ''}
+        <div class="hwnav">
+          <button class="btn" id="prev" ${k === 0 ? 'disabled' : ''}>◀ 上一題</button>
+          <button class="btn gold" id="next">${st.done.includes(k) ? '下一題 ▶' : '✅ 念好了！'}</button>
+        </div>
+      </section>`;
+    window.scrollTo(0, 0);
+    const sayLine = (li, rate) => { const { o } = lineOpt(li, it.lines[li]); speak(hwFill(o.en), 'en', rate); };
+    $app.querySelector('#hwq').onclick = () => speak(it.q.replace(/ \/ /g, ', or '), 'en');
+    $app.querySelectorAll('[data-say]').forEach((b) => b.onclick = () => sayLine(+b.dataset.say));
+    $app.querySelectorAll('[data-slow]').forEach((b) => b.onclick = () => sayLine(+b.dataset.slow, 0.55));
+    $app.querySelectorAll('.pick').forEach((b) => b.onclick = () => { st.pick[`${k}-${b.dataset.li}`] = +b.dataset.j; save(); beep('tap'); showHomework(k); setTimeout(() => sayLine(+b.dataset.li), 150); });
+    $app.querySelectorAll('.hwprog i').forEach((b) => b.onclick = () => showHomework(+b.dataset.j));
+    $app.querySelector('#hwx').onclick = () => { stopRecording(); showMap('hw'); };
+    $app.querySelector('#prev').onclick = () => showHomework(k - 1);
+    $app.querySelector('#next').onclick = () => {
+      if (!st.done.includes(k)) { st.done.push(k); save(); beep('good'); confetti(12); }
+      const next = HW.items.findIndex((_, j) => j > k && !st.done.includes(j));
+      setTimeout(() => showHomework(next >= 0 ? next : (st.done.length >= n ? n : k + 1)), 350);
+    };
+    if (canRec) {
+      const recb = $app.querySelector('#recb'), recp = $app.querySelector('#recp');
+      recb.onclick = async () => {
+        if (recState && recState.rec && recState.rec.state === 'recording') { stopRecording(); return; }
+        try {
+          hush();
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          const rec = new MediaRecorder(stream), chunks = [];
+          recState = { rec };
+          rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+          rec.onstop = () => {
+            stream.getTracks().forEach((t) => t.stop());
+            if (!document.body.contains(recb)) return;
+            const url = URL.createObjectURL(new Blob(chunks, { type: rec.mimeType || 'audio/mp4' }));
+            recb.textContent = '🎤 再錄一次'; recb.classList.remove('on');
+            recp.innerHTML = `<audio controls src="${url}"></audio>`;
+            const a = recp.querySelector('audio'); a.play().catch(() => {});
+          };
+          rec.start();
+          recb.textContent = '⏹️ 錄好了，停止'; recb.classList.add('on'); recp.innerHTML = '<span class="recdot">● 錄音中…大聲念出來！</span>';
+        } catch (e) { toast('沒辦法使用麥克風，請允許瀏覽器使用麥克風。'); }
+      };
+    }
+  }
+  function showHomeworkDone() {
+    const HW = window.HOMEWORK, st = hwState(HW);
+    beep('win'); confetti(36);
+    const list = HW.items.map((it, k) => `<li><div class="lq">${k + 1}. ${esc(it.q)}</div>${it.lines.map((line, li) => {
+      const opts = line.options || [line], o = opts[Math.min(st.pick[`${k}-${li}`] || 0, opts.length - 1)];
+      return `<div class="la">→ ${esc(hwFill(o.en))}</div>`;
+    }).join('')}</li>`).join('');
+    $app.innerHTML = `
+      <section class="result hwdone" style="--c:#ff7043">
+        <div class="hero-big">${S.player.avatar}</div>
+        <h2>今日作業完成！</h2>
+        <p>Ivan勇士，Great job！記得錄音交給老師喔！</p>
+        <div class="hwlist"><b>📋 爸爸媽媽可以照著問，Ivan 用完整句子回答：</b><ol>${list}</ol></div>
+        <div class="rbtns"><button class="btn" id="again">🔁 從第 1 題再念一次</button><button class="btn gold" id="back">🗺️ 回地圖</button></div>
+      </section>`;
+    $app.querySelector('#again').onclick = () => showHomework(0);
+    $app.querySelector('#back').onclick = () => showMap('hw');
   }
 
   // ---------- 寶物箱 ----------
