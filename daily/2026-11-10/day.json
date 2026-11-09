@@ -237,31 +237,6 @@
           ]
         },
         {
-          "q": "Who is in your family?",
-          "zh": "你家有誰？",
-          "lines": [
-            {
-              "options": [
-                {
-                  "pick": "👨‍👩‍👦 爸媽和我",
-                  "en": "My family has my dad, my mom, and me.",
-                  "zh": "我家有爸爸、媽媽和我。"
-                },
-                {
-                  "pick": "👧 還有姊妹",
-                  "en": "I have a dad, a mom, and a sister.",
-                  "zh": "我有爸爸、媽媽和一個姊姊或妹妹。"
-                },
-                {
-                  "pick": "👦 還有兄弟",
-                  "en": "I have a dad, a mom, and a brother.",
-                  "zh": "我有爸爸、媽媽和一個哥哥或弟弟。"
-                }
-              ]
-            }
-          ]
-        },
-        {
           "q": "Do you have any brothers or sisters?",
           "zh": "你有兄弟姊妹嗎？",
           "lines": [
@@ -312,51 +287,6 @@
           ]
         },
         {
-          "q": "What does your dad do on the weekend?",
-          "zh": "你爸爸週末做什麼？",
-          "lines": [
-            {
-              "options": [
-                {
-                  "pick": "🏃 運動",
-                  "en": "My dad plays sports on the weekend.",
-                  "zh": "我爸爸週末運動。"
-                },
-                {
-                  "pick": "📺 看電視",
-                  "en": "My dad watches TV on the weekend.",
-                  "zh": "我爸爸週末看電視。"
-                },
-                {
-                  "pick": "🍳 煮飯",
-                  "en": "My dad cooks on the weekend.",
-                  "zh": "我爸爸週末煮飯。"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "q": "Where does your grandma live?",
-          "zh": "你奶奶住在哪裡？",
-          "lines": [
-            {
-              "options": [
-                {
-                  "pick": "🏠 和我一起住",
-                  "en": "My grandma lives with us.",
-                  "zh": "我奶奶和我們住在一起。"
-                },
-                {
-                  "pick": "🏙️ 在別的城市",
-                  "en": "My grandma lives in another city.",
-                  "zh": "我奶奶住在別的城市。"
-                }
-              ]
-            }
-          ]
-        },
-        {
           "q": "What do you do with your family?",
           "zh": "你和家人一起做什麼？",
           "lines": [
@@ -376,51 +306,6 @@
                   "pick": "🚗 出去玩",
                   "en": "I go out with my family.",
                   "zh": "我和家人一起出去玩。"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "q": "What food does your family like?",
-          "zh": "你的家人喜歡吃什麼？",
-          "lines": [
-            {
-              "options": [
-                {
-                  "pick": "🍕 pizza",
-                  "en": "My family likes pizza.",
-                  "zh": "我的家人喜歡披薩。"
-                },
-                {
-                  "pick": "🍜 noodles",
-                  "en": "My family likes noodles.",
-                  "zh": "我的家人喜歡麵。"
-                },
-                {
-                  "pick": "🍚 rice",
-                  "en": "My family likes rice.",
-                  "zh": "我的家人喜歡米飯。"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "q": "Do you love your family?",
-          "zh": "你愛你的家人嗎？",
-          "lines": [
-            {
-              "options": [
-                {
-                  "pick": "❤️ 愛",
-                  "en": "Yes, I do. I love my family.",
-                  "zh": "是的，我愛我的家人。"
-                },
-                {
-                  "pick": "❤️ 很愛",
-                  "en": "Yes, I love my family very much.",
-                  "zh": "是的，我非常愛我的家人。"
                 }
               ]
             }

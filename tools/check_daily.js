@@ -45,7 +45,9 @@ function checkQuestions(where, hw) {
 
 function checkEnglish(where, dir, hw) {
   if (!Array.isArray(hw.items)) return err(where, 'items 必須是陣列');
-  if (hw.items.length < 5 || hw.items.length > 15) err(where, `題數 ${hw.items.length}，應該在 5～15 題之間`);
+  // 家長指定：2026-11-10 起每天英文口說固定 5 題（之前的日子不受影響）
+  if (path.basename(dir) >= '2026-11-10') { if (hw.items.length !== 5) err(where, `題數 ${hw.items.length}，英文口說作業固定 5 題`); }
+  else if (hw.items.length < 5 || hw.items.length > 15) err(where, `題數 ${hw.items.length}，應該在 5～15 題之間`);
   hw.items.forEach((it, i) => {
     const w = `${where} Q${i + 1}`;
     if (!isStr(it.q)) err(w, '缺少英文問題 q');

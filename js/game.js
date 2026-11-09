@@ -25,7 +25,7 @@
   setSub('math');
 
   // ---------- 存檔 ----------
-  const fresh = () => ({ player: null, stars: {}, bosses: {}, stats: {}, seen: {}, settings: { count: 6, autoRead: false, sound: true } });
+  const fresh = () => ({ player: null, stars: {}, bosses: {}, stats: {}, seen: {}, settings: { showLands: false, count: 6, autoRead: false, sound: true } });
   let S = fresh();
   try {
     const raw = localStorage.getItem(SAVE_KEY);
@@ -278,8 +278,8 @@
         </header>
         <div class="hhead"><h1>學習大冒險</h1></div>
         ${todayPanel()}
-        <div class="th2 lands-h">🗺️ 選擇國度：自由冒險</div>
-        <div class="lands">${tiles}</div>
+        ${S.settings.showLands ? `<div class="th2 lands-h">🗺️ 選擇國度：自由冒險</div>
+        <div class="lands">${tiles}</div>` : ''}
       </section>`;
     $app.querySelectorAll('.land').forEach((b) => b.onclick = () => {
       beep('tap'); setSub(b.dataset.id); S.lastSub = SUB.id; save();
@@ -957,6 +957,7 @@
       <table class="stats"><thead><tr><th>地區</th><th>作答</th><th>答對率</th><th>星星</th></tr></thead><tbody>${rows}</tbody></table>
       <label class="set"><input type="checkbox" id="ar" ${st.autoRead ? 'checked' : ''}> 自動念題目和劇情</label>
       <label class="set">每隻手下的血量（題數） <select id="cnt">${[4, 6, 8, 10].map((n) => `<option ${n === st.count ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+      <label class="set"><input type="checkbox" id="sl" ${st.showLands ? 'checked' : ''}> 首頁顯示「選擇國度」自由冒險關卡</label>
       <label class="set"><input type="checkbox" id="rs"> 下次重新播放全部劇情</label>
       <div class="rbtns"><button class="btn danger" id="reset">清除全部進度</button><button class="btn gold" id="done">完成</button></div>`);
     const close = () => { m.remove(); if ($app.querySelector('.home')) showHome(); else showMap(); };
@@ -964,6 +965,7 @@
     m.querySelector('#done').onclick = close;
     m.querySelector('#ar').onchange = (e) => { st.autoRead = e.target.checked; save(); };
     m.querySelector('#cnt').onchange = (e) => { st.count = +e.target.value; save(); };
+    m.querySelector('#sl').onchange = (e) => { st.showLands = e.target.checked; save(); };
     m.querySelector('#rs').onchange = (e) => { if (e.target.checked) { S.seen = {}; save(); } };
     m.querySelector('#reset').onclick = () => {
       if (!confirm('確定要清除全部星星、寶物、劇情和學習紀錄嗎？')) return;

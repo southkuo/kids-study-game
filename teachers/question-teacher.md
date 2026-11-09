@@ -38,7 +38,7 @@
 }
 ```
 
-- 8～10 題。第 1 題可以固定用 `What day is today?`，答案寫 `Today is {today}.`（遊戲會自動換成星期幾）。
+- **固定 5 題**（家長指定，不要多也不要少）。第 1 題可以固定用 `What day is today?`，答案寫 `Today is {today}.`（遊戲會自動換成星期幾）。
 - `lines` 是示範答案；可以讓 Ivan 選的就用 `options`（2～5 個，`pick` 是按鈕上的短字，可以加 emoji）。一題問好幾件事（例如 hot / cold / rainy）就寫好幾個 line。
 - 示範答案一定是完整、文法正確的句子，用詞簡單（小學程度），中文翻譯要自然。
 - 題目 `q` 裡如果有斜線（hot / cold），語音會念成「hot, cold, or …」。
