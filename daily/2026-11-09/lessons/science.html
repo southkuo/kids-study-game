@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>水的三種樣子</title>
+<style>
+:root { --c: #2e9d5b; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式 ===== */
+
+.three { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+.three div { display: flex; flex-direction: column; align-items: center; width: 130px; padding: 12px 6px; border-radius: 20px; background: #f1f8e9; animation: appear .5s ease-out backwards; }
+.three div:nth-child(2) { animation-delay: .6s; }
+.three div:nth-child(3) { animation-delay: 1.2s; }
+@keyframes appear { from { transform: scale(.3); opacity: 0; } }
+.three span { font-size: 62px; }
+.three b { font-size: 22px; color: #2e7d32; }
+.three small { font-size: 16px; font-weight: 800; color: #6a5536; }
+.lab { flex-direction: column; min-height: 300px; }
+.beaker { position: relative; width: 180px; height: 190px; border: 6px solid #90a4ae; border-top: 0; border-radius: 0 0 30px 30px; background: #fafafa; overflow: visible; }
+.liquid { position: absolute; left: 0; right: 0; bottom: 0; height: 0; border-radius: 0 0 24px 24px; background: linear-gradient(#64b5f6, #1e88e5); transition: height .6s; }
+.ice { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); font-size: 90px; transition: opacity .5s, transform .5s; }
+.steam { position: absolute; bottom: 150px; font-size: 36px; opacity: 0; animation: rise 2.4s ease-in infinite; }
+@keyframes rise { 0% { transform: translateY(0) scale(.6); opacity: 0; } 30% { opacity: .9; } 100% { transform: translateY(-120px) scale(1.4); opacity: 0; } }
+.bub { position: absolute; bottom: 6px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid rgba(255,255,255,.9); animation: bub 1.2s ease-in infinite; }
+@keyframes bub { to { transform: translateY(-110px); opacity: 0; } }
+.fire { margin-top: 4px; font-size: 40px; height: 48px; }
+.temp { width: min(420px, 100%); margin-top: 10px; accent-color: #e53935; height: 36px; }
+.reading { font-size: 30px; font-weight: 900; }
+.state { font-size: 26px; font-weight: 900; color: #2e7d32; text-align: center; min-height: 1.4em; }
+.ex { display: grid; gap: 10px; width: 100%; }
+.ex .card { flex-direction: row; gap: 12px; text-align: left; }
+.ex .card span { font-size: 40px; flex: none; }
+.ex .card b { display: block; font-size: 19px; }
+.ex .card small { font-size: 15px; font-weight: 800; color: #2e7d32; }
+
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容 ===== -->
+
+  <section class="step" data-auto="水有三種樣子：固體的冰、液體的水、氣體的水蒸氣。">
+    <h1>💧 水有三種樣子</h1>
+    <div class="stage"><div class="three">
+      <div><span>🧊</span><b>固體</b><small>冰</small></div>
+      <div><span>💧</span><b>液體</b><small>水</small></div>
+      <div><span>♨️</span><b>氣體</b><small>水蒸氣</small></div>
+    </div></div>
+    <p class="big">冰、水、水蒸氣，<br>其實都是「水」！</p>
+    <p class="small">溫度不一樣，水的樣子就不一樣。</p>
+  </section>
+
+  <section class="step" data-auto="拉拉看下面的溫度條，看看水會變成什麼樣子。">
+    <h1>🌡️ 拉拉看溫度</h1>
+    <div class="stage lab">
+      <div class="beaker" id="beaker"><div class="liquid" id="liquid"></div><span class="ice" id="ice">🧊</span></div>
+      <div class="fire" id="fire"></div>
+      <div class="reading" id="reading">-10°C</div>
+      <input class="temp" id="temp" type="range" min="-20" max="110" value="-10" aria-label="溫度">
+      <div class="state" id="state"></div>
+    </div>
+    <p class="small">0°C 以下會結冰；超過 100°C 水會沸騰，變成水蒸氣飛走。</p>
+  </section>
+
+  <section class="step" data-auto="生活中也看得到水在變身，點一點聽聽看。">
+    <h1>🏠 生活中的水變身</h1>
+    <div class="stage"><div class="ex">
+      <button class="card" data-say="冰塊放在桌上，慢慢融化變成水。固體變成液體，叫做融化。"><span>🧊➡️💧</span><div><b>冰塊放在桌上會融化</b><small>固體 → 液體（融化）</small></div></button>
+      <button class="card" data-say="濕衣服曬太陽，水變成水蒸氣跑到空氣裡，衣服就乾了。液體變成氣體，叫做蒸發。"><span>👕☀️</span><div><b>濕衣服曬一曬就乾了</b><small>液體 → 氣體（蒸發）</small></div></button>
+      <button class="card" data-say="煮湯的時候，水蒸氣碰到冷冷的鍋蓋，又變回小水珠。氣體變成液體，叫做凝結。"><span>🍲💧</span><div><b>鍋蓋上有小水珠</b><small>氣體 → 液體（凝結）</small></div></button>
+      <button class="card" data-say="把水放進冷凍庫，水會變成冰塊。液體變成固體，叫做凝固。"><span>💧➡️🧊</span><div><b>水放進冷凍庫變成冰</b><small>液體 → 固體（凝固）</small></div></button>
+    </div></div>
+  </section>
+
+  <section class="step" data-auto="小測驗！濕衣服曬乾了，衣服裡的水跑去哪裡了？">
+    <h1>✏️ 小測驗</h1>
+    <p class="big">濕衣服曬乾了，<br>衣服裡的水跑去哪裡了？</p>
+    <div class="quiz" data-why="水變成看不見的水蒸氣，跑到空氣裡了，這叫做蒸發。">
+      <button>被太陽吃掉了</button>
+      <button data-right>變成水蒸氣，跑到空氣裡</button>
+      <button>變成冰塊了</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+
+var lastState = '';
+function setTemp(t) {
+  var liquid = document.getElementById('liquid'), ice = document.getElementById('ice'), beaker = document.getElementById('beaker');
+  document.getElementById('reading').textContent = t + '°C';
+  document.getElementById('fire').textContent = t >= 60 ? '🔥🔥🔥' : t > 20 ? '🔥' : '';
+  [].forEach.call(beaker.querySelectorAll('.steam,.bub'), function (x) { x.remove(); });
+  var st;
+  if (t <= 0) { st = '🧊 固體：冰（硬硬的，形狀不會變）'; ice.style.opacity = 1; ice.style.transform = 'translateX(-50%) scale(1)'; liquid.style.height = '0'; }
+  else if (t < 100) {
+    st = '💧 液體：水（會流動，跟著杯子變形狀）'; ice.style.opacity = 0; ice.style.transform = 'translateX(-50%) scale(.3)'; liquid.style.height = '62%';
+    if (t >= 70) for (var i = 0; i < 6; i++) { var b = document.createElement('span'); b.className = 'bub'; b.style.left = (10 + i * 14) + '%'; b.style.animationDelay = (i * .2) + 's'; beaker.appendChild(b); }
+  } else {
+    st = '♨️ 氣體：水蒸氣（沸騰了，水變成水蒸氣飛走）'; ice.style.opacity = 0; liquid.style.height = '30%';
+    for (var j = 0; j < 5; j++) { var s = document.createElement('span'); s.className = 'steam'; s.textContent = '☁️'; s.style.left = (5 + j * 20) + '%'; s.style.animationDelay = (j * .45) + 's'; beaker.appendChild(s); }
+    for (var k = 0; k < 6; k++) { var b2 = document.createElement('span'); b2.className = 'bub'; b2.style.left = (10 + k * 14) + '%'; b2.style.animationDelay = (k * .15) + 's'; beaker.appendChild(b2); }
+  }
+  document.getElementById('state').textContent = st;
+  var key = st.slice(0, 2);
+  if (key !== lastState && lastState) say(st.replace(/[🧊💧♨️]/g, ''));
+  lastState = key;
+}
+window.onStep = function (i) {
+  if (i !== 1) return;
+  var r = document.getElementById('temp');
+  r.oninput = function () { setTemp(+r.value); };
+  lastState = ''; setTemp(+r.value);
+};
+
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    u.rate = rate || (u.lang.indexOf('en') === 0 ? 0.85 : 0.9);
+    var v = speechSynthesis.getVoices().filter(function (x) { return x.lang.replace('_', '-').indexOf(u.lang) === 0; })[0];
+    if (v) u.voice = v;
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

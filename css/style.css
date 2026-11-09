@@ -394,3 +394,24 @@ body:has(.hw) { background: #fffaf0; }
 #qvp audio { width: 100%; }
 #qvp .hb.on { background: #e53935; color: #fff; box-shadow: 0 3px 0 #8e0000; }
 .qset { justify-content: center; font-size: 16px; min-height: 36px; }
+
+/* 今日任務 */
+.today { max-width: 980px; margin: 0 auto 18px; padding: 14px 16px 16px; border-radius: 24px; background: rgba(255,255,255,.93); box-shadow: 0 6px 0 rgba(0,0,0,.12); width: calc(100% - 32px); }
+.today .th { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.today .th b { font-size: 22px; color: #bf360c; }
+.today .th span { font-size: 16px; font-weight: 900; color: var(--ink2); flex: 1; }
+.th2 { margin: 14px 0 8px; font-size: 18px; font-weight: 900; color: var(--ink); }
+.lands-h { max-width: 980px; margin: 4px auto 10px; padding: 0 16px; color: #08385a; }
+.tasks, .lessons { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 44%), 1fr)); gap: 10px; margin-top: 10px; }
+.task, .lessonbtn { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 12px 8px; border-radius: 18px; background: #fff; box-shadow: 0 5px 0 color-mix(in srgb, var(--c) 60%, #000), 0 0 0 3px var(--c); text-align: center; }
+.task:active, .lessonbtn:active { transform: translateY(3px); }
+.task span, .lessonbtn span { font-size: 36px; line-height: 1.1; }
+.task b, .lessonbtn b { font-size: 18px; color: var(--c); }
+.task small, .lessonbtn small { font-size: 14px; font-weight: 800; color: var(--ink2); line-height: 1.3; }
+.task.ok, .lessonbtn.ok { background: #f1f8e9; }
+.task.ok small { color: #2e7d32; }
+.lessonbtn i { position: absolute; top: 6px; right: 8px; font-style: normal; }
+.lesson { height: 100svh; display: flex; flex-direction: column; background: #fffaf0; }
+.lesson .ptop { padding: 10px 12px; }
+.lesson iframe { flex: 1; width: 100%; border: 0; background: #fff; }
+.today .th span { flex: 1 1 170px; min-width: 0; }

@@ -1,7 +1,7 @@
 /* 學習大冒險：選擇國度、劇情、地圖、戰鬥關卡、魔王戰、存檔、家長設定 */
 (function () {
   'use strict';
-  const { R, pick } = window.MQ;
+  const { R, pick, shuffle } = window.MQ;
   const SUBJECTS = window.SUBJECTS;
   const $app = document.getElementById('app');
   const SAVE_KEY = 'mathAdventure.v1';
@@ -180,6 +180,85 @@
     $app.querySelector('#go').onclick = () => { beep('win'); showHome(); };
   }
 
+
+  // ---------- 每日內容（出題老師、教學老師每天放在 daily/日期/ 資料夾） ----------
+  const SUBJ = {
+    chinese: { name: '國文', icon: '📜', color: '#c0573b', hw: '✏️' },
+    english: { name: '英文', icon: '🔤', color: '#3f6fe0', hw: '🗣️' },
+    math: { name: '數學', icon: '🔢', color: '#2f8fd8', hw: '🧮' },
+    science: { name: '自然', icon: '🔬', color: '#2e9d5b', hw: '🔬' },
+  };
+  const DAILY_FOES = {
+    chinese: { foe: { name: '作業墨水怪', icon: '🦑' }, region: 'zh-word', subject: 'zh' },
+    math: { foe: { name: '作業數字怪', icon: '👾' }, region: 'add', subject: 'math' },
+  };
+  const todayStr = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+  const WK = '日一二三四五六';
+  const dateLabel = (ds) => { const [y, m, d] = ds.split('-').map(Number); return `${m}/${d}（${WK[new Date(y, m - 1, d).getDay()]}）`; };
+  const dailyState = (date) => { S.daily = S.daily || {}; return S.daily[date] || (S.daily[date] = { lessons: {} }); };
+  let DAY_LIST = [], DAY = null, dailyErr = '';
+  async function loadDaily(date) {
+    try {
+      if (!DAY_LIST.length) {
+        const idx = await (await fetch('daily/index.json', { cache: 'no-cache' })).json();
+        DAY_LIST = (idx.days || []).slice().sort().reverse();
+      }
+      const today = todayStr();
+      const pickDate = date || (DAY_LIST.includes(today) ? today : DAY_LIST.find((x) => x <= today) || DAY_LIST[0]);
+      if (!pickDate) return;
+      const data = await (await fetch(`daily/${pickDate}/day.json`, { cache: 'no-cache' })).json();
+      DAY = { date: pickDate, data };
+      const en = data.homework && data.homework.english;
+      window.HOMEWORK = en ? Object.assign({ title: '英文口說作業', note: '請用完整句子回答唷！' }, en, { date: pickDate }) : null;
+      dailyErr = '';
+    } catch (e) { dailyErr = '今日任務讀取失敗，請確認網路，再重新整理一次。'; }
+  }
+  function startDailyHomework(subject) {
+    const hw = DAY.data.homework[subject], cfg = DAILY_FOES[subject], sb = SUBJECTS.find((x) => x.id === cfg.subject);
+    setSub(cfg.subject);
+    const base = sb.story.regions[cfg.region];
+    startLevel(null, 0, {
+      date: DAY.date, subject, title: hw.title || `${SUBJ[subject].name}作業`, questions: hw.questions,
+      r: { id: `daily-${DAY.date}-${subject}`, name: hw.title, icon: SUBJ[subject].hw, color: SUBJ[subject].color, levels: [`${hw.title || SUBJ[subject].name + '作業'}・${dateLabel(DAY.date)}`] },
+      st: { moves: base.moves, special: base.special, foeMoves: base.foeMoves }, foe: cfg.foe,
+    });
+  }
+  function showLesson(ls) {
+    hush(); P = null;
+    dailyState(DAY.date).lessons[ls.subject] = true; save();
+    const sj = SUBJ[ls.subject] || SUBJ.science;
+    $app.innerHTML = `
+      <section class="lesson" style="--c:${sj.color}">
+        <header class="ptop"><button class="icon" id="lx" title="回今日任務">✕</button><span class="pt">${sj.icon} ${esc(ls.title)}</span><span class="cnt"></span></header>
+        <iframe src="${esc(ls.file)}" title="${esc(ls.title)}" sandbox="allow-scripts" allow="autoplay"></iframe>
+      </section>`;
+    $app.querySelector('#lx').onclick = () => { hush(); showHome(); };
+  }
+  function todayPanel() {
+    if (!DAY) return dailyErr ? `<div class="today"><p class="note">${dailyErr}</p></div>` : '<div class="today"><p class="note">📅 今日任務載入中…</p></div>';
+    const d = DAY.data, st = dailyState(DAY.date), hw = d.homework || {}, isToday = DAY.date === todayStr();
+    const tasks = [];
+    if (hw.english) { const n = hw.english.items.length, done = hwDone(window.HOMEWORK); tasks.push(`<button class="task ${done >= n ? 'ok' : ''}" data-t="english" style="--c:${SUBJ.english.color}"><span>${SUBJ.english.hw}</span><b>英文口說</b><small>${done >= n ? '✅ 完成' : `${done}/${n} 題`}</small></button>`); }
+    ['chinese', 'math'].forEach((k) => { if (hw[k]) tasks.push(`<button class="task ${st[k] ? 'ok' : ''}" data-t="${k}" style="--c:${SUBJ[k].color}"><span>${SUBJ[k].hw}</span><b>${SUBJ[k].name}作業</b><small>${st[k] ? '★'.repeat(st[k]) + '☆'.repeat(3 - st[k]) : `${hw[k].questions.length} 題`}</small></button>`); });
+    const lessons = (d.lessons || []).map((ls, j) => { const sj = SUBJ[ls.subject] || SUBJ.science; return `<button class="lessonbtn ${st.lessons[ls.subject] ? 'ok' : ''}" data-l="${j}" style="--c:${sj.color}"><span>${sj.icon}</span><b>${sj.name}</b><small>${esc(ls.title)}</small>${st.lessons[ls.subject] ? '<i>✅</i>' : ''}</button>`; }).join('');
+    return `<div class="today">
+      <div class="th"><b>📅 ${isToday ? '今日任務' : DAY.date === DAY_LIST[0] ? '最新任務' : '以前的任務'}</b><span>${dateLabel(DAY.date)}${d.theme ? `・${esc(d.theme)}` : ''}</span>${DAY_LIST.length > 1 ? '<button class="hb" id="days">📆 以前的</button>' : ''}</div>
+      ${tasks.length ? `<div class="tasks">${tasks.join('')}</div>` : ''}
+      ${lessons ? `<div class="th2">📚 今日教室</div><div class="lessons">${lessons}</div>` : ''}
+    </div>`;
+  }
+  function bindTodayPanel() {
+    $app.querySelectorAll('.task').forEach((b) => b.onclick = () => { beep('tap'); if (b.dataset.t === 'english') { setSub('en'); showHomework(0); } else startDailyHomework(b.dataset.t); });
+    $app.querySelectorAll('.lessonbtn').forEach((b) => b.onclick = () => { beep('tap'); showLesson(DAY.data.lessons[+b.dataset.l]); });
+    const dy = $app.querySelector('#days');
+    if (dy) dy.onclick = () => {
+      const m = modal(`<div class="rhead" style="--c:#546e7a"><span class="ric">📆</span><div><h2>以前的任務</h2><small>點日期就能回去練習</small></div><button class="x">✕</button></div>
+        <div class="lvs">${DAY_LIST.map((x) => `<button class="lv" data-d="${x}"><span class="n">📅</span><span class="t">${dateLabel(x)}${x === todayStr() ? '<small>今天</small>' : ''}</span><span class="s">${x === DAY.date ? '👀' : ''}</span></button>`).join('')}</div>`);
+      m.querySelector('.x').onclick = () => m.remove();
+      m.querySelectorAll('[data-d]').forEach((b) => b.onclick = async () => { m.remove(); await loadDaily(b.dataset.d); showHome(); });
+    };
+  }
+
   // ---------- 選擇國度 ----------
   function showHome() {
     hush(); P = null;
@@ -197,16 +276,16 @@
           <button class="icon" id="snd" title="音效">${S.settings.sound ? '🔊' : '🔇'}</button>
           <button class="icon" id="par" title="家長設定">⚙️</button>
         </header>
-        <div class="hhead"><h1>選擇國度</h1><p>每個國度都被魔王占領了，去把寶物拿回來吧！</p></div>
-        ${window.HOMEWORK ? `<button class="hwlink" id="hwlink">📝 ${window.HOMEWORK.title}：英文口說 <b>${hwDone(window.HOMEWORK)}/${window.HOMEWORK.items.length}</b> ▶</button>` : ''}
+        <div class="hhead"><h1>學習大冒險</h1></div>
+        ${todayPanel()}
+        <div class="th2 lands-h">🗺️ 選擇國度：自由冒險</div>
         <div class="lands">${tiles}</div>
       </section>`;
     $app.querySelectorAll('.land').forEach((b) => b.onclick = () => {
       beep('tap'); setSub(b.dataset.id); S.lastSub = SUB.id; save();
       storyOnce(SUB.introKey, STORY.intro, null, () => showMap(true));
     });
-    const hl = $app.querySelector('#hwlink');
-    if (hl) hl.onclick = () => { beep('tap'); setSub('en'); showHomework(0); };
+    bindTodayPanel();
     $app.querySelector('#who').onclick = showStart;
     $app.querySelector('#snd').onclick = () => { S.settings.sound = !S.settings.sound; save(); showHome(); };
     $app.querySelector('#par').onclick = parentGate;
@@ -320,13 +399,15 @@
 
   // ---------- 戰鬥 ----------
   let P = null; // 正在進行的戰鬥
-  function startLevel(i, lv) {
+  // custom：每日作業的戰鬥（題目由出題老師提供，照順序出，答錯的題目會排到後面再考一次）
+  function startLevel(i, lv, custom) {
     hush();
-    const r = ALL[i], boss = lv === 'boss', st = r.final ? STORY.final : STORY.regions[r.id];
-    const foe = boss ? r.boss : st.minions[lv];
-    const hp = r.final ? FINAL_HP : boss ? BOSS_HP : S.settings.count;
+    const r = custom ? custom.r : ALL[i], boss = lv === 'boss', st = custom ? custom.st : r.final ? STORY.final : STORY.regions[r.id];
+    const foe = custom ? custom.foe : boss ? r.boss : st.minions[lv];
+    const hp = custom ? custom.questions.length : r.final ? FINAL_HP : boss ? BOSS_HP : S.settings.count;
     const hearts = r.final ? FINAL_HEARTS : HEARTS;
-    P = { i, r, lv, boss, st, foe, maxHp: hp, hp, maxHearts: hearts, hearts, right: 0, wrong: 0, combo: 0, seen: new Set(), q: null, busy: false };
+    P = { i, r, lv, boss, st, foe, maxHp: hp, hp, maxHearts: hearts, hearts, right: 0, wrong: 0, combo: 0, seen: new Set(), q: null, busy: false,
+      custom: custom || null, queue: custom ? custom.questions.slice() : null };
     $app.innerHTML = `
       <section class="play ${boss ? 'is-boss' : ''}" style="--c:${r.color}">
         <header class="ptop"><button class="icon" id="quit" title="離開">✕</button><span class="pt">${r.icon} ${r.final ? '最終決戰' : boss ? '魔王戰' : r.levels[lv]}</span><span class="cnt" id="cnt"></span></header>
@@ -345,7 +426,7 @@
         </div>
         <div id="qa"></div>
       </section>`;
-    $app.querySelector('#quit').onclick = () => { if (confirm('要離開這場戰鬥嗎？這一關的進度不會保存。')) { hush(); P = null; showMap(); } };
+    $app.querySelector('#quit').onclick = () => { if (confirm('要離開這場戰鬥嗎？這一關的進度不會保存。')) { const c = P && P.custom; hush(); P = null; if (c) showHome(); else showMap(); } };
     updateBars();
     banner(boss ? `⚠️ ${r.final ? '大魔王' : '魔王'}「${foe.name}」出現了！` : `${foe.icon} ${foe.name}出現了！`, boss ? 'warn' : '');
     beep(boss ? 'bad' : 'tap');
@@ -381,6 +462,10 @@
   }
 
   function makeQ() {
+    if (P.custom) {
+      const x = P.queue.shift();
+      return { text: x.text, answer: String(x.answer), options: shuffle(x.options.map(String)), explain: x.explain || '', visual: x.visual || '', say: x.say || '', lang: x.lang || '' };
+    }
     const d = P.r.final ? null : P.boss ? [1, 2, 2, 3, 3][R(0, 4)] : P.lv + 1;
     let q, k = 0;
     do { q = P.r.final ? P.r.gen() : P.r.gen(d); } while (P.seen.has(q.text + q.visual) && k++ < 12);
@@ -430,6 +515,7 @@
       nextQ();
     } else {
       st.wrong++; P.wrong++; P.combo = 0; save();
+      if (P.custom) P.queue.push(P.custom.questions.find((x) => x.text === q.text && String(x.answer) === q.answer) || q); // 答錯的題目等一下再考一次
       btn.classList.add('wrong');
       const [mv, fx] = pick(P.st.foeMoves || [['反擊', '💢']]);
       banner(`${P.foe.icon} ${P.foe.name}使出<b>「${mv}」</b>！`, 'foe');
@@ -463,6 +549,7 @@
     else stars = P.wrong === 0 ? 3 : P.wrong <= Math.ceil(P.maxHp / 3) ? 2 : 1;
     if (stars > (S.stars[key] || 0)) S.stars[key] = stars;
     if (win && P.boss) S.bosses[r.id] = true;
+    if (P.custom) { const d = dailyState(P.custom.date); if (stars > (d[P.custom.subject] || 0)) d[P.custom.subject] = stars; }
     save();
     const show = () => showResult(win, stars, first);
     if (first) {
@@ -483,6 +570,9 @@
     } else if (P.boss) {
       title = `${r.boss.name}逃走了…`;
       extra = `<div class="treasure sad">${r.boss.icon}</div><p>沒關係，再練習一下，一定可以打敗它！</p>`;
+    } else if (P.custom) {
+      title = `${P.custom.title}完成了！`;
+      extra = `<div class="treasure sad ko">${P.foe.icon}</div><p>${P.custom.questions.length} 題全部答對了！${P.wrong ? `（中間答錯 ${P.wrong} 次，都改過來了）` : '一次都沒錯，完美！'}</p>`;
     } else {
       title = `打敗了${P.foe.name}！`;
       extra = `<div class="treasure sad ko">${P.foe.icon}</div><p>答對 ${P.right} 題、答錯 ${P.wrong} 題${P.wrong === 0 ? '，完美！' : ''}</p>`;
@@ -492,11 +582,11 @@
       <section class="result" style="--c:${r.color}">
         <div class="rstars">${[0, 1, 2].map((k) => `<span class="${k < stars ? 'on' : ''}" style="animation-delay:${k * 0.25}s">★</span>`).join('')}</div>
         <h2>${title}</h2>${extra}
-        <div class="rbtns"><button class="btn" id="again">🔁 再玩一次</button><button class="btn gold" id="back">🗺️ 回地圖</button></div>
+        <div class="rbtns"><button class="btn" id="again">🔁 再玩一次</button><button class="btn gold" id="back">${P.custom ? '📅 回今日任務' : '🗺️ 回地圖'}</button></div>
       </section>`;
-    const { i, lv, boss } = P;
-    $app.querySelector('#again').onclick = () => startLevel(i, lv);
-    $app.querySelector('#back').onclick = () => { P = null; showMap(true); if (!r.final && !(boss && win)) showRegion(i); };
+    const { i, lv, boss, custom } = P;
+    $app.querySelector('#again').onclick = () => startLevel(i, lv, custom);
+    $app.querySelector('#back').onclick = () => { P = null; if (custom) { showHome(); return; } showMap(true); if (!r.final && !(boss && win)) showRegion(i); };
   }
 
 
@@ -599,7 +689,7 @@
     $app.querySelectorAll('[data-slow]').forEach((b) => b.onclick = () => sayLine(+b.dataset.slow, 0.55));
     $app.querySelectorAll('.pick').forEach((b) => b.onclick = () => { st.pick[`${k}-${b.dataset.li}`] = +b.dataset.j; save(); beep('tap'); showHomework(k, true); setTimeout(() => sayLine(+b.dataset.li), 150); });
     $app.querySelectorAll('.hwprog i').forEach((b) => b.onclick = () => showHomework(+b.dataset.j));
-    $app.querySelector('#hwx').onclick = () => { stopRecording(); showMap('hw'); };
+    $app.querySelector('#hwx').onclick = () => { stopRecording(); showHome(); };
     $app.querySelector('#prev').onclick = () => showHomework(k - 1);
     $app.querySelector('#next').onclick = () => {
       if (!st.done.includes(k)) { st.done.push(k); save(); beep('good'); confetti(12); }
@@ -701,7 +791,7 @@
         </div>
         <div class="hwlist hidden" id="qa"><b>📋 爸爸媽媽可以照著問，Ivan 用完整句子回答：</b>
           <button class="hb" id="showans">👀 顯示答案</button><ol>${list}</ol></div>
-        <div class="rbtns"><button class="btn" id="again">🔁 從第 1 題再練一次</button><button class="btn gold" id="back">🗺️ 回地圖</button></div>
+        <div class="rbtns"><button class="btn" id="again">🔁 從第 1 題再練一次</button><button class="btn gold" id="back">📅 回今日任務</button></div>
       </section>`;
     const sa = $app.querySelector('#shareall');
     const mb = $app.querySelector('#mergeb');
@@ -733,7 +823,7 @@
     $app.querySelector('#readall').onclick = () => { beep('tap'); showReadAll(); };
     $app.querySelector('#showans').onclick = (e) => { const qa = $app.querySelector('#qa'); qa.classList.toggle('hidden'); e.target.textContent = qa.classList.contains('hidden') ? '👀 顯示答案' : '🙈 隱藏答案'; };
     $app.querySelector('#again').onclick = () => showHomework(0);
-    $app.querySelector('#back').onclick = () => showMap('hw');
+    $app.querySelector('#back').onclick = () => showHome();
   }
 
 
@@ -884,5 +974,6 @@
   // 開始
   if ('speechSynthesis' in window) { try { speechSynthesis.getVoices(); } catch (e) { /* 忽略 */ } }
   showStart();
+  loadDaily().then(() => { if ($app.querySelector('.home')) showHome(); });
   window.__game = { get P() { return P; }, get S() { return S; } }; // 方便測試
 })();

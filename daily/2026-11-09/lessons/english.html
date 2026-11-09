@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What do you wear?</title>
+<style>
+:root { --c: #3f6fe0; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式 ===== */
+
+.sky { min-height: 260px; }
+.hot { background: linear-gradient(#ffe082, #ffb74d); }
+.cold { background: linear-gradient(#e3f2fd, #90caf9); }
+.rainy { background: linear-gradient(#b0bec5, #78909c); }
+.sun { position: absolute; top: 14px; right: 18px; font-size: 70px; animation: spin 8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.clothes { position: relative; z-index: 2; display: flex; gap: 18px; font-size: 76px; }
+.clothes span { animation: pop .6s ease-out backwards; }
+.clothes span:nth-child(2) { animation-delay: .4s; }
+.clothes span:nth-child(3) { animation-delay: .8s; }
+@keyframes pop { from { transform: scale(0) rotate(-30deg); } 70% { transform: scale(1.2); } }
+.fall { position: absolute; top: -40px; pointer-events: none; animation: fall linear infinite; }
+@keyframes fall { to { transform: translateY(330px) rotate(200deg); } }
+.rain { position: absolute; top: -30px; width: 3px; height: 26px; border-radius: 3px; background: rgba(255,255,255,.85); animation: rain linear infinite; }
+@keyframes rain { to { transform: translateY(320px); } }
+.en { font-family: "Arial Rounded MT Bold", "Nunito", system-ui, sans-serif; color: #1a237e; }
+.words { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; }
+.words .card span { font-size: 46px; }
+.words .card b { font-size: 22px; font-family: "Arial Rounded MT Bold", system-ui, sans-serif; color: #1a237e; }
+.words .card small { font-size: 15px; font-weight: 800; color: #6a5536; }
+.quiz button { font-family: "Arial Rounded MT Bold", "Nunito", system-ui, sans-serif; }
+
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容 ===== -->
+
+  <section class="step" data-auto="When it's hot, I wear a T-shirt and shorts." data-lang="en-US">
+    <h1>☀️ It's hot!</h1>
+    <div class="stage sky hot"><span class="sun">☀️</span><div class="clothes"><span>👕</span><span>🩳</span><span>🧢</span></div></div>
+    <p class="big en">When it's hot,<br>I wear a T-shirt and shorts.</p>
+    <p class="small">天氣熱的時候，我穿 T 恤和短褲。</p>
+    <p class="center"><button class="say" data-say="When it's hot, I wear a T-shirt and shorts." data-lang="en-US">🔊 Listen</button><button class="say" data-say="hot" data-lang="en-US">🔊 hot 熱</button></p>
+  </section>
+
+  <section class="step" data-auto="When it's cold, I wear a jacket." data-lang="en-US">
+    <h1>❄️ It's cold!</h1>
+    <div class="stage sky cold" id="snow"><div class="clothes"><span>🧥</span><span>🧣</span><span>🧤</span></div></div>
+    <p class="big en">When it's cold,<br>I wear a jacket.</p>
+    <p class="small">天氣冷的時候，我穿外套。（還可以戴圍巾 scarf、手套 gloves）</p>
+    <p class="center"><button class="say" data-say="When it's cold, I wear a jacket." data-lang="en-US">🔊 Listen</button><button class="say" data-say="cold" data-lang="en-US">🔊 cold 冷</button></p>
+  </section>
+
+  <section class="step" data-auto="When it's rainy, I wear a raincoat and rain boots." data-lang="en-US">
+    <h1>🌧️ It's rainy!</h1>
+    <div class="stage sky rainy" id="rain"><div class="clothes"><span>☂️</span><span>🥾</span></div></div>
+    <p class="big en">When it's rainy,<br>I wear a raincoat and rain boots.</p>
+    <p class="small">下雨的時候，我穿雨衣和雨鞋。</p>
+    <p class="center"><button class="say" data-say="When it's rainy, I wear a raincoat and rain boots." data-lang="en-US">🔊 Listen</button><button class="say" data-say="rainy" data-lang="en-US">🔊 rainy 下雨的</button></p>
+  </section>
+
+  <section class="step" data-auto="Tap and listen.">
+    <h1>👆 Tap and listen</h1>
+    <p class="small">點一點，聽單字怎麼念！</p>
+    <div class="stage words">
+      <button class="card" data-say="T-shirt" data-lang="en-US"><span>👕</span><b>T-shirt</b><small>T 恤</small></button>
+      <button class="card" data-say="shorts" data-lang="en-US"><span>🩳</span><b>shorts</b><small>短褲</small></button>
+      <button class="card" data-say="jacket" data-lang="en-US"><span>🧥</span><b>jacket</b><small>外套</small></button>
+      <button class="card" data-say="scarf" data-lang="en-US"><span>🧣</span><b>scarf</b><small>圍巾</small></button>
+      <button class="card" data-say="raincoat" data-lang="en-US"><span>🌂</span><b>raincoat</b><small>雨衣</small></button>
+      <button class="card" data-say="rain boots" data-lang="en-US"><span>🥾</span><b>rain boots</b><small>雨鞋</small></button>
+    </div>
+  </section>
+
+  <section class="step" data-auto="Look at the picture. Which sentence is right?" data-lang="en-US">
+    <h1>✏️ Quiz</h1>
+    <div class="stage" style="min-height:120px;font-size:70px">⛄❄️🧥</div>
+    <p class="big">哪一句和圖片一樣？</p>
+    <div class="quiz" data-why="下雪、很冷，要穿外套 jacket。">
+      <button>When it's hot, I wear shorts.</button>
+      <button data-right>When it's cold, I wear a jacket.</button>
+      <button>When it's rainy, I wear rain boots.</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+
+function fill(id, make, n) {
+  var box = document.getElementById(id); if (!box || box.dataset.made) return; box.dataset.made = 1;
+  for (var i = 0; i < n; i++) box.appendChild(make(i));
+}
+window.onStep = function (i) {
+  if (i === 1) fill('snow', function (k) { var s = document.createElement('span'); s.className = 'fall'; s.textContent = '❄️';
+    s.style.left = Math.random() * 100 + '%'; s.style.fontSize = (16 + Math.random() * 18) + 'px'; s.style.animationDuration = (3 + Math.random() * 3) + 's'; s.style.animationDelay = (-Math.random() * 5) + 's'; return s; }, 22);
+  if (i === 2) fill('rain', function (k) { var s = document.createElement('span'); s.className = 'rain';
+    s.style.left = Math.random() * 100 + '%'; s.style.animationDuration = (.6 + Math.random() * .5) + 's'; s.style.animationDelay = (-Math.random()) + 's'; return s; }, 40);
+};
+
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    u.rate = rate || (u.lang.indexOf('en') === 0 ? 0.85 : 0.9);
+    var v = speechSynthesis.getVoices().filter(function (x) { return x.lang.replace('_', '-').indexOf(u.lang) === 0; })[0];
+    if (v) u.voice = v;
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>
