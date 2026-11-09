@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My family</title>
+<style>
+:root { --c: #3f6fe0; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式 ===== */
+
+.fam{font-size:64px;opacity:0;animation:pop .6s ease-out forwards}
+@keyframes pop{0%{transform:scale(.2);opacity:0}70%{transform:scale(1.25)}100%{transform:scale(1);opacity:1}}
+.card .e{font-size:54px}.card .w{font-size:22px;font-weight:900;color:#3f6fe0}.card .zh{font-size:16px;font-weight:700;color:#6a5536}
+.cards{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.sen{font-size:clamp(22px,5.5vw,30px);font-weight:900;line-height:1.6;text-align:center}
+.sen b{color:#3f6fe0;border-bottom:4px solid #3f6fe0;padding:0 6px}
+.pick{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:8px 0}
+.pick .say{min-width:70px;justify-content:center}
+.pick .say.sel{background:#3f6fe0;color:#fff;box-shadow:0 3px 0 #1f3f9a}
+
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容：每一頁一個 section.step ===== -->
+
+  <section class="step" data-lang="en-US" data-auto="My family. This is my family.">
+    <h1>My family 我的家人</h1>
+    <div class="stage" id="fam"></div>
+    <p class="big">This is my family.<br><span class="small">這是我的家人。</span></p>
+    <p class="center"><button class="say" data-lang="en-US" data-say="This is my family.">🔊 Listen</button></p>
+  </section>
+
+  <section class="step" data-lang="en-US" data-auto="Family words. Tap to listen.">
+    <h1>Family words</h1>
+    <div class="cards">
+      <button class="card" data-lang="en-US" data-say="dad"><span class="e">👨</span><span class="w">dad</span><span class="zh">爸爸</span></button>
+      <button class="card" data-lang="en-US" data-say="mom"><span class="e">👩</span><span class="w">mom</span><span class="zh">媽媽</span></button>
+      <button class="card" data-lang="en-US" data-say="brother"><span class="e">👦</span><span class="w">brother</span><span class="zh">哥哥、弟弟</span></button>
+      <button class="card" data-lang="en-US" data-say="sister"><span class="e">👧</span><span class="w">sister</span><span class="zh">姊姊、妹妹</span></button>
+      <button class="card" data-lang="en-US" data-say="grandpa"><span class="e">👴</span><span class="w">grandpa</span><span class="zh">爺爺、外公</span></button>
+      <button class="card" data-lang="en-US" data-say="grandma"><span class="e">👵</span><span class="w">grandma</span><span class="zh">奶奶、外婆</span></button>
+    </div>
+    <p class="small">點一點，跟著念！</p>
+  </section>
+
+  <section class="step" data-lang="en-US" data-auto="How many people are there in your family?">
+    <h1>How many?</h1>
+    <p class="sen" data-lang="en-US" data-say="How many people are there in your family?">How many people are there in your family? 🔊</p>
+    <p class="small">你家有幾個人？選一個數字：</p>
+    <div class="pick" id="num"></div>
+    <p class="sen" id="numsen" data-lang="en-US">There are <b>?</b> people in my family.</p>
+    <p class="center"><button class="say" id="numsay" data-lang="en-US">🔊 Say it</button></p>
+  </section>
+
+  <section class="step" data-lang="en-US" data-auto="My mom likes to cook. What does your mom like to do?">
+    <h1>My mom likes to…</h1>
+    <p class="small">媽媽喜歡做什麼？選一個：</p>
+    <div class="pick" id="act"></div>
+    <p class="sen" id="actsen">My mom likes to <b>?</b>.</p>
+    <p class="center"><button class="say" id="actsay" data-lang="en-US">🔊 Say it</button></p>
+  </section>
+
+  <section class="step" data-lang="en-US" data-auto="Quiz time. How many people are there in this family?">
+    <h1>Quiz 1</h1>
+    <p class="big">How many people are there in this family?</p>
+    <div class="stage" style="min-height:120px"><span style="font-size:64px">👨👩👧</span></div>
+    <div class="quiz" data-why="有爸爸、媽媽和一個小孩，一共三個人，three 就是 3。">
+      <button data-right>There are three people.</button><button>There are four people.</button><button>There are five people.</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-lang="en-US" data-auto="Quiz time. Your dad's mom is your what?">
+    <h1>Quiz 2</h1>
+    <p class="big">Your dad's mom is your ______.</p>
+    <p class="center"><button class="say" data-lang="en-US" data-say="Your dad's mom is your what?">🔊 Listen</button></p>
+    <div class="quiz" data-why="爸爸的媽媽就是奶奶，英文是 grandma。">
+      <button>sister</button><button data-right>grandma</button><button>brother</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+(function(){
+var fam=document.getElementById('fam');
+['👨','👩','👦','👧','👴','👵'].forEach(function(e,i){var s=document.createElement('span');s.className='fam';s.textContent=e;s.style.animationDelay=(i*.4)+'s';fam.appendChild(s);});
+function chooser(boxId,senId,btnId,list,tpl){
+ var box=document.getElementById(boxId),sen=document.getElementById(senId),btn=document.getElementById(btnId),cur=null;
+ sen.dataset.lang='en-US';
+ list.forEach(function(it){var b=document.createElement('button');b.className='say';b.textContent=it[0];
+  b.onclick=function(){[].forEach.call(box.children,function(x){x.classList.remove('sel');});b.classList.add('sel');cur=it;
+   sen.innerHTML=tpl[0]+'<b>'+it[1]+'</b>'+tpl[1];say(it[2],'en-US');};box.appendChild(b);});
+ btn.onclick=function(){if(cur)say(cur[2],'en-US');};
+}
+chooser('num','numsen','numsay',[['3','three','There are three people in my family.'],['4','four','There are four people in my family.'],['5','five','There are five people in my family.'],['6','six','There are six people in my family.']],['There are ',' people in my family.']);
+chooser('act','actsen','actsay',[['🍳','cook','My mom likes to cook.'],['📖','read books','My mom likes to read books.'],['🛍️','go shopping','My mom likes to go shopping.'],['🌱','grow flowers','My mom likes to grow flowers.']],['My mom likes to ','.']);
+})();
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    u.rate = rate || (u.lang.indexOf('en') === 0 ? 0.85 : 0.9);
+    var v = speechSynthesis.getVoices().filter(function (x) { return x.lang.replace('_', '-').indexOf(u.lang) === 0; })[0];
+    if (v) u.voice = v;
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

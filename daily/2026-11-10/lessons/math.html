@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2 和 5 的乘法</title>
+<style>
+:root { --c: #2f8fd8; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式 ===== */
+
+.row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center}
+.grp{display:inline-flex;gap:2px;padding:6px 10px;border-radius:16px;background:#e8f3fc;font-size:34px;animation:pop .4s ease-out both}
+@keyframes pop{0%{transform:scale(.3);opacity:0}100%{transform:scale(1);opacity:1}}
+.eq{font-size:clamp(28px,8vw,44px);font-weight:900;text-align:center;color:var(--c);margin:6px 0}
+.kou{font-size:24px;font-weight:900;text-align:center;color:#b25b00}
+.ctl{display:flex;gap:14px;justify-content:center;align-items:center;margin:8px 0}
+.ctl button{width:64px;height:56px;border:0;border-radius:18px;background:#ffe38a;box-shadow:0 4px 0 #9a6608;font:inherit;font-size:32px;font-weight:900;cursor:pointer}
+.ctl span{font-size:22px;font-weight:900;min-width:90px;text-align:center}
+.hnd{font-size:60px;opacity:0;animation:pop .5s ease-out forwards}
+.tbl{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.tbl span{padding:6px 10px;border-radius:12px;background:#fff7ec;font-weight:900;font-size:18px}
+.stage .num{font-size:30px;font-weight:900;color:var(--c);width:100%;text-align:center}
+
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容：每一頁一個 section.step ===== -->
+
+  <section class="step" data-auto="一隻手有五根手指。一隻手，五。兩隻手，十。三隻手，十五。四隻手，二十。">
+    <h1>2 和 5 的乘法</h1>
+    <div class="stage" id="hands"></div>
+    <p class="big" id="hcount">一隻手 5 根手指</p>
+    <p class="small">5、10、15、20……每次多 5！</p>
+  </section>
+
+  <section class="step" data-auto="2 的乘法。一雙鞋子有兩隻。按加號，看看有幾隻。">
+    <h1>2 的乘法</h1>
+    <div class="stage"><div class="row" id="s2"></div></div>
+    <div class="ctl"><button id="m2">－</button><span id="n2"></span><button id="p2">＋</button></div>
+    <p class="eq" id="e2"></p><p class="kou" id="k2"></p>
+  </section>
+
+  <section class="step" data-auto="5 的乘法。一隻手有五根手指。按加號，看看有幾根。">
+    <h1>5 的乘法</h1>
+    <div class="stage"><div class="row" id="s5"></div></div>
+    <div class="ctl"><button id="m5">－</button><span id="n5"></span><button id="p5">＋</button></div>
+    <p class="eq" id="e5"></p><p class="kou" id="k5"></p>
+    <p class="small">5 的乘法，答案的尾數不是 0 就是 5。</p>
+  </section>
+
+  <section class="step" data-auto="一起來背口訣。點一點，聽聽看。">
+    <h1>口訣表</h1>
+    <p class="small">2 的口訣</p><div class="tbl" id="t2"></div>
+    <p class="small">5 的口訣</p><div class="tbl" id="t5"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗。一雙筷子有兩支，五雙筷子有幾支？">
+    <h1>小測驗 1</h1>
+    <p class="big">一雙筷子有 2 支，<br>5 雙筷子有幾支？</p>
+    <p class="center"><button class="say" data-say="一雙筷子有兩支，五雙筷子有幾支">🔊 聽題目</button></p>
+    <div class="quiz" data-why="5 雙，每雙 2 支，是 2 × 5 = 10。口訣「二五一十」。">
+      <button>7</button><button data-right>10</button><button>25</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗。五乘以八等於多少？">
+    <h1>小測驗 2</h1>
+    <p class="big">5 × 8 = ？</p>
+    <div class="quiz" data-why="口訣「五八四十」，所以 5 × 8 = 40。">
+      <button>13</button><button>35</button><button data-right>40</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+(function(){
+var CH=['零','一','二','三','四','五','六','七','八','九'];
+function kouText(a,n){var p=a*n;if(p<10)return CH[a]+CH[n]+'得'+CH[p];var t=Math.floor(p/10),o=p%10;
+ var num=(t===1&&o>0)?'十'+CH[o]:(o===0?(t===1?'一十':CH[t]+'十'):CH[t]+'十'+CH[o]);
+ if(o===0&&t>=2)num=CH[t]+'十'; if(p===10)num='一十';
+ return CH[a]+CH[n]+(p<10?'得':'')+num;}
+function mk(a,sid,nid,eid,kid,pid,mid,icon,max){
+ var n=1,s=document.getElementById(sid);
+ function draw(){s.innerHTML='';for(var i=0;i<n;i++){var g=document.createElement('span');g.className='grp';g.textContent=icon.repeat(a);g.style.animationDelay='0s';s.appendChild(g);}
+  document.getElementById(nid).textContent=n+' 個 '+a;
+  document.getElementById(eid).textContent=a+' × '+n+' = '+(a*n);
+  document.getElementById(kid).textContent='口訣：'+kouText(a,n);}
+ function speak(){say(n+'個'+a+'，'+a+'乘以'+n+'等於'+(a*n));}
+ document.getElementById(pid).onclick=function(){if(n<max){n++;draw();speak();}};
+ document.getElementById(mid).onclick=function(){if(n>1){n--;draw();speak();}};
+ return draw;
+}
+var d2=mk(2,'s2','n2','e2','k2','p2','m2','👟',9),d5=mk(5,'s5','n5','e5','k5','p5','m5','🖐️',9);
+d2();d5();
+[2,5].forEach(function(a){var t=document.getElementById('t'+a);for(var n=1;n<=9;n++){(function(n){var b=document.createElement('button');b.className='say';b.style.fontSize='17px';b.style.margin='3px';
+ b.textContent=kouText(a,n)+' ＝ '+a*n;b.onclick=function(){say(kouText(a,n)+'，'+a+'乘以'+n+'等於'+a*n);};t.appendChild(b);})(n);}});
+var HW=['一隻手','兩隻手','三隻手','四隻手'];
+window.onStep=function(i){if(i!==0)return;var h=document.getElementById('hands'),c=document.getElementById('hcount');h.innerHTML='';c.textContent='一隻手 5 根手指';
+ for(var k=0;k<4;k++)(function(k){setTimeout(function(){if(cur!==0)return;var s=document.createElement('span');s.className='hnd';s.textContent='🖐️';h.appendChild(s);c.textContent=(k+1)+' 隻手 → '+5*(k+1)+' 根手指';},k*900);})(k);};
+})();
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    u.rate = rate || (u.lang.indexOf('en') === 0 ? 0.85 : 0.9);
+    var v = speechSynthesis.getVoices().filter(function (x) { return x.lang.replace('_', '-').indexOf(u.lang) === 0; })[0];
+    if (v) u.voice = v;
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

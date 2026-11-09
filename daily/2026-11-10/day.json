@@ -428,5 +428,31 @@
         }
       ]
     }
-  }
+  },
+  "lessons": [
+    {
+      "subject": "chinese",
+      "title": "提手旁的字",
+      "summary": "「手」變成「扌」，認識打、拉、推、抱、拍、拿、找、拔，還能點一點看動作。",
+      "file": "daily/2026-11-10/lessons/chinese.html"
+    },
+    {
+      "subject": "english",
+      "title": "My family",
+      "summary": "認識家人的英文，練習 How many people… 和 My mom likes to… 的句子。",
+      "file": "daily/2026-11-10/lessons/english.html"
+    },
+    {
+      "subject": "math",
+      "title": "2 和 5 的乘法",
+      "summary": "用鞋子和手指看懂 2 和 5 的乘法，點一點聽口訣。",
+      "file": "daily/2026-11-10/lessons/math.html"
+    },
+    {
+      "subject": "science",
+      "title": "神奇的磁鐵",
+      "summary": "點點看什麼東西吸得住，再看磁鐵不同端互吸、相同端互推。",
+      "file": "daily/2026-11-10/lessons/science.html"
+    }
+  ]
 }
