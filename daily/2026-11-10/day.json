@@ -1,0 +1,427 @@
+{
+  "date": "2026-11-10",
+  "theme": "手和家人",
+  "homework": {
+    "chinese": {
+      "title": "國文作業",
+      "topic": "提手旁的字",
+      "questions": [
+        {
+          "text": "「打、拉、推、抱」這四個字的部首都是哪一個？",
+          "options": [
+            "手（扌）",
+            "水（氵）",
+            "口",
+            "心"
+          ],
+          "answer": "手（扌）",
+          "explain": "這四個字的左邊都是提手旁「扌」，它是「手」當部首時的樣子，所以字的意思都和手的動作有關。"
+        },
+        {
+          "text": "下面哪一個字「不是」提手旁？",
+          "options": [
+            "抱",
+            "拿",
+            "推",
+            "河"
+          ],
+          "answer": "河",
+          "explain": "「河」的左邊是三點水，和水有關。抱、拿、推都是提手旁，都要用手去做。"
+        },
+        {
+          "text": "選出正確的字：<br>弟弟哭了，媽媽把他（　）在懷裡。",
+          "options": [
+            "抱",
+            "跑",
+            "飽",
+            "泡"
+          ],
+          "answer": "抱",
+          "explain": "媽媽用手把弟弟圍起來，是提手旁的「抱」。「跑」是用腳，「飽」是吃飽，「泡」是泡在水裡。",
+          "say": "弟弟哭了，媽媽把他什麼在懷裡"
+        },
+        {
+          "text": "「拉」的相反詞是哪一個？",
+          "options": [
+            "推",
+            "抱",
+            "拍",
+            "拿"
+          ],
+          "answer": "推",
+          "explain": "拉是把東西往自己這邊來，推是把東西往外面送，意思剛好相反。"
+        },
+        {
+          "text": "選出正確的字：<br>我的鉛筆不見了，我要去（　）它。",
+          "options": [
+            "找",
+            "我",
+            "伐",
+            "戒"
+          ],
+          "answer": "找",
+          "explain": "要把不見的東西找出來，用手翻一翻，所以是提手旁的「找」。「我」的左邊沒有提手旁喔！",
+          "say": "我的鉛筆不見了，我要去什麼它"
+        },
+        {
+          "text": "「推」為什麼是提手旁？",
+          "options": [
+            "因為推東西要用手",
+            "因為推東西要用腳",
+            "因為推東西很好玩",
+            "因為推東西會流汗"
+          ],
+          "answer": "因為推東西要用手",
+          "explain": "提手旁的字大多和手的動作有關。推門、推車都是用手，所以「推」是提手旁。"
+        },
+        {
+          "text": "「拍」的注音是哪一個？",
+          "options": [
+            "ㄆㄞ",
+            "ㄇㄞ",
+            "ㄅㄞ",
+            "ㄆㄟ"
+          ],
+          "answer": "ㄆㄞ",
+          "explain": "「拍」念 ㄆㄞ，一聲。「拍手」就是用手拍出聲音。"
+        },
+        {
+          "text": "選出正確的字：<br>運動會的時候，我們一起（　）河。",
+          "options": [
+            "拔",
+            "跋",
+            "披",
+            "波"
+          ],
+          "answer": "拔",
+          "explain": "拔河要用手用力拉繩子，所以是提手旁的「拔」。「波」是三點水，不能用在拔河。",
+          "say": "運動會的時候，我們一起什麼河"
+        }
+      ]
+    },
+    "math": {
+      "title": "數學作業",
+      "topic": "2 和 5 的乘法",
+      "questions": [
+        {
+          "text": "3 個 2 是多少？",
+          "options": [
+            "6",
+            "5",
+            "32",
+            "8"
+          ],
+          "answer": "6",
+          "explain": "3 個 2 就是 2 + 2 + 2 = 6，也可以寫成 2 × 3 = 6。"
+        },
+        {
+          "text": "2 × 4 = ？",
+          "options": [
+            "8",
+            "6",
+            "10",
+            "24"
+          ],
+          "answer": "8",
+          "explain": "口訣「二四得八」，所以 2 × 4 = 8。"
+        },
+        {
+          "text": "5 × 3 = ？",
+          "options": [
+            "15",
+            "8",
+            "13",
+            "18"
+          ],
+          "answer": "15",
+          "explain": "5 個 5 個數：5、10、15，所以 5 × 3 = 15。口訣「三五十五」。"
+        },
+        {
+          "text": "2 × 7 = ？",
+          "options": [
+            "14",
+            "9",
+            "16",
+            "12"
+          ],
+          "answer": "14",
+          "explain": "口訣「二七十四」，所以 2 × 7 = 14。"
+        },
+        {
+          "text": "5 × 6 = ？",
+          "options": [
+            "30",
+            "11",
+            "36",
+            "25"
+          ],
+          "answer": "30",
+          "explain": "口訣「五六三十」，所以 5 × 6 = 30。5 的乘法，答案尾數不是 0 就是 5。"
+        },
+        {
+          "text": "一包餅乾有 5 片，4 包有幾片？",
+          "options": [
+            "20",
+            "9",
+            "25",
+            "15"
+          ],
+          "answer": "20",
+          "explain": "4 包，每包 5 片，是 5 × 4 = 20。口訣「四五二十」。",
+          "say": "一包餅乾有五片，四包有幾片"
+        },
+        {
+          "text": "一雙鞋子有 2 隻，8 雙鞋子有幾隻？",
+          "options": [
+            "16",
+            "10",
+            "18",
+            "6"
+          ],
+          "answer": "16",
+          "explain": "8 雙，每雙 2 隻，是 2 × 8 = 16。口訣「二八十六」。",
+          "say": "一雙鞋子有兩隻，八雙鞋子有幾隻"
+        },
+        {
+          "text": "5 × 9 = ？",
+          "options": [
+            "45",
+            "14",
+            "40",
+            "54"
+          ],
+          "answer": "45",
+          "explain": "口訣「五九四十五」，所以 5 × 9 = 45。"
+        }
+      ]
+    },
+    "english": {
+      "title": "英文口說作業",
+      "note": "請用完整句子回答唷！",
+      "topic": "My family 我的家人",
+      "questionAudio": "daily/2026-11-10/audio/",
+      "items": [
+        {
+          "q": "What day is today?",
+          "zh": "今天是星期幾？",
+          "lines": [
+            {
+              "en": "Today is {today}.",
+              "zh": "今天是{todayZh}。"
+            }
+          ]
+        },
+        {
+          "q": "How many people are there in your family?",
+          "zh": "你家有幾個人？",
+          "lines": [
+            {
+              "options": [
+                {
+                  "pick": "3 人",
+                  "en": "There are three people in my family.",
+                  "zh": "我家有三個人。"
+                },
+                {
+                  "pick": "4 人",
+                  "en": "There are four people in my family.",
+                  "zh": "我家有四個人。"
+                },
+                {
+                  "pick": "5 人",
+                  "en": "There are five people in my family.",
+                  "zh": "我家有五個人。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "q": "Who is in your family?",
+          "zh": "你家有誰？",
+          "lines": [
+            {
+              "options": [
+                {
+                  "pick": "👨‍👩‍👦 Mom, Dad and me",
+                  "en": "My mom, my dad and I are in my family.",
+                  "zh": "我的媽媽、爸爸和我是一家人。"
+                },
+                {
+                  "pick": "👧 Sister",
+                  "en": "I have a sister in my family.",
+                  "zh": "我家有一個姊姊或妹妹。"
+                },
+                {
+                  "pick": "👦 Brother",
+                  "en": "I have a brother in my family.",
+                  "zh": "我家有一個哥哥或弟弟。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "q": "Do you have any brothers or sisters?",
+          "zh": "你有兄弟姊妹嗎？",
+          "lines": [
+            {
+              "options": [
+                {
+                  "pick": "有",
+                  "en": "Yes, I do. I have a brother.",
+                  "zh": "有，我有一個兄弟。"
+                },
+                {
+                  "pick": "沒有",
+                  "en": "No, I don't. I am the only child.",
+                  "zh": "沒有，我是獨生子。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "q": "What is your mom's name?",
+          "zh": "你媽媽叫什麼名字？（選一個或說真的名字）",
+          "lines": [
+            {
+              "options": [
+                {
+                  "pick": "Amy",
+                  "en": "My mom's name is Amy.",
+                  "zh": "我媽媽叫艾咪。"
+                },
+                {
+                  "pick": "Linda",
+                  "en": "My mom's name is Linda.",
+                  "zh": "我媽媽叫琳達。"
+                },
+                {
+                  "pick": "Mary",
+                  "en": "My mom's name is Mary.",
+                  "zh": "我媽媽叫瑪莉。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "q": "What does your dad do on the weekend?",
+          "zh": "你爸爸週末做什麼？",
+          "lines": [
+            {
+              "options": [
+                {
+                  "pick": "🏃 運動",
+                  "en": "My dad plays sports on the weekend.",
+                  "zh": "我爸爸週末運動。"
+                },
+                {
+                  "pick": "📺 看電視",
+                  "en": "My dad watches TV on the weekend.",
+                  "zh": "我爸爸週末看電視。"
+                },
+                {
+                  "pick": "🍳 煮飯",
+                  "en": "My dad cooks on the weekend.",
+                  "zh": "我爸爸週末煮飯。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "q": "Where does your grandma live?",
+          "zh": "你奶奶住在哪裡？",
+          "lines": [
+            {
+              "options": [
+                {
+                  "pick": "🏠 和我一起住",
+                  "en": "My grandma lives with us.",
+                  "zh": "我奶奶和我們住在一起。"
+                },
+                {
+                  "pick": "🏙️ 在別的城市",
+                  "en": "My grandma lives in another city.",
+                  "zh": "我奶奶住在別的城市。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "q": "What do you do with your family?",
+          "zh": "你和家人一起做什麼？",
+          "lines": [
+            {
+              "options": [
+                {
+                  "pick": "🍽️ 吃飯",
+                  "en": "I eat dinner with my family.",
+                  "zh": "我和家人一起吃晚餐。"
+                },
+                {
+                  "pick": "🎲 玩遊戲",
+                  "en": "I play games with my family.",
+                  "zh": "我和家人一起玩遊戲。"
+                },
+                {
+                  "pick": "🚗 出去玩",
+                  "en": "I go out with my family.",
+                  "zh": "我和家人一起出去玩。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "q": "What is your favorite food with your family?",
+          "zh": "你和家人最喜歡吃什麼？",
+          "lines": [
+            {
+              "options": [
+                {
+                  "pick": "🍕 pizza",
+                  "en": "My family likes pizza.",
+                  "zh": "我的家人喜歡披薩。"
+                },
+                {
+                  "pick": "🍜 noodles",
+                  "en": "My family likes noodles.",
+                  "zh": "我的家人喜歡麵。"
+                },
+                {
+                  "pick": "🍚 rice",
+                  "en": "My family likes rice.",
+                  "zh": "我的家人喜歡米飯。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "q": "Do you love your family?",
+          "zh": "你愛你的家人嗎？",
+          "lines": [
+            {
+              "options": [
+                {
+                  "pick": "❤️ 愛",
+                  "en": "Yes, I do. I love my family.",
+                  "zh": "是的，我愛我的家人。"
+                },
+                {
+                  "pick": "❤️ 很愛",
+                  "en": "Yes, I love my family very much.",
+                  "zh": "是的，我非常愛我的家人。"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
