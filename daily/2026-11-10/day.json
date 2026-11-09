@@ -243,19 +243,19 @@
             {
               "options": [
                 {
-                  "pick": "👨‍👩‍👦 Mom, Dad and me",
-                  "en": "My mom, my dad and I are in my family.",
-                  "zh": "我的媽媽、爸爸和我是一家人。"
+                  "pick": "👨‍👩‍👦 爸媽和我",
+                  "en": "My family has my dad, my mom, and me.",
+                  "zh": "我家有爸爸、媽媽和我。"
                 },
                 {
-                  "pick": "👧 Sister",
-                  "en": "I have a sister in my family.",
-                  "zh": "我家有一個姊姊或妹妹。"
+                  "pick": "👧 還有姊妹",
+                  "en": "I have a dad, a mom, and a sister.",
+                  "zh": "我有爸爸、媽媽和一個姊姊或妹妹。"
                 },
                 {
-                  "pick": "👦 Brother",
-                  "en": "I have a brother in my family.",
-                  "zh": "我家有一個哥哥或弟弟。"
+                  "pick": "👦 還有兄弟",
+                  "en": "I have a dad, a mom, and a brother.",
+                  "zh": "我有爸爸、媽媽和一個哥哥或弟弟。"
                 }
               ]
             }
@@ -274,7 +274,7 @@
                 },
                 {
                   "pick": "沒有",
-                  "en": "No, I don't. I am the only child.",
+                  "en": "No, I don't. I am an only child.",
                   "zh": "沒有，我是獨生子。"
                 }
               ]
@@ -282,25 +282,30 @@
           ]
         },
         {
-          "q": "What is your mom's name?",
-          "zh": "你媽媽叫什麼名字？（選一個或說真的名字）",
+          "q": "What does your mom like to do?",
+          "zh": "你媽媽喜歡做什麼？",
           "lines": [
             {
               "options": [
                 {
-                  "pick": "Amy",
-                  "en": "My mom's name is Amy.",
-                  "zh": "我媽媽叫艾咪。"
+                  "pick": "🍳 煮飯",
+                  "en": "My mom likes to cook.",
+                  "zh": "我媽媽喜歡煮飯。"
                 },
                 {
-                  "pick": "Linda",
-                  "en": "My mom's name is Linda.",
-                  "zh": "我媽媽叫琳達。"
+                  "pick": "📖 看書",
+                  "en": "My mom likes to read books.",
+                  "zh": "我媽媽喜歡看書。"
                 },
                 {
-                  "pick": "Mary",
-                  "en": "My mom's name is Mary.",
-                  "zh": "我媽媽叫瑪莉。"
+                  "pick": "🛍️ 逛街",
+                  "en": "My mom likes to go shopping.",
+                  "zh": "我媽媽喜歡逛街。"
+                },
+                {
+                  "pick": "🌱 種花",
+                  "en": "My mom likes to grow flowers.",
+                  "zh": "我媽媽喜歡種花。"
                 }
               ]
             }
@@ -377,8 +382,8 @@
           ]
         },
         {
-          "q": "What is your favorite food with your family?",
-          "zh": "你和家人最喜歡吃什麼？",
+          "q": "What food does your family like?",
+          "zh": "你的家人喜歡吃什麼？",
           "lines": [
             {
               "options": [
