@@ -360,5 +360,31 @@
         }
       ]
     }
-  }
+  },
+  "lessons": [
+    {
+      "subject": "chinese",
+      "title": "相反詞",
+      "summary": "大和小、快和慢：翻翻卡看相反詞，再玩配對遊戲，記得相反詞要說同一件事。",
+      "file": "daily/2026-11-11/lessons/chinese.html"
+    },
+    {
+      "subject": "english",
+      "title": "Yummy Food",
+      "summary": "點卡片學食物英文，造出 I eat … for breakfast. 和 Do you like…? Yes, I do. 的句子。",
+      "file": "daily/2026-11-11/lessons/english.html"
+    },
+    {
+      "subject": "math",
+      "title": "4 和 8 的乘法",
+      "summary": "用車輪、草莓和餅乾看懂 4 和 8 的乘法，發現 8 的答案就是 4 的答案加兩次。",
+      "file": "daily/2026-11-11/lessons/math.html"
+    },
+    {
+      "subject": "science",
+      "title": "光和影子",
+      "summary": "開關燈看影子怎麼來，拉太陽看影子從早到晚變長變短，再猜猜影子的形狀。",
+      "file": "daily/2026-11-11/lessons/science.html"
+    }
+  ]
 }

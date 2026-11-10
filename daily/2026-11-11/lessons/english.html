@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yummy Food</title>
+<style>
+:root { --c: #3f6fe0; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式 ===== */
+.plate{position:relative;width:260px;height:200px}
+.plate .dish{position:absolute;left:10px;right:10px;bottom:6px;height:70px;border-radius:50%;background:radial-gradient(circle,#fff 55%,#dfe7fb 56%,#c9d6f6);box-shadow:0 6px 0 #b4c3ea}
+.drop{position:absolute;font-size:48px;animation:fall .8s cubic-bezier(.3,1.4,.6,1) both}
+@keyframes fall{from{transform:translateY(-220px) rotate(-30deg);opacity:0}}
+.en{font-size:clamp(26px,7vw,38px);font-weight:900;color:var(--c);text-align:center;margin:6px 0}
+.zh{font-size:18px;font-weight:700;color:#6a5536;text-align:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px;width:100%}
+.card .e{font-size:44px}
+.card .w{font-size:21px;font-weight:900;color:var(--c)}
+.card .z{font-size:16px;font-weight:700;color:#6a5536}
+.card.on{background:#e3ecff;box-shadow:0 4px 0 #8fb0f2}
+.tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:6px 0}
+.tabs button,.pick button{min-height:52px;padding:6px 14px;border:0;border-radius:16px;background:#fff;box-shadow:0 4px 0 #c9d6f6;font:inherit;font-size:19px;font-weight:900;color:var(--ink);cursor:pointer}
+.tabs button.on,.pick button.on{background:#3f6fe0;color:#fff;box-shadow:0 4px 0 #23439a}
+.pick{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.sky{font-size:60px;animation:bob 2s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px)}}
+.sent{min-height:2.6em;padding:10px;border-radius:18px;background:#eef3ff;width:100%}
+.thumb{font-size:40px;min-width:90px}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容：每一頁一個 section.step ===== -->
+<section class="step" data-lang="en-US" data-auto="Yummy food! Let's learn food words.">
+    <h1>Yummy Food 🍽️</h1>
+    <div class="stage"><div class="plate" id="plate"><div class="dish"></div></div></div>
+    <p class="en">Yummy food!</p>
+    <p class="zh">好吃的食物！今天來學食物的英文。</p>
+    <p class="center"><button class="say" data-lang="en-US" data-say="Yummy food! Let's learn food words.">🔊 Listen</button></p>
+  </section>
+
+  <section class="step" data-auto="點一點卡片，聽聽食物的英文。">
+    <h1>Food Words</h1>
+    <div class="tabs" id="tabs"></div>
+    <div class="stage"><div class="grid" id="words"></div></div>
+    <p class="small">點卡片聽英文 👆</p>
+  </section>
+
+  <section class="step" data-auto="早餐、午餐、晚餐的英文。先選一餐，再選一個食物，造出一個完整的句子。">
+    <h1>Breakfast, Lunch, Dinner</h1>
+    <div class="pick" id="meals"></div>
+    <div class="stage" style="min-height:160px;flex-direction:column">
+      <div class="sky" id="sky">🌅</div>
+      <div class="pick" id="mfoods"></div>
+    </div>
+    <div class="sent"><p class="en" id="ms"></p><p class="zh" id="mz"></p></div>
+  </section>
+
+  <section class="step" data-auto="喜歡和不喜歡。選一個食物，再按讚或不讚，聽聽英文怎麼說。">
+    <h1>I like… / I don't like…</h1>
+    <div class="stage" style="min-height:150px;flex-direction:column">
+      <div class="pick" id="lfoods"></div>
+      <div class="pick"><button class="thumb" id="up">👍</button><button class="thumb" id="down">👎</button></div>
+    </div>
+    <div class="sent"><p class="en" id="ls"></p><p class="zh" id="lz"></p></div>
+    <p class="small">別人問 <b>Do you like…?</b><br>喜歡就說 <b>Yes, I do.</b>，不喜歡就說 <b>No, I don't.</b></p>
+  </section>
+
+  <section class="step" data-auto="小測驗。哪一個是水果？">
+    <h1>Quiz 1</h1>
+    <p class="en">Which one is a fruit?</p>
+    <p class="zh">哪一個是水果？</p>
+    <p class="center"><button class="say" data-lang="en-US" data-say="Which one is a fruit?">🔊 Listen</button></p>
+    <div class="quiz" data-why="banana 是香蕉，是水果。carrot 紅蘿蔔是蔬菜，bread 麵包不是水果。">
+      <button>🥕 carrot</button><button data-right>🍌 banana</button><button>🍞 bread</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗。別人問你喜不喜歡吃麵，如果你喜歡，要怎麼回答？">
+    <h1>Quiz 2</h1>
+    <p class="en">Do you like noodles?</p>
+    <p class="zh">你喜歡吃麵嗎？（喜歡的話怎麼回答？）</p>
+    <p class="center"><button class="say" data-lang="en-US" data-say="Do you like noodles?">🔊 Listen</button></p>
+    <div class="quiz" data-why="問句用 Do you 開頭，回答也用 do：Yes, I do. 不喜歡就說 No, I don't.">
+      <button>Yes, I am.</button><button data-right>Yes, I do.</button><button>Yes, I like.</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+(function(){
+var EN='en-US';
+var GROUPS={
+ '🍞 Breakfast':[['🍞','bread','麵包'],['🥚','egg','蛋'],['🥛','milk','牛奶'],['🥪','sandwich','三明治']],
+ '🍎 Fruit':[['🍎','apple','蘋果'],['🍌','banana','香蕉'],['🍉','watermelon','西瓜'],['🍇','grapes','葡萄']],
+ '🥦 Vegetables':[['🥕','carrot','紅蘿蔔'],['🥦','broccoli','花椰菜'],['🌽','corn','玉米'],['🍅','tomato','番茄']],
+ '🍚 Lunch & Dinner':[['🍚','rice','飯'],['🍜','noodles','麵'],['🥟','dumplings','水餃'],['🐟','fish','魚']]
+};
+var tabs=document.getElementById('tabs'),words=document.getElementById('words');
+function showGroup(g){
+ [].forEach.call(tabs.children,function(b){b.classList.toggle('on',b.textContent===g);});
+ words.innerHTML='';
+ GROUPS[g].forEach(function(f){var b=document.createElement('button');b.className='card';
+  b.innerHTML='<span class="e">'+f[0]+'</span><span class="w">'+f[1]+'</span><span class="z">'+f[2]+'</span>';
+  b.onclick=function(){[].forEach.call(words.children,function(x){x.classList.remove('on');});b.classList.add('on');say(f[1],EN);};
+  words.appendChild(b);});
+}
+Object.keys(GROUPS).forEach(function(g){var b=document.createElement('button');b.textContent=g;b.onclick=function(){showGroup(g);};tabs.appendChild(b);});
+showGroup('🍞 Breakfast');
+
+var MEALS=[['breakfast','早餐','🌅'],['lunch','午餐','🌞'],['dinner','晚餐','🌙']];
+var MF=[['🍞','bread','麵包'],['🥚','eggs','蛋'],['🍚','rice','飯'],['🍜','noodles','麵'],['🥟','dumplings','水餃'],['🥪','a sandwich','三明治']];
+var meal=MEALS[0],food=null,mealsEl=document.getElementById('meals'),mf=document.getElementById('mfoods');
+function msent(){
+ if(!food){document.getElementById('ms').textContent='I eat ___ for '+meal[0]+'.';document.getElementById('mz').textContent='選一個食物 👆';return;}
+ var s='I eat '+food[1]+' for '+meal[0]+'.';
+ document.getElementById('ms').textContent=s;document.getElementById('mz').textContent='我'+meal[1]+'吃'+food[2]+'。';say(s,EN);
+}
+MEALS.forEach(function(m){var b=document.createElement('button');b.textContent=m[2]+' '+m[0];b.onclick=function(){meal=m;[].forEach.call(mealsEl.children,function(x){x.classList.toggle('on',x===b);});document.getElementById('sky').textContent=m[2];if(food)msent();else{msent();say(m[0],EN);}};mealsEl.appendChild(b);});
+mealsEl.children[0].classList.add('on');
+MF.forEach(function(f){var b=document.createElement('button');b.textContent=f[0]+' '+f[1].replace('a ','');b.onclick=function(){food=f;[].forEach.call(mf.children,function(x){x.classList.toggle('on',x===b);});msent();};mf.appendChild(b);});
+msent();
+
+var LF=[['🥕','carrots','紅蘿蔔'],['🥦','broccoli','花椰菜'],['🍎','apples','蘋果'],['🍉','watermelon','西瓜'],['🥛','milk','牛奶'],['🐟','fish','魚']];
+var lf=document.getElementById('lfoods'),lfood=LF[0];
+LF.forEach(function(f,i){var b=document.createElement('button');b.textContent=f[0]+' '+f[1];if(!i)b.classList.add('on');b.onclick=function(){lfood=f;[].forEach.call(lf.children,function(x){x.classList.toggle('on',x===b);});document.getElementById('ls').textContent='Do you like '+f[1]+'?';document.getElementById('lz').textContent='你喜歡'+f[2]+'嗎？';say('Do you like '+f[1]+'?',EN);};lf.appendChild(b);});
+function like(yes){
+ var s=yes?'Yes, I do. I like '+lfood[1]+'.':"No, I don't. I don't like "+lfood[1]+'.';
+ document.getElementById('ls').textContent=s;
+ document.getElementById('lz').textContent=(yes?'喜歡，我喜歡':'不喜歡，我不喜歡')+lfood[2]+'。';
+ say(s,EN);
+}
+document.getElementById('up').onclick=function(){like(true);};
+document.getElementById('down').onclick=function(){like(false);};
+document.getElementById('ls').textContent='Do you like carrots?';document.getElementById('lz').textContent='你喜歡紅蘿蔔嗎？';
+
+var DROPS=[['🍞',30,40],['🍎',90,30],['🥚',150,44],['🍌',200,34],['🥦',60,90],['🍜',130,96],['🥕',190,100]];
+window.onStep=function(i){
+ if(i!==0)return;var p=document.getElementById('plate');
+ [].forEach.call(p.querySelectorAll('.drop'),function(x){x.remove();});
+ DROPS.forEach(function(d,k){var s=document.createElement('span');s.className='drop';s.textContent=d[0];s.style.left=d[1]+'px';s.style.top=d[2]+'px';s.style.animationDelay=(k*.25)+'s';p.appendChild(s);});
+};
+})();
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    u.rate = rate || (u.lang.indexOf('en') === 0 ? 0.85 : 0.9);
+    var v = speechSynthesis.getVoices().filter(function (x) { return x.lang.replace('_', '-').indexOf(u.lang) === 0; })[0];
+    if (v) u.voice = v;
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>
