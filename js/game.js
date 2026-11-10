@@ -213,6 +213,44 @@
       dailyErr = '';
     } catch (e) { dailyErr = '今日任務讀取失敗，請確認網路，再重新整理一次。'; }
   }
+
+  // ---------- 戰鬥主題：每日作業可以換敵人和場景（day.json 的 homework.科目.battle） ----------
+  const BATTLE_ART = {
+    'mantis-king': '<svg class="foe-svg" viewBox="0 0 100 100" aria-hidden="true">'
+      + '<g stroke="#2e7d32" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M58 68 L50 86 L45 92"/><path d="M66 68 L70 86 L75 92"/><path d="M76 64 L88 80 L95 82"/></g>'
+      + '<ellipse cx="74" cy="60" rx="23" ry="11" fill="#66bb6a" stroke="#2e7d32" stroke-width="2" transform="rotate(-18 74 60)"/>'
+      + '<path d="M60 58 Q74 50 92 50" stroke="#43a047" stroke-width="1.6" fill="none"/><path d="M62 64 Q76 57 94 57" stroke="#43a047" stroke-width="1.6" fill="none"/>'
+      + '<ellipse cx="72" cy="52" rx="21" ry="7" fill="#c5e1a5" opacity=".85" transform="rotate(-22 72 52)"/>'
+      + '<path d="M56 64 L41 38" stroke="#66bb6a" stroke-width="10" stroke-linecap="round"/>'
+      + '<g fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M46 50 L28 60 L21 42" stroke="#2e7d32" stroke-width="6"/><path d="M50 56 L33 67 L27 50" stroke="#388e3c" stroke-width="6"/>'
+      + '<path d="M24 50 L19 48 M23 46 L18 44 M30 58 L27 54 M30 61 L26 59" stroke="#1b5e20" stroke-width="2"/></g>'
+      + '<path d="M23 22 L51 24 L37 43 Z" fill="#8bc34a" stroke="#33691e" stroke-width="2" stroke-linejoin="round"/>'
+      + '<path d="M33 22 Q26 10 16 4 M41 22 Q46 10 56 5" stroke="#33691e" stroke-width="1.8" fill="none" stroke-linecap="round"/>'
+      + '<ellipse cx="25" cy="24" rx="6.5" ry="7" fill="#d4e157" stroke="#33691e" stroke-width="1.6"/><ellipse cx="49" cy="26" rx="6.5" ry="7" fill="#d4e157" stroke="#33691e" stroke-width="1.6"/>'
+      + '<circle cx="23.5" cy="25" r="2.6" fill="#1b1b1b"/><circle cx="47.5" cy="27" r="2.6" fill="#1b1b1b"/>'
+      + '<path d="M33 35 Q37 38 41 35" stroke="#33691e" stroke-width="1.8" fill="none" stroke-linecap="round"/>'
+      + '<path d="M27 19 L29 8 L33.5 13.5 L37 5 L40.5 13.5 L45 8 L47 19 Z" fill="#ffca28" stroke="#c77800" stroke-width="1.5" stroke-linejoin="round"/>'
+      + '<circle cx="37" cy="14" r="2" fill="#e53935"/></svg>',
+  };
+  const artHTML = (icon) => (String(icon).startsWith('svg:') ? (BATTLE_ART[icon.slice(4)] || '❓') : esc(icon));
+  // 太空主題：主角坐在太空飛行船裡
+  const shipHTML = () => {
+    const pilot = HERO.avatar.replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, '');
+    return '<svg class="ship-svg" viewBox="0 0 120 80" aria-hidden="true">'
+      + '<path class="flame" d="M16 33 Q2 40 16 47 Q8 40 16 33 Z" fill="#ff9800"/><path class="flame f2" d="M16 36 Q8 40 16 44 Z" fill="#ffeb3b"/>'
+      + '<path d="M32 26 L24 8 L48 23 Z" fill="#e53935" stroke="#8e0000" stroke-width="1.5" stroke-linejoin="round"/>'
+      + '<path d="M32 54 L24 72 L48 57 Z" fill="#e53935" stroke="#8e0000" stroke-width="1.5" stroke-linejoin="round"/>'
+      + '<path d="M15 29 Q52 12 104 40 Q52 68 15 51 Z" fill="#eceff1" stroke="#546e7a" stroke-width="2"/>'
+      + '<path d="M22 36 Q52 30 92 40 Q52 50 22 44 Z" fill="#cfd8dc"/>'
+      + '<path d="M96 36 L106 40 L96 44 Z" fill="#e53935"/>'
+      + '<circle cx="66" cy="38" r="15" fill="#b3e5fc" stroke="#0277bd" stroke-width="2.5"/>'
+      + `<svg x="53" y="24" width="26" height="26" viewBox="0 0 100 100">${pilot}</svg>`
+      + '<path d="M58 28 Q64 25 70 27" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" opacity=".8"/></svg>';
+  };
+  const BATTLE_THEMES = {
+    space: { moves: [['雷射光束', '🔆'], ['光子砲', '💥'], ['星星飛彈', '🌟']], special: ['超級光速砲', '☄️'], foeMoves: [['外星光線', '🟢'], ['黏液炸彈', '🦠']], ship: true },
+    garden: {},
+  };
   function startDailyHomework(subject) {
     const hw = DAY.data.homework[subject], cfg = DAILY_FOES[subject], sb = SUBJECTS.find((x) => x.id === cfg.subject);
     setSub(cfg.subject);
@@ -220,8 +258,18 @@
     startLevel(null, 0, {
       date: DAY.date, subject, title: hw.title || `${SUBJ[subject].name}作業`, questions: hw.questions,
       r: { id: `daily-${DAY.date}-${subject}`, name: hw.title, icon: SUBJ[subject].hw, color: SUBJ[subject].color, levels: [`${hw.title || SUBJ[subject].name + '作業'}・${dateLabel(DAY.date)}`] },
-      st: { moves: base.moves, special: base.special, foeMoves: base.foeMoves }, foe: cfg.foe,
+      ...battleSetup(hw.battle, base, cfg.foe),
     });
+  }
+  function battleSetup(b, base, defFoe) {
+    b = b || {};
+    const th = BATTLE_THEMES[b.theme] || {};
+    return {
+      theme: BATTLE_THEMES[b.theme] ? b.theme : '',
+      heroHTML: th.ship ? shipHTML() : null,
+      st: { moves: b.moves || th.moves || base.moves, special: b.special || th.special || base.special, foeMoves: b.foeMoves || th.foeMoves || base.foeMoves },
+      foe: b.foe && b.foe.name ? { name: b.foe.name, icon: b.foe.icon || '👾' } : defFoe,
+    };
   }
   function showLesson(ls) {
     hush(); P = null;
@@ -411,14 +459,14 @@
     $app.innerHTML = `
       <section class="play ${boss ? 'is-boss' : ''}" style="--c:${r.color}">
         <header class="ptop"><button class="icon" id="quit" title="離開">✕</button><span class="pt">${r.icon} ${r.final ? '最終決戰' : boss ? '魔王戰' : r.levels[lv]}</span><span class="cnt" id="cnt"></span></header>
-        <div class="arena" id="arena">
+        <div class="arena ${custom && custom.theme ? 'th-' + custom.theme : ''}" id="arena">
           <div class="fighter hero" id="hero">
             <div class="tag">${boss ? `<span class="hearts" id="hearts"></span>` : '<span class="shield">🛡️ 勇者</span>'}</div>
-            <span class="body">${S.player.avatar}</span><b>${esc(S.player.name)}</b>
+            <span class="body">${custom && custom.heroHTML ? custom.heroHTML : S.player.avatar}</span><b>${esc(S.player.name)}</b>
           </div>
           <div class="fighter foe enter" id="foe">
             <div class="tag"><div class="hp"><i id="hpbar"></i></div><small id="hptxt"></small></div>
-            <span class="body">${foe.icon}</span><b>${foe.name}</b>
+            <span class="body">${artHTML(foe.icon)}</span><b>${esc(foe.name)}</b>
           </div>
           <div class="banner" id="banner"></div>
           <div class="combo" id="combo"></div>
@@ -428,7 +476,7 @@
       </section>`;
     $app.querySelector('#quit').onclick = () => { if (confirm('要離開這場戰鬥嗎？這一關的進度不會保存。')) { const c = P && P.custom; hush(); P = null; if (c) showHome(); else showMap(); } };
     updateBars();
-    banner(boss ? `⚠️ ${r.final ? '大魔王' : '魔王'}「${foe.name}」出現了！` : `${foe.icon} ${foe.name}出現了！`, boss ? 'warn' : '');
+    banner(boss ? `⚠️ ${r.final ? '大魔王' : '魔王'}「${foe.name}」出現了！` : `${String(foe.icon).startsWith('svg:') ? '⚠️' : foe.icon} ${foe.name}出現了！`, boss ? 'warn' : '');
     beep(boss ? 'bad' : 'tap');
     setTimeout(nextQ, 900);
   }
@@ -518,7 +566,7 @@
       if (P.custom) P.queue.push(P.custom.questions.find((x) => x.text === q.text && String(x.answer) === q.answer) || q); // 答錯的題目等一下再考一次
       btn.classList.add('wrong');
       const [mv, fx] = pick(P.st.foeMoves || [['反擊', '💢']]);
-      banner(`${P.foe.icon} ${P.foe.name}使出<b>「${mv}」</b>！`, 'foe');
+      banner(`${String(P.foe.icon).startsWith('svg:') ? '' : P.foe.icon + ' '}${P.foe.name}使出<b>「${mv}」</b>！`, 'foe');
       await wait(200);
       await strike('foe', fx, false);
       if (P !== me) return;
@@ -572,7 +620,7 @@
       extra = `<div class="treasure sad">${r.boss.icon}</div><p>沒關係，再練習一下，一定可以打敗它！</p>`;
     } else if (P.custom) {
       title = `${P.custom.title}完成了！`;
-      extra = `<div class="treasure sad ko">${P.foe.icon}</div><p>${P.custom.questions.length} 題全部答對了！${P.wrong ? `（中間答錯 ${P.wrong} 次，都改過來了）` : '一次都沒錯，完美！'}</p>`;
+      extra = `<div class="treasure sad ko">${artHTML(P.foe.icon)}</div><p>${P.custom.questions.length} 題全部答對了！${P.wrong ? `（中間答錯 ${P.wrong} 次，都改過來了）` : '一次都沒錯，完美！'}</p>`;
     } else {
       title = `打敗了${P.foe.name}！`;
       extra = `<div class="treasure sad ko">${P.foe.icon}</div><p>答對 ${P.right} 題、答錯 ${P.wrong} 題${P.wrong === 0 ? '，完美！' : ''}</p>`;

@@ -23,6 +23,18 @@ function unsafeHtml(html) {
 
 function checkQuestions(where, hw) {
   if (!isStr(hw.title)) err(where, '缺少 title');
+  if (hw.battle != null) {
+    const b = hw.battle, THEMES = ['space', 'garden'], ART = ['mantis-king'];
+    if (b.theme != null && !THEMES.includes(b.theme)) err(where, `battle.theme 只能是 ${THEMES.join('／')}（或不寫）`);
+    if (b.foe != null) {
+      if (!isStr(b.foe.name)) err(where, 'battle.foe 需要 name');
+      if (!isStr(b.foe.icon)) err(where, 'battle.foe 需要 icon（一個 emoji，或 svg:圖名）');
+      else if (b.foe.icon.startsWith('svg:') && !ART.includes(b.foe.icon.slice(4))) err(where, `battle.foe.icon 的內建圖只有：${ART.map((x) => 'svg:' + x).join('、')}`);
+      else if (!b.foe.icon.startsWith('svg:') && b.foe.icon.length > 8) err(where, 'battle.foe.icon 應該是一個 emoji');
+    }
+    ['moves', 'foeMoves'].forEach((k) => { if (b[k] != null && (!Array.isArray(b[k]) || !b[k].length || b[k].some((m) => !Array.isArray(m) || !isStr(m[0]) || !isStr(m[1])))) err(where, `battle.${k} 要是 [["招式名稱", "emoji"], …]`); });
+    if (b.special != null && (!Array.isArray(b.special) || !isStr(b.special[0]) || !isStr(b.special[1]))) err(where, 'battle.special 要是 ["必殺技名稱", "emoji"]');
+  }
   if (!Array.isArray(hw.questions)) return err(where, 'questions 必須是陣列');
   if (hw.questions.length < 5 || hw.questions.length > 15) err(where, `題數 ${hw.questions.length}，應該在 5～15 題之間`);
   const seen = new Set();

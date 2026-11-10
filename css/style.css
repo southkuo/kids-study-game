@@ -415,3 +415,23 @@ body:has(.hw) { background: #fffaf0; }
 .lesson .ptop { padding: 10px 12px; }
 .lesson iframe { flex: 1; width: 100%; border: 0; background: #fff; }
 .today .th span { flex: 1 1 170px; min-width: 0; }
+
+/* 戰鬥主題 */
+.foe-svg { display: inline-block; width: 1.3em; height: 1.3em; vertical-align: -0.25em; overflow: visible; }
+.treasure .foe-svg { width: 1.1em; height: 1.1em; }
+.ship-svg { display: inline-block; width: 1.75em; height: 1.17em; vertical-align: -0.1em; overflow: visible; }
+.ship-svg .flame { animation: flame .12s ease-in-out infinite alternate; transform-origin: 16px 40px; }
+.ship-svg .f2 { animation-duration: .09s; }
+@keyframes flame { to { transform: scaleX(1.5); opacity: .75; } }
+.arena.th-space { background: radial-gradient(ellipse at 80% 15%, rgba(126,87,194,.45), transparent 55%), linear-gradient(#060a24, #141a4a); box-shadow: inset 0 0 0 4px rgba(126,87,194,.6), 0 6px 14px rgba(0,0,0,.2); }
+.arena.th-space::before { content: ""; position: absolute; inset: 0 -160px 0 0; pointer-events: none;
+  background-image: radial-gradient(2px 2px at 20px 30px, #fff, transparent), radial-gradient(1.5px 1.5px at 90px 80px, #fff, transparent), radial-gradient(2px 2px at 140px 20px, #ffe082, transparent), radial-gradient(1.5px 1.5px at 50px 140px, #fff, transparent), radial-gradient(1px 1px at 120px 170px, #b3e5fc, transparent), radial-gradient(1.5px 1.5px at 10px 200px, #fff, transparent);
+  background-size: 160px 220px; animation: stars 5s linear infinite; opacity: .9; }
+.arena.th-space::after { content: "🪐"; position: absolute; top: 46px; left: 44%; font-size: 34px; opacity: .85; pointer-events: none; animation: bob 4s ease-in-out infinite; }
+@keyframes stars { to { transform: translateX(-160px); } }
+.arena.th-space .fighter.hero .body { animation: bob 2.2s ease-in-out infinite; }
+.arena.th-space .hero.lunge .body { animation: lungeR .45s ease-in-out; }
+.arena.th-space .proj { text-shadow: 0 0 10px #fff, 0 0 18px #4fc3f7; }
+.arena.th-space .proj.to-r::before { content: ""; position: absolute; right: 70%; top: 50%; width: 70px; height: 5px; border-radius: 5px; background: linear-gradient(90deg, transparent, #4fc3f7); transform: translateY(-50%); }
+.arena.th-garden { background: radial-gradient(ellipse at 50% 105%, #7cb342 0 34%, transparent 35%), linear-gradient(#c5e1a5, #e8f5e9 60%); }
+.arena.th-garden::after { content: "🌿　🌱　　🍃　　🌿　🌾"; position: absolute; left: 0; right: 0; bottom: 4px; font-size: 22px; text-align: center; opacity: .8; pointer-events: none; }
