@@ -4,13 +4,13 @@
 
 1. 本文件（共同規則）
 2. [學生檔案與課程進度](ivan.md)
-3. 自己的手冊：[出題老師](question-teacher.md)、[教學老師](teaching-teacher.md)、[主任審查](review-teacher.md)
+3. 自己的手冊：[出題老師](question-teacher.md)、[教學老師](teaching-teacher.md)
 
 ## 分工
 
 | 角色 | 每天做什麼 | 產出 |
 |---|---|---|
-| 主任老師 | 訂規則、改手冊；每天 07:41 審查當天內容、修正錯誤 | 本資料夾、`daily/日期/review.md` |
+| 主任老師 | 訂規則、改手冊、抽查品質 | 本資料夾 |
 | 出題老師（05:43） | 國文、英文、數學作業 | `daily/日期/day.json` 的 `homework`、`daily/日期/audio/` |
 | 教學老師（06:47） | 國文、英文、數學、自然的互動小教材 | `daily/日期/lessons/*.html`、`day.json` 的 `lessons` |
 
