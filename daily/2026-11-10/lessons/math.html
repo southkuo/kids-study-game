@@ -110,7 +110,7 @@ h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center
 <script>
 (function(){
 var CH=['零','一','二','三','四','五','六','七','八','九'];
-function kouText(a,n){var p=a*n;if(p<10)return CH[a]+CH[n]+'得'+CH[p];var t=Math.floor(p/10),o=p%10;
+function kouText(a,n){var p=a*n,lo=Math.min(a,n),hi=Math.max(a,n);a=lo;n=hi;if(p<10)return CH[a]+CH[n]+'得'+CH[p];var t=Math.floor(p/10),o=p%10;
  var num=(t===1&&o>0)?'十'+CH[o]:(o===0?(t===1?'一十':CH[t]+'十'):CH[t]+'十'+CH[o]);
  if(o===0&&t>=2)num=CH[t]+'十'; if(p===10)num='一十';
  return CH[a]+CH[n]+(p<10?'得':'')+num;}
