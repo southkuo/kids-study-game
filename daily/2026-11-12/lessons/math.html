@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3 和 6 的乘法</title>
+<style>
+:root { --c: #2f8fd8; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式 ===== */
+.row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center}
+.grp{display:inline-grid;gap:2px;padding:6px 8px;border-radius:16px;background:#e8f3fc;font-size:26px;line-height:1.1;animation:pop .4s ease-out both}
+.grp.g3{grid-template-columns:repeat(3,1fr)}
+.grp.g6{grid-template-columns:repeat(3,1fr)}
+@keyframes pop{0%{transform:scale(.3);opacity:0}100%{transform:scale(1);opacity:1}}
+.eq{font-size:clamp(28px,8vw,44px);font-weight:900;text-align:center;color:var(--c);margin:6px 0}
+.kou{font-size:24px;font-weight:900;text-align:center;color:#b25b00;min-height:1.4em}
+.ctl{display:flex;gap:14px;justify-content:center;align-items:center;margin:8px 0}
+.ctl button{width:64px;height:56px;border:0;border-radius:18px;background:#ffe38a;box-shadow:0 4px 0 #9a6608;font:inherit;font-size:32px;font-weight:900;cursor:pointer}
+.ctl span{font-size:22px;font-weight:900;min-width:90px;text-align:center}
+.bike{display:flex;flex-direction:column;align-items:center;font-size:52px;opacity:0;animation:ride .7s ease-out forwards}
+.bike small{font-size:16px;font-weight:900;color:#555}
+@keyframes ride{from{transform:translateX(-160px);opacity:0}to{transform:none;opacity:1}}
+.tbl{display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
+.dbl{display:flex;flex-direction:column;gap:6px;width:100%;align-items:center}
+.dbl .line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center}
+.dbl .tag{font-size:20px;font-weight:900;color:#2f8fd8;min-width:92px;text-align:right}
+.dot{display:inline-block;width:16px;height:16px;border-radius:50%;margin:1px}
+.dot.a{background:#2f8fd8}.dot.b{background:#f39c34}
+.blk{display:inline-flex;flex-wrap:nowrap;width:auto;padding:3px;border-radius:8px;background:#f2f7fd}
+input[type=range]{width:min(100%,360px);height:40px;accent-color:#2f8fd8}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容：每一頁一個 section.step ===== -->
+  <section class="step" data-auto="一輛三輪車有三個輪子。一輛，三個輪子。兩輛，六個輪子。三輛，九個輪子。四輛，十二個輪子。">
+    <h1>3 和 6 的乘法</h1>
+    <div class="stage" id="bikes"></div>
+    <p class="big" id="bcount">一輛三輪車有 3 個輪子</p>
+    <p class="small">3、6、9、12……每次多 3！</p>
+  </section>
+
+  <section class="step" data-auto="3 的乘法。一串糰子有三顆。按加號，看看有幾顆。">
+    <h1>3 的乘法</h1>
+    <div class="stage"><div class="row" id="s3"></div></div>
+    <div class="ctl"><button id="m3">－</button><span id="n3"></span><button id="p3">＋</button></div>
+    <p class="eq" id="e3"></p><p class="kou" id="k3"></p>
+  </section>
+
+  <section class="step" data-auto="6 的乘法。一盒有六顆蛋。按加號，看看有幾顆。">
+    <h1>6 的乘法</h1>
+    <div class="stage"><div class="row" id="s6"></div></div>
+    <div class="ctl"><button id="m6">－</button><span id="n6"></span><button id="p6">＋</button></div>
+    <p class="eq" id="e6"></p><p class="kou" id="k6"></p>
+  </section>
+
+  <section class="step" data-auto="小祕密！6 是 3 的兩倍。所以 6 的乘法，就是把 3 的乘法的答案再加一次。拉拉看。">
+    <h1>小祕密：6 是 2 個 3</h1>
+    <div class="stage" style="min-height:200px"><div class="dbl" id="dbl"></div></div>
+    <p class="center"><input type="range" id="dn" min="1" max="9" value="3"></p>
+    <p class="eq" id="de" style="font-size:clamp(22px,6vw,32px)"></p>
+    <p class="small">忘了 6 的口訣？先算 3 的，再加一次！</p>
+  </section>
+
+  <section class="step" data-auto="一起來背口訣。點一點，聽聽看。">
+    <h1>口訣表</h1>
+    <p class="small">3 的口訣</p><div class="tbl" id="t3"></div>
+    <p class="small">6 的口訣</p><div class="tbl" id="t6"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗。一串糰子有三顆，五串有幾顆？">
+    <h1>小測驗 1</h1>
+    <p class="big">一串糰子有 3 顆，<br>5 串有幾顆？</p>
+    <p class="center"><button class="say" data-say="一串糰子有三顆，五串有幾顆">🔊 聽題目</button></p>
+    <div class="quiz" data-why="5 串，每串 3 顆，是 3 × 5 = 15。口訣「三五十五」。">
+      <button>8</button><button data-right>15</button><button>18</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗。六乘以七等於多少？">
+    <h1>小測驗 2</h1>
+    <p class="big">6 × 7 = ？</p>
+    <div class="quiz" data-why="口訣「六七四十二」，所以 6 × 7 = 42。也可以想 3 × 7 = 21，再加一次 21，就是 42。">
+      <button>13</button><button>36</button><button data-right>42</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+(function(){
+/* 口訣：當天主題的數字在前（3 的乘法：三一得三、三二得六、三三得九、三四十二…） */
+var CH='零一二三四五六七八九';
+function kou(a,n){var p=a*n,t=Math.floor(p/10),o=p%10,tail=p<10?'得'+CH[p]:p===10?'一十':p<20?'十'+CH[o]:CH[t]+'十'+(o?CH[o]:'');return CH[a]+CH[n]+tail;}
+window.__kou=kou;
+function mk(a,icon,max,unit){
+ var n=1,s=document.getElementById('s'+a);
+ function draw(){s.innerHTML='';for(var i=0;i<n;i++){var g=document.createElement('span');g.className='grp g'+a;g.innerHTML=new Array(a+1).join('<span>'+icon+'</span>');s.appendChild(g);}
+  document.getElementById('n'+a).textContent=n+' '+unit;
+  document.getElementById('e'+a).textContent=a+' × '+n+' = '+(a*n);
+  document.getElementById('k'+a).textContent='口訣：'+kou(a,n);}
+ function speak(){say(n+'個'+a+'，'+a+'乘以'+n+'等於'+(a*n)+'。'+kou(a,n));}
+ document.getElementById('p'+a).onclick=function(){if(n<max){n++;draw();speak();}};
+ document.getElementById('m'+a).onclick=function(){if(n>1){n--;draw();speak();}};
+ draw();
+}
+mk(3,'🟤',9,'串');mk(6,'🥚',9,'盒');
+[3,6].forEach(function(a){var t=document.getElementById('t'+a);for(var n=1;n<=9;n++){(function(n){var b=document.createElement('button');b.className='say';b.style.fontSize='17px';b.style.margin='3px';
+ b.textContent=kou(a,n)+' ＝ '+a*n;b.onclick=function(){say(kou(a,n)+'，'+a+'乘以'+n+'等於'+a*n);};t.appendChild(b);})(n);}});
+var dn=document.getElementById('dn');
+function blk(cls){return '<span class="blk">'+new Array(4).join('<i class="dot '+cls+'"></i>')+'</span>';}
+function dbl(speak){var n=+dn.value,h='';
+ h+='<div class="line"><span class="tag">3 × '+n+'</span>'+new Array(n+1).join(blk('a'))+'<b>= '+3*n+'</b></div>';
+ h+='<div class="line"><span class="tag">3 × '+n+'</span>'+new Array(n+1).join(blk('b'))+'<b>= '+3*n+'</b></div>';
+ document.getElementById('dbl').innerHTML=h;
+ document.getElementById('de').textContent='6 × '+n+' = '+3*n+' + '+3*n+' = '+6*n;
+ if(speak)say('3乘以'+n+'等於'+3*n+'，再加一次'+3*n+'，就是6乘以'+n+'等於'+6*n);}
+dn.oninput=function(){dbl(false);};dn.onchange=function(){dbl(true);};dbl(false);
+window.onStep=function(i){if(i!==0)return;var h=document.getElementById('bikes'),c=document.getElementById('bcount');h.innerHTML='';c.textContent='一輛三輪車有 3 個輪子';
+ for(var k=0;k<4;k++)(function(k){setTimeout(function(){if(cur!==0)return;var s=document.createElement('span');s.className='bike';s.innerHTML='🛺<small>⚫⚫⚫</small>';h.appendChild(s);c.textContent=(k+1)+' 輛 → '+3*(k+1)+' 個輪子';},k*900);})(k);};
+})();
+
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Animal Friends</title>
+<style>
+:root { --c: #3f6fe0; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式 ===== */
+.parade{position:relative;width:100%;height:120px;overflow:hidden}
+.parade span{position:absolute;bottom:10px;font-size:60px;animation:walk 7s linear infinite}
+@keyframes walk{from{left:-80px}to{left:105%}}
+.parade span:nth-child(odd){animation-name:walk,hop;animation-duration:7s,.6s;animation-timing-function:linear,ease-in-out;animation-iteration-count:infinite,infinite;animation-direction:normal,alternate}
+@keyframes hop{from{bottom:10px}to{bottom:30px}}
+.en{font-size:clamp(24px,6vw,34px);font-weight:900;color:#3f6fe0;text-align:center;font-family:system-ui,sans-serif}
+.zh{font-size:18px;font-weight:700;color:#6a5536;text-align:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;width:100%}
+.card .e{font-size:48px}
+.card .w{font-size:22px;font-weight:900;color:#3f6fe0;font-family:system-ui,sans-serif}
+.card .z{font-size:17px;font-weight:700;color:#6a5536}
+.card.lit{background:#e3ebff;box-shadow:0 4px 0 #9db4f3}
+.act{font-size:90px;display:inline-block}
+.act.fly{animation:fly 1.2s ease-in-out 2 alternate}
+@keyframes fly{to{transform:translate(40px,-60px) rotate(-10deg)}}
+.act.swim{animation:swim .8s ease-in-out 4 alternate}
+@keyframes swim{from{transform:translateX(-50px)}to{transform:translateX(50px) scaleX(-1)}}
+.act.jump{animation:jump .5s ease-out 4 alternate}
+@keyframes jump{to{transform:translateY(-60px)}}
+.act.run{animation:run 1s linear 2}
+@keyframes run{0%{transform:translateX(0)}50%{transform:translateX(70px) scaleX(-1)}100%{transform:translateX(0)}}
+.legs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;min-height:44px}
+.legs i{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:#3f6fe0;color:#fff;font-style:normal;font-weight:900;font-size:20px;animation:pop .3s ease-out both}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.picks{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.picks button{min-height:56px;min-width:64px;border:0;border-radius:16px;background:#fff;box-shadow:0 4px 0 #9db4f3;font:inherit;font-size:34px;cursor:pointer}
+.picks button.on{background:#e3ebff}
+.sent{font-size:clamp(22px,5.6vw,30px);font-weight:900;text-align:center;color:#3f6fe0;font-family:system-ui,sans-serif;min-height:1.5em}
+.quiz button{font-family:system-ui,sans-serif}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容：每一頁一個 section.step ===== -->
+  <section class="step" data-auto="Animals! Let's meet some animal friends." data-lang="en-US">
+    <h1>Animal Friends</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="parade"><span style="animation-delay:0s">🐶</span><span style="animation-delay:-1.4s">🐰</span><span style="animation-delay:-2.8s">🐱</span><span style="animation-delay:-4.2s">🐘</span><span style="animation-delay:-5.6s">🐼</span></div>
+    </div>
+    <p class="en">Let's meet some animal friends!</p>
+    <p class="zh">一起來認識動物朋友！</p>
+    <p class="center"><button class="say" data-say="Let's meet some animal friends!" data-lang="en-US">🔊 Listen</button></p>
+  </section>
+
+  <section class="step" data-auto="Tap an animal and listen." data-lang="en-US">
+    <h1>Who is it?</h1>
+    <p class="small">點一點，聽英文怎麼說。</p>
+    <div class="stage"><div class="grid" id="names"></div></div>
+  </section>
+
+  <section class="step" data-auto="What can it do? Tap an animal." data-lang="en-US">
+    <h1>What can it do?</h1>
+    <div class="picks" id="cando"></div>
+    <div class="stage" style="min-height:180px"><span class="act" id="actor">🐦</span></div>
+    <p class="sent" id="canS">Tap an animal!</p>
+    <p class="zh" id="canZ">點上面的動物，看牠會做什麼。</p>
+  </section>
+
+  <section class="step" data-auto="How many legs? Tap an animal and count." data-lang="en-US">
+    <h1>How many legs?</h1>
+    <div class="picks" id="legP"></div>
+    <div class="stage" style="min-height:150px;flex-direction:column"><span style="font-size:70px" id="legA">🐶</span><div class="legs" id="legs"></div></div>
+    <p class="sent" id="legS">Tap an animal!</p>
+    <p class="zh" id="legZ">點上面的動物，一起數腳。</p>
+  </section>
+
+  <section class="step" data-auto="What is your favorite animal? Pick one and say it." data-lang="en-US">
+    <h1>My favorite animal</h1>
+    <p class="big" style="font-family:system-ui,sans-serif">What is your favorite animal?</p>
+    <div class="picks" id="fav"></div>
+    <p class="sent" id="favS">My favorite animal is the ___.</p>
+    <p class="zh" id="favZ">選一個，跟著說完整的句子！</p>
+  </section>
+
+  <section class="step" data-auto="Quiz! Which animal can fly?" data-lang="en-US">
+    <h1>Quiz 1</h1>
+    <p class="big" style="font-family:system-ui,sans-serif">Which animal can fly?</p>
+    <p class="center"><button class="say" data-say="Which animal can fly?" data-lang="en-US">🔊 Listen</button></p>
+    <div class="quiz" data-why="Bird 是小鳥，小鳥有翅膀會飛：A bird can fly. 狗會跑，魚會游泳。">
+      <button>🐶 a dog</button><button data-right>🐦 a bird</button><button>🐟 a fish</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="Quiz! Which sentence is right?" data-lang="en-US">
+    <h1>Quiz 2</h1>
+    <p class="big">哪一句是對的？🐱</p>
+    <div class="quiz" data-why="一隻貓用 has：A cat has four legs. 貓有四條腿，不是兩條。">
+      <button data-right>A cat has four legs.</button><button>A cat have four legs.</button><button>A cat has two legs.</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+(function(){
+function pick(id,list,fn){var box=document.getElementById(id);list.forEach(function(x){var b=document.createElement('button');b.textContent=x.e;b.setAttribute('aria-label',x.w);b.onclick=function(){[].forEach.call(box.children,function(c){c.classList.remove('on');});b.classList.add('on');fn(x);};box.appendChild(b);});}
+var N=[['🐶','dog','狗'],['🐱','cat','貓'],['🐰','rabbit','兔子'],['🐦','bird','小鳥'],['🐟','fish','魚'],['🐢','turtle','烏龜'],['🐘','elephant','大象'],['🐼','panda','熊貓']];
+var g=document.getElementById('names');
+N.forEach(function(x){var b=document.createElement('button');b.className='card';var art=/^[aeiou]/.test(x[1])?'an':'a';
+ b.innerHTML='<span class="e">'+x[0]+'</span><span class="w">'+x[1]+'</span><span class="z">'+x[2]+'</span>';
+ b.onclick=function(){[].forEach.call(g.children,function(c){c.classList.remove('lit');});b.classList.add('lit');say(x[1]+'. It is '+art+' '+x[1]+'.','en-US');};g.appendChild(b);});
+var C=[{e:'🐦',w:'bird',a:'fly',c:'fly',z:'小鳥會飛。'},{e:'🐟',w:'fish',a:'swim',c:'swim',z:'魚會游泳。'},{e:'🐰',w:'rabbit',a:'jump',c:'jump',z:'兔子會跳。'},{e:'🐶',w:'dog',a:'run',c:'run',z:'狗會跑。'}];
+pick('cando',C,function(x){var a=document.getElementById('actor');a.textContent=x.e;a.className='act';void a.offsetWidth;a.className='act '+x.c;
+ var s='A '+x.w+' can '+x.a+'.';document.getElementById('canS').textContent=s;document.getElementById('canZ').textContent=x.z;say(s,'en-US');});
+var NUM=['zero','one','two','three','four','five','six','seven','eight'];
+var L=[{e:'🐦',w:'bird',n:2,z:'小鳥有兩隻腳。'},{e:'🐶',w:'dog',n:4,z:'狗有四條腿。'},{e:'🐘',w:'elephant',n:4,z:'大象有四條腿。'},{e:'🦋',w:'butterfly',n:6,z:'蝴蝶有六隻腳。'},{e:'🕷️',w:'spider',n:8,z:'蜘蛛有八隻腳。'}];
+var timers=[];
+pick('legP',L,function(x){timers.forEach(clearTimeout);timers=[];document.getElementById('legA').textContent=x.e;var box=document.getElementById('legs');box.innerHTML='';
+ var art=/^[aeiou]/.test(x.w)?'An':'A',s=art+' '+x.w+' has '+NUM[x.n]+' legs.';
+ for(var k=1;k<=x.n;k++)(function(k){timers.push(setTimeout(function(){var i=document.createElement('i');i.textContent=k;box.appendChild(i);},k*250));})(k);
+ document.getElementById('legS').textContent=s;document.getElementById('legZ').textContent=x.z;say(s,'en-US');});
+var F=[{e:'🐶',w:'dog',z:'狗'},{e:'🐱',w:'cat',z:'貓'},{e:'🐼',w:'panda',z:'熊貓'},{e:'🐘',w:'elephant',z:'大象'},{e:'🐰',w:'rabbit',z:'兔子'}];
+pick('fav',F,function(x){var s='My favorite animal is the '+x.w+'.';document.getElementById('favS').textContent=s;document.getElementById('favZ').textContent='我最喜歡的動物是'+x.z+'。';say(s,'en-US');});
+})();
+
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

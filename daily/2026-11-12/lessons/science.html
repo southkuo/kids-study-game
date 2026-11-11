@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>浮與沉</title>
+<style>
+:root { --c: #2e9d5b; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式 ===== */
+.tank{position:relative;width:100%;max-width:520px;height:260px;margin:0 auto;border-radius:0 0 24px 24px;border:4px solid #9ccfb6;border-top:0;background:linear-gradient(#fff 0 22%,#bfe4fb 22%,#6fbfee 100%);overflow:hidden}
+.tank::before{content:"";position:absolute;left:0;right:0;top:22%;height:6px;background:repeating-linear-gradient(90deg,#8fd0f5 0 20px,#d9f0fd 20px 40px);animation:wave 2s linear infinite}
+@keyframes wave{from{background-position:0 0}to{background-position:40px 0}}
+.tank .it{position:absolute;font-size:44px;line-height:1;transform:translateX(-50%);transition:top 1.6s cubic-bezier(.3,.7,.4,1)}
+.tank .it.float{animation:bob 1.6s ease-in-out 1.6s infinite alternate}
+@keyframes bob{to{transform:translate(-50%,6px)}}
+.tag2{position:absolute;left:10px;font-size:15px;font-weight:900;color:#0b5c8a;background:rgba(255,255,255,.75);padding:2px 8px;border-radius:999px}
+.items{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin:10px 0}
+.items .card{min-height:72px;font-size:17px;font-weight:900;color:var(--ink)}
+.items .card span{font-size:34px}
+.items .card.done{background:#e6f6ec;box-shadow:0 4px 0 #9ccfb6}
+.res{font-size:clamp(20px,5vw,26px);font-weight:900;text-align:center;min-height:1.6em;color:#2e9d5b}
+.two{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;width:100%}
+.two .mini{flex:1;min-width:140px;max-width:240px;text-align:center}
+.mini .tank{height:170px}
+.mini b{display:block;font-size:22px;margin-top:6px}
+.clay{position:absolute;left:50%;transform:translateX(-50%);background:#b5733f;transition:top 1.6s cubic-bezier(.3,.7,.4,1),width .6s,height .6s,border-radius .6s}
+.clay.ball{width:56px;height:56px;border-radius:50%}
+.clay.boat{width:150px;height:40px;border-radius:0 0 80px 80px;border-top:6px solid #8a5228;background:#c98a52}
+.tg{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.tg button{min-height:56px;padding:8px 18px;border:0;border-radius:999px;background:#e6f6ec;box-shadow:0 4px 0 #2e9d5b;font:inherit;font-size:20px;font-weight:900;color:#1d6b3d;cursor:pointer}
+.tg button.on{background:#2e9d5b;color:#fff;box-shadow:0 4px 0 #1d6b3d}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容：每一頁一個 section.step ===== -->
+  <section class="step" data-auto="東西放進水裡，有的會浮在水面上，有的會沉到水底。看！小鴨浮著，石頭沉下去了。">
+    <h1>浮與沉</h1>
+    <div class="stage"><div class="tank" id="t0"></div></div>
+    <p class="big">有的東西會<span style="color:#2f8fd8">浮</span>，<br>有的東西會<span style="color:#8a5228">沉</span>。</p>
+    <p class="center"><button class="say" data-say="有的東西會浮，有的東西會沉。">🔊 聽一聽</button></p>
+  </section>
+
+  <section class="step" data-auto="浮，就是停在水面上，不會掉下去。沉，就是一直往下掉，掉到水底。">
+    <h1>什麼是浮？什麼是沉？</h1>
+    <div class="stage">
+      <div class="two">
+        <div class="mini"><div class="tank" id="tf"></div><b style="color:#2f8fd8">浮 ⬆️</b><span class="small">停在水面上</span></div>
+        <div class="mini"><div class="tank" id="ts"></div><b style="color:#8a5228">沉 ⬇️</b><span class="small">掉到水底</span></div>
+      </div>
+    </div>
+    <p class="center"><button class="say" data-say="浮，就是停在水面上。">🔊 浮</button><button class="say" data-say="沉，就是掉到水底。">🔊 沉</button></p>
+  </section>
+
+  <section class="step" data-auto="來做實驗！點一個東西，把它放進水裡，看看會浮還是會沉。">
+    <h1>放進水裡試試看</h1>
+    <div class="stage" style="padding:10px"><div class="tank" id="lab"><span class="tag2" style="top:4px">水面上</span><span class="tag2" style="bottom:6px">水底</span></div></div>
+    <p class="res" id="labR">點下面的東西，放進水裡！</p>
+    <div class="items" id="items"></div>
+  </section>
+
+  <section class="step" data-auto="同樣一塊黏土，揉成圓球，會沉下去。捏成小船的形狀，就可以浮起來喔！按按鈕試試看。">
+    <h1>黏土變魔術</h1>
+    <div class="stage" style="padding:10px"><div class="tank" id="claytank"><div class="clay ball" id="clay"></div></div></div>
+    <div class="tg"><button id="bBall" class="on">⚪ 揉成圓球</button><button id="bBoat">⛵ 捏成小船</button></div>
+    <p class="res" id="clayR">圓球黏土：沉下去了。</p>
+    <p class="small">形狀改變了，浮沉也可能改變！</p>
+  </section>
+
+  <section class="step" data-auto="小測驗。哪一個東西放進水裡，會沉到水底？">
+    <h1>小測驗 1</h1>
+    <p class="big">哪一個放進水裡<br>會沉到水底？</p>
+    <div class="quiz" data-why="石頭放進水裡會沉到水底。木塊和葉子會浮在水面上。">
+      <button>🪵 木塊</button><button data-right>🪨 石頭</button><button>🍃 葉子</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗。一大塊木頭和一個小硬幣，放進水裡，哪一個會沉？">
+    <h1>小測驗 2</h1>
+    <p class="big">一大塊木頭🪵和一個小硬幣🪙，<br>哪一個會沉？</p>
+    <div class="quiz" data-why="小小的硬幣會沉，大大的木頭反而會浮。所以不是越大就越會沉，要看東西是什麼做的、是什麼形狀。">
+      <button>大木頭</button><button data-right>小硬幣</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+(function(){
+var SURF=0.22;
+function drop(tank,emo,x,fl,delay){var el=document.createElement('span');el.className='it';el.textContent=emo;el.style.left=x+'%';el.style.top='-50px';tank.appendChild(el);
+ var h=tank.clientHeight;setTimeout(function(){el.style.top=(fl?h*SURF-30:h-52)+'px';if(fl)el.classList.add('float');},delay||60);return el;}
+function clear(t){[].forEach.call(t.querySelectorAll('.it'),function(e){e.remove();});}
+var I=[
+ {e:'🪵',n:'木塊',f:1,s:'木塊浮起來了！'},
+ {e:'🪨',n:'石頭',f:0,s:'石頭沉到水底了！'},
+ {e:'🍃',n:'葉子',f:1,s:'葉子浮在水面上！'},
+ {e:'🪙',n:'硬幣',f:0,s:'硬幣沉到水底了！'},
+ {e:'🦆',n:'塑膠小鴨',f:1,s:'塑膠小鴨浮起來了！'},
+ {e:'🔑',n:'鐵鑰匙',f:0,s:'鐵鑰匙沉到水底了！'}];
+var lab=document.getElementById('lab'),box=document.getElementById('items');
+I.forEach(function(x,k){var b=document.createElement('button');b.className='card';b.innerHTML='<span>'+x.e+'</span>'+x.n;
+ b.onclick=function(){var old=lab.querySelector('[data-k="'+k+'"]');if(old)old.remove();var el=drop(lab,x.e,10+k*16,x.f);el.dataset.k=k;b.classList.add('done');
+  setTimeout(function(){document.getElementById('labR').textContent=(x.f?'⬆️ ':'⬇️ ')+x.s;say(x.s);},900);};box.appendChild(b);});
+var clay=document.getElementById('clay'),ct=document.getElementById('claytank');
+function shape(boat,quiet){var h=ct.clientHeight;clay.className='clay '+(boat?'boat':'ball');clay.style.top=(boat?h*SURF-28:h-60)+'px';
+ document.getElementById('bBall').classList.toggle('on',!boat);document.getElementById('bBoat').classList.toggle('on',boat);
+ var s=boat?'小船黏土：浮起來了！':'圓球黏土：沉下去了。';document.getElementById('clayR').textContent=s;if(!quiet)say(s);}
+document.getElementById('bBall').onclick=function(){shape(false);};document.getElementById('bBoat').onclick=function(){shape(true);};
+window.onStep=function(i){
+ if(i===0){var t=document.getElementById('t0');clear(t);drop(t,'🦆',35,1,300);drop(t,'🪨',65,0,1200);}
+ if(i===1){var a=document.getElementById('tf'),b=document.getElementById('ts');clear(a);clear(b);drop(a,'🦆',50,1,300);drop(b,'🪨',50,0,300);}
+ if(i===3){clay.style.transition='none';clay.className='clay ball';clay.style.top='-60px';void clay.offsetWidth;clay.style.transition='';setTimeout(function(){shape(false,true);},200);}
+};
+})();
+
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

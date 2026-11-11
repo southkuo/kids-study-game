@@ -358,5 +358,31 @@
         }
       ]
     }
-  }
+  },
+  "lessons": [
+    {
+      "subject": "chinese",
+      "title": "形近字：晴睛清請情",
+      "summary": "右邊都是「青」，看左邊猜意思；玩變字機，日、目、氵、言、忄加上青會變成什麼字。",
+      "file": "daily/2026-11-12/lessons/chinese.html"
+    },
+    {
+      "subject": "english",
+      "title": "Animal Friends",
+      "summary": "點卡片學動物英文，看 A bird can fly.、數 How many legs，再說 My favorite animal is the ___.",
+      "file": "daily/2026-11-12/lessons/english.html"
+    },
+    {
+      "subject": "math",
+      "title": "3 和 6 的乘法",
+      "summary": "用三輪車、糰子和雞蛋看懂 3 和 6 的乘法，發現 6 的答案就是 3 的答案加兩次。",
+      "file": "daily/2026-11-12/lessons/math.html"
+    },
+    {
+      "subject": "science",
+      "title": "浮與沉",
+      "summary": "把木塊、石頭、硬幣放進水裡看浮還是沉，再看黏土捏成小船也能浮起來。",
+      "file": "daily/2026-11-12/lessons/science.html"
+    }
+  ]
 }

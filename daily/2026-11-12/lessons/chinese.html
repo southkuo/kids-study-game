@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>形近字：晴睛清請情</title>
+<style>
+:root { --c: #c0573b; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式 ===== */
+.qing{font-size:110px;font-weight:900;color:#2e7d5b;animation:glow 1.6s ease-in-out infinite alternate}
+@keyframes glow{from{transform:scale(1)}to{transform:scale(1.08)}}
+.five{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.five span{display:inline-flex;align-items:center;justify-content:center;width:86px;height:86px;border-radius:20px;background:#fff3ec;box-shadow:0 4px 0 #f0c9b5;font-size:56px;font-weight:900;opacity:0;animation:fly .6s ease-out forwards}
+@keyframes fly{from{opacity:0;transform:translateY(-60px) rotate(-20deg)}to{opacity:1;transform:none}}
+.ch{display:inline-flex;align-items:center;gap:4px;font-size:60px;font-weight:900}
+.ch .l{color:#c0573b}.ch .r{color:#2e7d5b}
+.parts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:8px 0}
+.parts button{min-width:76px;min-height:64px;border:0;border-radius:18px;background:#fff3ec;box-shadow:0 4px 0 #e2a98f;font:inherit;font-size:34px;font-weight:900;color:#c0573b;cursor:pointer}
+.parts button.on{background:#c0573b;color:#fff;box-shadow:0 4px 0 #7d321e}
+.machine{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;width:100%}
+.box{display:inline-flex;align-items:center;justify-content:center;width:84px;height:84px;border-radius:18px;background:#fff7ec;border:3px dashed #e2a98f;font-size:52px;font-weight:900}
+.box.r{color:#2e7d5b;border-color:#9ccfb6}
+.box.l{color:#c0573b}
+.op{font-size:36px;font-weight:900;color:#999}
+.res{display:inline-flex;align-items:center;justify-content:center;width:110px;height:110px;border-radius:24px;background:#c0573b;color:#fff;font-size:76px;font-weight:900;box-shadow:0 5px 0 #7d321e}
+.res.pop{animation:pop .5s ease-out}
+@keyframes pop{0%{transform:scale(.3)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+.mean{font-size:clamp(20px,5vw,26px);font-weight:900;text-align:center;min-height:2.6em;line-height:1.5}
+.mean .emo{font-size:40px}
+.tbl{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;width:100%}
+.tbl .card{font-size:18px;font-weight:900;color:var(--ink)}
+.tbl .card b{font-size:44px;color:#c0573b}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容：每一頁一個 section.step ===== -->
+  <section class="step" data-auto="看！這個字是青，青色的青。青的左邊加上不同的部件，就會變成五個長得很像的字：晴、睛、清、請、情。">
+    <h1>長得很像的五兄弟</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="qing">青</div>
+      <div class="five" id="five"></div>
+    </div>
+    <p class="big">右邊都是「青」，<br>左邊不一樣！</p>
+    <p class="center"><button class="say" data-say="晴、睛、清、請、情。右邊都是青，左邊不一樣。">🔊 聽一聽</button></p>
+  </section>
+
+  <section class="step" data-auto="小祕訣：看左邊，就知道意思。日是太陽，目是眼睛，三點水和水有關，言字旁和說話有關，豎心旁和心有關。">
+    <h1>看左邊，猜意思</h1>
+    <div class="stage">
+      <div class="tbl">
+        <button class="card" data-say="日，太陽。和太陽有關。"><b>日</b>☀️ 太陽</button>
+        <button class="card" data-say="目，眼睛。和眼睛有關。"><b>目</b>👀 眼睛</button>
+        <button class="card" data-say="三點水，和水有關。"><b>氵</b>💧 水</button>
+        <button class="card" data-say="言字旁，和說話有關。"><b>言</b>💬 說話</button>
+        <button class="card" data-say="豎心旁，和心有關。"><b>忄</b>❤️ 心</button>
+      </div>
+    </div>
+    <p class="big">左邊告訴我們<br>這個字和什麼有關。</p>
+    <p class="small">點一點卡片，聽聽看。</p>
+  </section>
+
+  <section class="step" data-auto="變字機！點一個左邊的部件，和青放在一起，看看變成什麼字。">
+    <h1>變字機</h1>
+    <div class="parts" id="parts"></div>
+    <div class="stage" style="min-height:200px">
+      <div class="machine">
+        <span class="box l" id="bl">？</span><span class="op">＋</span><span class="box r">青</span><span class="op">＝</span><span class="res" id="res">？</span>
+      </div>
+    </div>
+    <div class="mean" id="mean">點上面的按鈕試試看！</div>
+  </section>
+
+  <section class="step" data-auto="小測驗。下雨了，什麼大家帶雨傘。要用哪一個字？">
+    <h1>小測驗 1</h1>
+    <p class="big">下雨了，（　）大家<br>帶雨傘。</p>
+    <p class="center"><button class="say" data-say="下雨了，什麼大家帶雨傘">🔊 聽題目</button></p>
+    <div class="quiz" data-why="「請」是有禮貌地說話，和說話有關，所以是言字旁的「請」。">
+      <button>晴</button><button data-right>請</button><button>清</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗。我閉上眼什麼，準備睡覺。要用哪一個字？">
+    <h1>小測驗 2</h1>
+    <p class="big">我閉上眼（　），<br>準備睡覺。</p>
+    <p class="center"><button class="say" data-say="我閉上眼什麼，準備睡覺">🔊 聽題目</button></p>
+    <div class="quiz" data-why="「眼睛」和眼睛有關，所以是目字旁的「睛」。日字旁的「晴」是晴天的晴。">
+      <button>晴</button><button>情</button><button data-right>睛</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗。哪一個字和心裡的感覺有關？">
+    <h1>小測驗 3</h1>
+    <p class="big">哪一個字和<br>「心裡的感覺」有關？</p>
+    <div class="quiz" data-why="「情」的左邊是豎心旁，和心有關，像「心情」「感情」。">
+      <button data-right>情</button><button>清</button><button>晴</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+(function(){
+var W=[
+ {l:'日',c:'晴',w:'晴天',e:'☀️',t:'太陽出來了，是晴天。',s:'日加青，是晴，晴天的晴。太陽出來了，是晴天。'},
+ {l:'目',c:'睛',w:'眼睛',e:'👀',t:'用眼睛看東西。',s:'目加青，是睛，眼睛的睛。我們用眼睛看東西。'},
+ {l:'氵',c:'清',w:'清水',e:'💧',t:'河水很清，看得到小魚。',s:'三點水加青，是清，清水的清。河水很清，看得到小魚。'},
+ {l:'言',c:'請',w:'請坐',e:'🙏',t:'有禮貌地說：請坐。',s:'言加青，是請，請坐的請。有禮貌地說：請坐。'},
+ {l:'忄',c:'情',w:'心情',e:'😊',t:'考一百分，心情很好。',s:'豎心旁加青，是情，心情的情。考一百分，心情很好。'}];
+var P=document.getElementById('parts');
+W.forEach(function(x){var b=document.createElement('button');b.textContent=x.l;b.onclick=function(){
+ [].forEach.call(P.children,function(c){c.classList.remove('on');});b.classList.add('on');
+ document.getElementById('bl').textContent=x.l;var r=document.getElementById('res');r.textContent=x.c;r.classList.remove('pop');void r.offsetWidth;r.classList.add('pop');
+ document.getElementById('mean').innerHTML='<span class="emo">'+x.e+'</span> 「'+x.w+'」的「'+x.c+'」<br>'+x.t;say(x.s);};P.appendChild(b);});
+window.onStep=function(i){if(i!==0)return;var f=document.getElementById('five');f.innerHTML='';
+ W.forEach(function(x,k){var s=document.createElement('span');s.innerHTML='<span class="l" style="color:#c0573b">'+x.c+'</span>';s.style.animationDelay=(0.8+k*0.5)+'s';f.appendChild(s);});};
+})();
+
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>
