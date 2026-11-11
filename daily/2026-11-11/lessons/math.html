@@ -104,7 +104,7 @@ input[type=range]{width:min(100%,360px);height:40px;accent-color:#2f8fd8}
     <h1>小測驗 1</h1>
     <p class="big">一包糖果有 8 顆，<br>3 包有幾顆？</p>
     <p class="center"><button class="say" data-say="一包糖果有八顆，三包有幾顆">🔊 聽題目</button></p>
-    <div class="quiz" data-why="3 包，每包 8 顆，是 8 × 3 = 24。口訣「三八二十四」。">
+    <div class="quiz" data-why="3 包，每包 8 顆，是 8 × 3 = 24。口訣「八三二十四」。">
       <button>11</button><button data-right>24</button><button>32</button>
     </div>
     <div class="fb"></div>
@@ -122,12 +122,9 @@ input[type=range]{width:min(100%,360px);height:40px;accent-color:#2f8fd8}
 </main>
 <script>
 (function(){
-/* 口訣：小的數字在前（逐句核對過） */
-var KOU={
- '1x4':'一四得四','2x4':'二四得八','3x4':'三四十二','4x4':'四四十六','4x5':'四五二十','4x6':'四六二十四','4x7':'四七二十八','4x8':'四八三十二','4x9':'四九三十六',
- '1x8':'一八得八','2x8':'二八十六','3x8':'三八二十四','5x8':'五八四十','6x8':'六八四十八','7x8':'七八五十六','8x8':'八八六十四','8x9':'八九七十二'
-};
-function kou(a,n){var lo=Math.min(a,n),hi=Math.max(a,n);return KOU[lo+'x'+hi];}
+/* 口訣：當天主題的數字在前（4 的乘法：四一得四、四二得八、四三十二…） */
+var CH='零一二三四五六七八九';
+function kou(a,n){var p=a*n,t=Math.floor(p/10),o=p%10,tail=p<10?'得'+CH[p]:p===10?'一十':p<20?'十'+CH[o]:CH[t]+'十'+(o?CH[o]:'');return CH[a]+CH[n]+tail;}
 window.__kou=kou;
 function mk(a,icon,max){
  var n=1,s=document.getElementById('s'+a);

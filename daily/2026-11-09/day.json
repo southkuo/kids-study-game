@@ -8,115 +8,470 @@
       "topic": "My school day 我的上學日",
       "questionAudio": "daily/2026-11-09/audio/",
       "items": [
-        { "q": "What day is today?", "zh": "今天星期幾？",
-          "lines": [{ "en": "Today is {today}.", "zh": "今天是{todayZh}。" }] },
-        { "q": "How are you today?", "zh": "你今天好嗎？",
-          "lines": [{ "options": [
-            { "pick": "😊 happy", "en": "I am happy today.", "zh": "我今天很開心。" },
-            { "pick": "🙂 fine", "en": "I am fine, thank you.", "zh": "我很好，謝謝。" },
-            { "pick": "😴 tired", "en": "I am tired today.", "zh": "我今天很累。" },
-            { "pick": "😋 hungry", "en": "I am hungry.", "zh": "我肚子餓了。" }
-          ] }] },
-        { "q": "What time do you get up?", "zh": "你幾點起床？",
-          "lines": [{ "options": [
-            { "pick": "6:30", "en": "I get up at six thirty.", "zh": "我六點半起床。" },
-            { "pick": "7:00", "en": "I get up at seven o'clock.", "zh": "我七點起床。" },
-            { "pick": "7:30", "en": "I get up at seven thirty.", "zh": "我七點半起床。" }
-          ] }] },
-        { "q": "How do you go to school?", "zh": "你怎麼去上學？",
-          "lines": [{ "options": [
-            { "pick": "🚗 坐車", "en": "I go to school by car.", "zh": "我坐車去上學。" },
-            { "pick": "🛵 坐機車", "en": "I go to school by scooter.", "zh": "我坐機車去上學。" },
-            { "pick": "🚌 坐公車", "en": "I go to school by bus.", "zh": "我坐公車去上學。" },
-            { "pick": "🚶 走路", "en": "I walk to school.", "zh": "我走路去上學。" }
-          ] }] },
-        { "q": "What is your favorite subject?", "zh": "你最喜歡的科目是什麼？",
-          "lines": [{ "options": [
-            { "pick": "英文", "en": "My favorite subject is English.", "zh": "我最喜歡的科目是英文。" },
-            { "pick": "數學", "en": "My favorite subject is math.", "zh": "我最喜歡的科目是數學。" },
-            { "pick": "國語", "en": "My favorite subject is Chinese.", "zh": "我最喜歡的科目是國語。" },
-            { "pick": "美勞", "en": "My favorite subject is art.", "zh": "我最喜歡的科目是美勞。" },
-            { "pick": "體育", "en": "My favorite subject is PE.", "zh": "我最喜歡的科目是體育。" }
-          ] }] },
-        { "q": "What do you have in your school bag?", "zh": "你的書包裡有什麼？",
-          "lines": [{ "en": "I have books, pencils, and an eraser in my school bag.", "zh": "我的書包裡有書、鉛筆和一個橡皮擦。" }] },
-        { "q": "What color is your school bag?", "zh": "你的書包是什麼顏色？",
-          "lines": [{ "options": [
-            { "pick": "🔵 blue", "en": "My school bag is blue.", "zh": "我的書包是藍色的。" },
-            { "pick": "⚫ black", "en": "My school bag is black.", "zh": "我的書包是黑色的。" },
-            { "pick": "🔴 red", "en": "My school bag is red.", "zh": "我的書包是紅色的。" },
-            { "pick": "🟢 green", "en": "My school bag is green.", "zh": "我的書包是綠色的。" }
-          ] }] },
-        { "q": "What do you do after school?", "zh": "放學後你做什麼？",
-          "lines": [{ "options": [
-            { "pick": "寫功課", "en": "I do my homework after school.", "zh": "放學後我寫功課。" },
-            { "pick": "和朋友玩", "en": "I play with my friends after school.", "zh": "放學後我和朋友玩。" },
-            { "pick": "看書", "en": "I read books after school.", "zh": "放學後我看書。" }
-          ] }] },
-        { "q": "What do you eat for lunch?", "zh": "你午餐吃什麼？",
-          "lines": [{ "options": [
-            { "pick": "🍚 飯和青菜", "en": "I eat rice and vegetables for lunch.", "zh": "我午餐吃飯和青菜。" },
-            { "pick": "🍜 麵", "en": "I eat noodles for lunch.", "zh": "我午餐吃麵。" },
-            { "pick": "🍗 雞肉飯", "en": "I eat chicken and rice for lunch.", "zh": "我午餐吃雞肉和飯。" }
-          ] }] },
-        { "q": "What time do you go to bed?", "zh": "你幾點睡覺？",
-          "lines": [{ "options": [
-            { "pick": "9:00", "en": "I go to bed at nine o'clock.", "zh": "我九點睡覺。" },
-            { "pick": "9:30", "en": "I go to bed at nine thirty.", "zh": "我九點半睡覺。" },
-            { "pick": "10:00", "en": "I go to bed at ten o'clock.", "zh": "我十點睡覺。" }
-          ] }] }
+        {
+          "q": "What day is today?",
+          "zh": "今天星期幾？",
+          "lines": [
+            {
+              "en": "Today is {today}.",
+              "zh": "今天是{todayZh}。"
+            }
+          ]
+        },
+        {
+          "q": "How are you today?",
+          "zh": "你今天好嗎？",
+          "lines": [
+            {
+              "options": [
+                {
+                  "pick": "😊 happy",
+                  "en": "I am happy today.",
+                  "zh": "我今天很開心。"
+                },
+                {
+                  "pick": "🙂 fine",
+                  "en": "I am fine, thank you.",
+                  "zh": "我很好，謝謝。"
+                },
+                {
+                  "pick": "😴 tired",
+                  "en": "I am tired today.",
+                  "zh": "我今天很累。"
+                },
+                {
+                  "pick": "😋 hungry",
+                  "en": "I am hungry.",
+                  "zh": "我肚子餓了。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "q": "What time do you get up?",
+          "zh": "你幾點起床？",
+          "lines": [
+            {
+              "options": [
+                {
+                  "pick": "6:30",
+                  "en": "I get up at six thirty.",
+                  "zh": "我六點半起床。"
+                },
+                {
+                  "pick": "7:00",
+                  "en": "I get up at seven o'clock.",
+                  "zh": "我七點起床。"
+                },
+                {
+                  "pick": "7:30",
+                  "en": "I get up at seven thirty.",
+                  "zh": "我七點半起床。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "q": "How do you go to school?",
+          "zh": "你怎麼去上學？",
+          "lines": [
+            {
+              "options": [
+                {
+                  "pick": "🚗 坐車",
+                  "en": "I go to school by car.",
+                  "zh": "我坐車去上學。"
+                },
+                {
+                  "pick": "🛵 坐機車",
+                  "en": "I go to school by scooter.",
+                  "zh": "我坐機車去上學。"
+                },
+                {
+                  "pick": "🚌 坐公車",
+                  "en": "I go to school by bus.",
+                  "zh": "我坐公車去上學。"
+                },
+                {
+                  "pick": "🚶 走路",
+                  "en": "I walk to school.",
+                  "zh": "我走路去上學。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "q": "What is your favorite subject?",
+          "zh": "你最喜歡的科目是什麼？",
+          "lines": [
+            {
+              "options": [
+                {
+                  "pick": "英文",
+                  "en": "My favorite subject is English.",
+                  "zh": "我最喜歡的科目是英文。"
+                },
+                {
+                  "pick": "數學",
+                  "en": "My favorite subject is math.",
+                  "zh": "我最喜歡的科目是數學。"
+                },
+                {
+                  "pick": "國語",
+                  "en": "My favorite subject is Chinese.",
+                  "zh": "我最喜歡的科目是國語。"
+                },
+                {
+                  "pick": "美勞",
+                  "en": "My favorite subject is art.",
+                  "zh": "我最喜歡的科目是美勞。"
+                },
+                {
+                  "pick": "體育",
+                  "en": "My favorite subject is PE.",
+                  "zh": "我最喜歡的科目是體育。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "q": "What do you have in your school bag?",
+          "zh": "你的書包裡有什麼？",
+          "lines": [
+            {
+              "en": "I have books, pencils, and an eraser in my school bag.",
+              "zh": "我的書包裡有書、鉛筆和一個橡皮擦。"
+            }
+          ]
+        },
+        {
+          "q": "What color is your school bag?",
+          "zh": "你的書包是什麼顏色？",
+          "lines": [
+            {
+              "options": [
+                {
+                  "pick": "🔵 blue",
+                  "en": "My school bag is blue.",
+                  "zh": "我的書包是藍色的。"
+                },
+                {
+                  "pick": "⚫ black",
+                  "en": "My school bag is black.",
+                  "zh": "我的書包是黑色的。"
+                },
+                {
+                  "pick": "🔴 red",
+                  "en": "My school bag is red.",
+                  "zh": "我的書包是紅色的。"
+                },
+                {
+                  "pick": "🟢 green",
+                  "en": "My school bag is green.",
+                  "zh": "我的書包是綠色的。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "q": "What do you do after school?",
+          "zh": "放學後你做什麼？",
+          "lines": [
+            {
+              "options": [
+                {
+                  "pick": "寫功課",
+                  "en": "I do my homework after school.",
+                  "zh": "放學後我寫功課。"
+                },
+                {
+                  "pick": "和朋友玩",
+                  "en": "I play with my friends after school.",
+                  "zh": "放學後我和朋友玩。"
+                },
+                {
+                  "pick": "看書",
+                  "en": "I read books after school.",
+                  "zh": "放學後我看書。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "q": "What do you eat for lunch?",
+          "zh": "你午餐吃什麼？",
+          "lines": [
+            {
+              "options": [
+                {
+                  "pick": "🍚 飯和青菜",
+                  "en": "I eat rice and vegetables for lunch.",
+                  "zh": "我午餐吃飯和青菜。"
+                },
+                {
+                  "pick": "🍜 麵",
+                  "en": "I eat noodles for lunch.",
+                  "zh": "我午餐吃麵。"
+                },
+                {
+                  "pick": "🍗 雞肉飯",
+                  "en": "I eat chicken and rice for lunch.",
+                  "zh": "我午餐吃雞肉和飯。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "q": "What time do you go to bed?",
+          "zh": "你幾點睡覺？",
+          "lines": [
+            {
+              "options": [
+                {
+                  "pick": "9:00",
+                  "en": "I go to bed at nine o'clock.",
+                  "zh": "我九點睡覺。"
+                },
+                {
+                  "pick": "9:30",
+                  "en": "I go to bed at nine thirty.",
+                  "zh": "我九點半睡覺。"
+                },
+                {
+                  "pick": "10:00",
+                  "en": "I go to bed at ten o'clock.",
+                  "zh": "我十點睡覺。"
+                }
+              ]
+            }
+          ]
+        }
       ]
     },
     "chinese": {
       "title": "國文作業",
       "topic": "三點水的字",
       "questions": [
-        { "text": "「河、海、洗、湖」這四個字的部首都是哪一個？", "options": ["水（氵）", "木", "口", "火（灬）"], "answer": "水（氵）",
-          "explain": "這四個字的左邊都是三點水「氵」，它是「水」當部首時的樣子，所以字的意思都和水有關。" },
-        { "text": "下面哪一個字「不是」三點水部？", "options": ["清", "流", "汁", "林"], "answer": "林",
-          "explain": "「林」是兩個「木」，部首是木，和樹有關。清、流、汁都是三點水，都和水有關。" },
-        { "text": "選出正確的字：<br>口渴了，我想喝一杯（　）。", "options": ["水", "永", "求", "木"], "answer": "水", "say": "口渴了，我想喝一杯什麼",
-          "explain": "喝的是「水」。「永」和「求」長得很像水，但多了筆畫，意思也不一樣。" },
-        { "text": "一（　）河，要用哪一個量詞？", "options": ["條", "隻", "朵", "本"], "answer": "條", "say": "一什麼河",
-          "explain": "河是長長的，我們說「一條河」，就像「一條魚」「一條路」。" },
-        { "text": "「游泳」的「游」為什麼是三點水？", "options": ["因為游泳在水裡", "因為游泳要用手", "因為游泳很好玩", "因為游泳要穿泳衣"], "answer": "因為游泳在水裡",
-          "explain": "三點水的字大多和水有關。游泳是在水裡游，所以「游」是三點水。" },
-        { "text": "選出正確的字：<br>日月潭是一個美麗的（　）。", "options": ["湖", "胡", "糊", "蝴"], "answer": "湖", "say": "日月潭是一個美麗的什麼",
-          "explain": "日月潭是一大片水，所以是三點水的「湖」。蝴蝶的「蝴」是虫部，糊塗的「糊」是米部。" },
-        { "text": "「海」的注音是哪一個？", "options": ["ㄏㄞˇ", "ㄏㄞˋ", "ㄏㄟˇ", "ㄈㄞˇ"], "answer": "ㄏㄞˇ",
-          "explain": "「海」念 ㄏㄞˇ，是三聲。" },
-        { "text": "「乾」的相反詞是什麼？", "options": ["濕", "冷", "小", "慢"], "answer": "濕",
-          "explain": "「乾」是沒有水，「濕」是有水，意思剛好相反。「濕」也是三點水的字喔！" }
+        {
+          "text": "「河、海、洗、湖」這四個字的部首都是哪一個？",
+          "options": [
+            "水（氵）",
+            "木",
+            "口",
+            "火（灬）"
+          ],
+          "answer": "水（氵）",
+          "explain": "這四個字的左邊都是三點水「氵」，它是「水」當部首時的樣子，所以字的意思都和水有關。"
+        },
+        {
+          "text": "下面哪一個字「不是」三點水部？",
+          "options": [
+            "清",
+            "流",
+            "汁",
+            "林"
+          ],
+          "answer": "林",
+          "explain": "「林」是兩個「木」，部首是木，和樹有關。清、流、汁都是三點水，都和水有關。"
+        },
+        {
+          "text": "選出正確的字：<br>口渴了，我想喝一杯（　）。",
+          "options": [
+            "水",
+            "永",
+            "求",
+            "木"
+          ],
+          "answer": "水",
+          "say": "口渴了，我想喝一杯什麼",
+          "explain": "喝的是「水」。「永」和「求」長得很像水，但多了筆畫，意思也不一樣。"
+        },
+        {
+          "text": "一（　）河，要用哪一個量詞？",
+          "options": [
+            "條",
+            "隻",
+            "朵",
+            "本"
+          ],
+          "answer": "條",
+          "say": "一什麼河",
+          "explain": "河是長長的，我們說「一條河」，就像「一條魚」「一條路」。"
+        },
+        {
+          "text": "「游泳」的「游」為什麼是三點水？",
+          "options": [
+            "因為游泳在水裡",
+            "因為游泳要用手",
+            "因為游泳很好玩",
+            "因為游泳要穿泳衣"
+          ],
+          "answer": "因為游泳在水裡",
+          "explain": "三點水的字大多和水有關。游泳是在水裡游，所以「游」是三點水。"
+        },
+        {
+          "text": "選出正確的字：<br>日月潭是一個美麗的（　）。",
+          "options": [
+            "湖",
+            "胡",
+            "糊",
+            "蝴"
+          ],
+          "answer": "湖",
+          "say": "日月潭是一個美麗的什麼",
+          "explain": "日月潭是一大片水，所以是三點水的「湖」。蝴蝶的「蝴」是虫部，糊塗的「糊」是米部。"
+        },
+        {
+          "text": "「海」的注音是哪一個？",
+          "options": [
+            "ㄏㄞˇ",
+            "ㄏㄞˋ",
+            "ㄏㄟˇ",
+            "ㄈㄞˇ"
+          ],
+          "answer": "ㄏㄞˇ",
+          "explain": "「海」念 ㄏㄞˇ，是三聲。"
+        },
+        {
+          "text": "「乾」的相反詞是什麼？",
+          "options": [
+            "濕",
+            "冷",
+            "小",
+            "慢"
+          ],
+          "answer": "濕",
+          "explain": "「乾」是沒有水，「濕」是有水，意思剛好相反。「濕」也是三點水的字喔！"
+        }
       ]
     },
     "math": {
       "title": "數學作業",
       "topic": "乘法的意義、二位數加減",
       "questions": [
-        { "text": "3 + 3 + 3 + 3 可以寫成哪一個乘法算式？", "options": ["3 × 4", "3 × 3", "4 × 4", "3 + 4"], "answer": "3 × 4",
-          "explain": "有 4 個 3，就是 3 × 4 = 12。乘法就是「幾個幾」。" },
-        { "text": "每盤有 5 顆草莓，有 3 盤，一共有幾顆？", "options": ["15", "8", "53", "10"], "answer": "15",
+        {
+          "text": "3 + 3 + 3 + 3 可以寫成哪一個乘法算式？",
+          "options": [
+            "3 × 4",
+            "3 × 3",
+            "4 × 4",
+            "3 + 4"
+          ],
+          "answer": "3 × 4",
+          "explain": "有 4 個 3，就是 3 × 4 = 12。乘法就是「幾個幾」。"
+        },
+        {
+          "text": "每盤有 5 顆草莓，有 3 盤，一共有幾顆？",
+          "options": [
+            "15",
+            "8",
+            "53",
+            "10"
+          ],
+          "answer": "15",
           "visual": "<div style=\"font-size:30px;line-height:1.6\">🍓🍓🍓🍓🍓<br>🍓🍓🍓🍓🍓<br>🍓🍓🍓🍓🍓</div>",
-          "explain": "3 盤，每盤 5 顆，就是 3 個 5：5 × 3 = 15（三五十五）。" },
-        { "text": "4 × 6 = ？", "options": ["24", "20", "28", "10"], "answer": "24",
-          "explain": "九九乘法口訣：四六二十四，所以 4 × 6 = 24。" },
-        { "text": "一隻雞有 2 隻腳，7 隻雞一共有幾隻腳？", "options": ["14", "9", "12", "16"], "answer": "14",
-          "explain": "7 隻雞，每隻 2 隻腳，就是 7 個 2：2 × 7 = 14（二七十四）。" },
-        { "text": "36 + 27 = ？", "options": ["63", "53", "513", "62"], "answer": "63",
-          "explain": "個位：6 + 7 = 13，寫 3、進 1。<br>十位：3 + 2 + 1 = 6。<br>所以答案是 63。" },
-        { "text": "82 − 35 = ？", "options": ["47", "57", "53", "43"], "answer": "47",
-          "explain": "個位：2 不夠減 5，向十位借 1 → 12 − 5 = 7。<br>十位：8 被借走 1 剩 7，7 − 3 = 4。<br>所以答案是 47。" },
-        { "text": "小明有 45 元，買一枝 18 元的鉛筆後，還剩幾元？", "options": ["27", "37", "63", "33"], "answer": "27",
-          "explain": "還剩的錢 = 45 − 18。<br>個位：5 不夠減 8，借 1 → 15 − 8 = 7；十位：3 − 1 = 2。<br>所以還剩 27 元。" },
-        { "text": "下面哪一個算式的答案最大？", "options": ["5 × 4", "3 × 6", "2 × 9", "4 × 4"], "answer": "5 × 4",
-          "explain": "5 × 4 = 20、3 × 6 = 18、2 × 9 = 18、4 × 4 = 16，所以 5 × 4 最大。" }
+          "explain": "3 盤，每盤 5 顆，就是 3 個 5：5 × 3 = 15（五三十五）。"
+        },
+        {
+          "text": "4 × 6 = ？",
+          "options": [
+            "24",
+            "20",
+            "28",
+            "10"
+          ],
+          "answer": "24",
+          "explain": "九九乘法口訣：四六二十四，所以 4 × 6 = 24。"
+        },
+        {
+          "text": "一隻雞有 2 隻腳，7 隻雞一共有幾隻腳？",
+          "options": [
+            "14",
+            "9",
+            "12",
+            "16"
+          ],
+          "answer": "14",
+          "explain": "7 隻雞，每隻 2 隻腳，就是 7 個 2：2 × 7 = 14（二七十四）。"
+        },
+        {
+          "text": "36 + 27 = ？",
+          "options": [
+            "63",
+            "53",
+            "513",
+            "62"
+          ],
+          "answer": "63",
+          "explain": "個位：6 + 7 = 13，寫 3、進 1。<br>十位：3 + 2 + 1 = 6。<br>所以答案是 63。"
+        },
+        {
+          "text": "82 − 35 = ？",
+          "options": [
+            "47",
+            "57",
+            "53",
+            "43"
+          ],
+          "answer": "47",
+          "explain": "個位：2 不夠減 5，向十位借 1 → 12 − 5 = 7。<br>十位：8 被借走 1 剩 7，7 − 3 = 4。<br>所以答案是 47。"
+        },
+        {
+          "text": "小明有 45 元，買一枝 18 元的鉛筆後，還剩幾元？",
+          "options": [
+            "27",
+            "37",
+            "63",
+            "33"
+          ],
+          "answer": "27",
+          "explain": "還剩的錢 = 45 − 18。<br>個位：5 不夠減 8，借 1 → 15 − 8 = 7；十位：3 − 1 = 2。<br>所以還剩 27 元。"
+        },
+        {
+          "text": "下面哪一個算式的答案最大？",
+          "options": [
+            "5 × 4",
+            "3 × 6",
+            "2 × 9",
+            "4 × 4"
+          ],
+          "answer": "5 × 4",
+          "explain": "5 × 4 = 20、3 × 6 = 18、2 × 9 = 18、4 × 4 = 16，所以 5 × 4 最大。"
+        }
       ]
     }
   },
   "lessons": [
-    { "subject": "chinese", "title": "三點水的字", "summary": "「水」變成「氵」，認識河、海、洗、湖、游、汗。", "file": "daily/2026-11-09/lessons/chinese.html" },
-    { "subject": "english", "title": "What do you wear?", "summary": "天氣熱、冷、下雨時穿什麼，配合週末口說作業。", "file": "daily/2026-11-09/lessons/english.html" },
-    { "subject": "math", "title": "乘法就是幾個幾", "summary": "用一盤一盤的蘋果，看懂 3 × 4 就是 4 個 3。", "file": "daily/2026-11-09/lessons/math.html" },
-    { "subject": "science", "title": "水的三種樣子", "summary": "拉溫度條，看冰、水、水蒸氣怎麼變身。", "file": "daily/2026-11-09/lessons/science.html" }
+    {
+      "subject": "chinese",
+      "title": "三點水的字",
+      "summary": "「水」變成「氵」，認識河、海、洗、湖、游、汗。",
+      "file": "daily/2026-11-09/lessons/chinese.html"
+    },
+    {
+      "subject": "english",
+      "title": "What do you wear?",
+      "summary": "天氣熱、冷、下雨時穿什麼，配合週末口說作業。",
+      "file": "daily/2026-11-09/lessons/english.html"
+    },
+    {
+      "subject": "math",
+      "title": "乘法就是幾個幾",
+      "summary": "用一盤一盤的蘋果，看懂 3 × 4 就是 4 個 3。",
+      "file": "daily/2026-11-09/lessons/math.html"
+    },
+    {
+      "subject": "science",
+      "title": "水的三種樣子",
+      "summary": "拉溫度條，看冰、水、水蒸氣怎麼變身。",
+      "file": "daily/2026-11-09/lessons/science.html"
+    }
   ]
 }

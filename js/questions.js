@@ -49,14 +49,11 @@
   const Q = (text, answer, options, explain, visual, say, lang) =>
     ({ text, answer: String(answer), options: options.map(String), explain, visual: visual || '', say: say || '', lang: lang || '' });
 
-  // 九九乘法口訣，例如 六七四十二
+  // 九九乘法口訣：第一個數字在前（4 的乘法：四一得四、四二得八、四三十二），不要把小的數字換到前面
   function koujue(a, b) {
-    const [x, y] = a <= b ? [a, b] : [b, a];
-    const p = x * y;
-    let s;
-    if (p < 10) s = '得' + CN[p];
-    else { const t = Math.floor(p / 10), u = p % 10; s = (t === 1 ? '一十' : CN[t] + '十') + (u ? CN[u] : ''); }
-    return CN[x] + CN[y] + s;
+    const p = a * b, t = Math.floor(p / 10), u = p % 10;
+    const s = p < 10 ? '得' + CN[p] : p === 10 ? '一十' : p < 20 ? '十' + CN[u] : CN[t] + '十' + (u ? CN[u] : '');
+    return CN[a] + CN[b] + s;
   }
 
   // 直式加法解說
