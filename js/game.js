@@ -231,6 +231,26 @@
       + '<path d="M33 35 Q37 38 41 35" stroke="#33691e" stroke-width="1.8" fill="none" stroke-linecap="round"/>'
       + '<path d="M27 19 L29 8 L33.5 13.5 L37 5 L40.5 13.5 L45 8 L47 19 Z" fill="#ffca28" stroke="#c77800" stroke-width="1.5" stroke-linejoin="round"/>'
       + '<circle cx="37" cy="14" r="2" fill="#e53935"/></svg>',
+    'skeleton-general': '<svg class="foe-svg" viewBox="0 0 100 100" aria-hidden="true">'
+      + '<path d="M27 42 Q50 35 73 42 L81 95 Q50 100 19 95 Z" fill="#4a148c" stroke="#2a0a52" stroke-width="1.5"/>'
+      + '<g stroke="#eceff1" stroke-width="4" stroke-linecap="round"><path d="M42 80 L40 93"/><path d="M58 80 L60 93"/></g>'
+      + '<rect x="35" y="90" width="10" height="6" rx="2" fill="#37474f"/><rect x="55" y="90" width="10" height="6" rx="2" fill="#37474f"/>'
+      + '<rect x="33" y="48" width="34" height="34" rx="8" fill="#546e7a" stroke="#263238" stroke-width="2"/>'
+      + '<rect x="41" y="52" width="18" height="19" rx="4" fill="#263238"/>'
+      + '<g stroke="#eceff1" stroke-width="2" fill="none" stroke-linecap="round"><path d="M50 53 L50 70"/><path d="M43 57 Q50 54 57 57"/><path d="M43 62 Q50 59 57 62"/><path d="M44 67 Q50 64 56 67"/></g>'
+      + '<rect x="33" y="73" width="34" height="5" fill="#8d6e63"/><circle cx="50" cy="75.5" r="3.2" fill="#ce93d8"/>'
+      + '<g stroke="#eceff1" stroke-width="4" stroke-linecap="round"><path d="M30 54 L22 68"/><path d="M70 54 L78 68"/></g>'
+      + '<circle cx="21" cy="71" r="5" fill="#f5f5f5" stroke="#9e9e9e" stroke-width="1.4"/><circle cx="79" cy="71" r="5" fill="#f5f5f5" stroke="#9e9e9e" stroke-width="1.4"/>'
+      + '<ellipse cx="30" cy="50" rx="10" ry="6.5" fill="#78909c" stroke="#263238" stroke-width="1.6"/><ellipse cx="70" cy="50" rx="10" ry="6.5" fill="#78909c" stroke="#263238" stroke-width="1.6"/>'
+      + '<ellipse cx="50" cy="31" rx="17" ry="16" fill="#f5f5f5" stroke="#9e9e9e" stroke-width="1.6"/>'
+      + '<rect x="41" y="41" width="18" height="8" rx="3" fill="#eeeeee" stroke="#9e9e9e" stroke-width="1.4"/>'
+      + '<path d="M45 41 L45 49 M50 41 L50 49 M55 41 L55 49" stroke="#9e9e9e" stroke-width="1.2"/>'
+      + '<ellipse cx="43.5" cy="31" rx="5.2" ry="5.8" fill="#212121"/><ellipse cx="56.5" cy="31" rx="5.2" ry="5.8" fill="#212121"/>'
+      + '<circle class="glow" cx="44" cy="31.5" r="2.2" fill="#e040fb"/><circle class="glow" cx="57" cy="31.5" r="2.2" fill="#e040fb"/>'
+      + '<path d="M50 36 L48 39.5 L52 39.5 Z" fill="#424242"/>'
+      + '<path d="M31 28 Q31 9 50 8 Q69 9 69 28 Q60 21 50 21 Q40 21 31 28 Z" fill="#37474f" stroke="#1c262b" stroke-width="1.6"/>'
+      + '<path d="M34 17 Q21 13 22 1 Q28 9 38 12 Z" fill="#eceff1" stroke="#9e9e9e" stroke-width="1.2"/><path d="M66 17 Q79 13 78 1 Q72 9 62 12 Z" fill="#eceff1" stroke="#9e9e9e" stroke-width="1.2"/>'
+      + '<path d="M50 8 L47 15 L53 15 Z" fill="#ce93d8"/></svg>',
   };
   const artHTML = (icon) => (String(icon).startsWith('svg:') ? (BATTLE_ART[icon.slice(4)] || '❓') : esc(icon));
   // 太空主題：主角坐在太空飛行船裡
@@ -250,6 +270,7 @@
   const BATTLE_THEMES = {
     space: { moves: [['雷射光束', '🔆'], ['光子砲', '💥'], ['星星飛彈', '🌟']], special: ['超級光速砲', '☄️'], foeMoves: [['外星光線', '🟢'], ['黏液炸彈', '🦠']], ship: true },
     garden: {},
+    underworld: {},
   };
   function startDailyHomework(subject) {
     const hw = DAY.data.homework[subject], cfg = DAILY_FOES[subject], sb = SUBJECTS.find((x) => x.id === cfg.subject);
@@ -265,7 +286,7 @@
     b = b || {};
     const th = BATTLE_THEMES[b.theme] || {};
     return {
-      theme: BATTLE_THEMES[b.theme] ? b.theme : '',
+      theme: (BATTLE_THEMES[b.theme] ? b.theme : '') + (b.fx === 'punch' ? ' fx-punch' : ''),
       heroHTML: th.ship ? shipHTML() : null,
       st: { moves: b.moves || th.moves || base.moves, special: b.special || th.special || base.special, foeMoves: b.foeMoves || th.foeMoves || base.foeMoves },
       foe: b.foe && b.foe.name ? { name: b.foe.name, icon: b.foe.icon || '👾' } : defFoe,
@@ -459,7 +480,7 @@
     $app.innerHTML = `
       <section class="play ${boss ? 'is-boss' : ''}" style="--c:${r.color}">
         <header class="ptop"><button class="icon" id="quit" title="離開">✕</button><span class="pt">${r.icon} ${r.final ? '最終決戰' : boss ? '魔王戰' : r.levels[lv]}</span><span class="cnt" id="cnt"></span></header>
-        <div class="arena ${custom && custom.theme ? 'th-' + custom.theme : ''}" id="arena">
+        <div class="arena ${custom && custom.theme ? custom.theme.trim().split(' ').map((c) => (c.startsWith('fx-') ? c : 'th-' + c)).join(' ') : ''}" id="arena">
           <div class="fighter hero" id="hero">
             <div class="tag">${boss ? `<span class="hearts" id="hearts"></span>` : '<span class="shield">🛡️ 勇者</span>'}</div>
             <span class="body">${custom && custom.heroHTML ? custom.heroHTML : S.player.avatar}</span><b>${esc(S.player.name)}</b>

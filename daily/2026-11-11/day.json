@@ -6,23 +6,42 @@
       "title": "國文作業",
       "topic": "相反詞",
       "battle": {
-        "theme": "garden",
+        "theme": "underworld",
+        "fx": "punch",
         "foe": {
-          "name": "螳螂王",
-          "icon": "svg:mantis-king"
+          "name": "冥將",
+          "icon": "svg:skeleton-general"
         },
+        "moves": [
+          [
+            "正義鐵拳",
+            "🤜"
+          ],
+          [
+            "連環快拳",
+            "👊"
+          ],
+          [
+            "旋風拳",
+            "✊"
+          ]
+        ],
+        "special": [
+          "勇者無敵神拳",
+          "🤜"
+        ],
         "foeMoves": [
           [
-            "顛倒旋風",
-            "🌪️"
+            "冥火球",
+            "🔥"
           ],
           [
-            "鐮刀雙斬",
-            "⚔️"
+            "骨頭飛鏢",
+            "🦴"
           ],
           [
-            "反反大揮擊",
-            "💢"
+            "幽冥寒氣",
+            "🌫️"
           ]
         ]
       },

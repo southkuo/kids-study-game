@@ -435,3 +435,13 @@ body:has(.hw) { background: #fffaf0; }
 .arena.th-space .proj.to-r::before { content: ""; position: absolute; right: 70%; top: 50%; width: 70px; height: 5px; border-radius: 5px; background: linear-gradient(90deg, transparent, #4fc3f7); transform: translateY(-50%); }
 .arena.th-garden { background: radial-gradient(ellipse at 50% 105%, #7cb342 0 34%, transparent 35%), linear-gradient(#c5e1a5, #e8f5e9 60%); }
 .arena.th-garden::after { content: "🌿　🌱　　🍃　　🌿　🌾"; position: absolute; left: 0; right: 0; bottom: 4px; font-size: 22px; text-align: center; opacity: .8; pointer-events: none; }
+
+.arena.th-underworld { background: radial-gradient(ellipse at 50% 105%, #4a148c 0 34%, transparent 35%), radial-gradient(ellipse at 75% 30%, rgba(224,64,251,.25), transparent 55%), linear-gradient(#140822, #2d1150); box-shadow: inset 0 0 0 4px rgba(156,39,176,.55), 0 6px 14px rgba(0,0,0,.2); }
+.arena.th-underworld::after { content: "🕯️　　　　🦇　　　　🕯️"; position: absolute; left: 0; right: 0; top: 48px; text-align: center; font-size: 22px; opacity: .8; pointer-events: none; animation: bob 3s ease-in-out infinite; }
+.foe-svg .glow { animation: glow 1.4s ease-in-out infinite; }
+@keyframes glow { 50% { opacity: .35; } }
+.arena.fx-punch .proj.to-r { animation: punchR .5s cubic-bezier(.5, 0, .9, .6) forwards; font-size: 56px; }
+.arena.fx-punch .proj.big.to-r { font-size: 92px; }
+@keyframes punchR { from { transform: translateX(0) scale(.7); } 70% { transform: translateX(min(40vw, 280px)) scale(1.25); } to { transform: translateX(min(46vw, 320px)) scale(1.4); } }
+.arena.fx-punch .hero.lunge .body { animation: punchLunge .45s ease-in-out; }
+@keyframes punchLunge { 35% { transform: translateX(46px) rotate(6deg) scale(1.08); } }
