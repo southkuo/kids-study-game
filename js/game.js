@@ -25,7 +25,7 @@
   setSub('math');
 
   // ---------- 存檔 ----------
-  const fresh = () => ({ player: null, stars: {}, bosses: {}, stats: {}, seen: {}, settings: { showLands: false, count: 6, autoRead: false, sound: true } });
+  const fresh = () => ({ player: null, stars: {}, bosses: {}, stats: {}, seen: {}, settings: { showLands: false, enVoice: '', enRate: 0.75, count: 6, autoRead: false, sound: true } });
   let S = fresh();
   try {
     const raw = localStorage.getItem(SAVE_KEY);
@@ -53,6 +53,21 @@
   const fill = (t, r) => String(t).replace(/\{name\}/g, S.player ? S.player.name : '勇者')
     .replace(/\{treasure\}/g, r ? r.treasure : '').replace(/\{region\}/g, r ? r.name : '').replace(/\{boss\}/g, r ? r.boss.name : '');
 
+  // 語音挑選：iPad 有很多英文語音，包含怪聲音（Albert、Bubbles、Zarvox…）和比較機械的舊語音（Eddy、Fred…），
+  // 要跳過它們，優先用自然的 Samantha、Ava、Allison，以及 Enhanced／Premium 版本
+  const BAD_VOICE = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  const GOOD_VOICE = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  const voicesFor = (lang) => { try { return speechSynthesis.getVoices().filter((v) => v.lang.replace('_', '-').toLowerCase().startsWith(lang.toLowerCase())); } catch (e) { return []; } };
+  function goodVoices(lang) {
+    const score = (v) => { const n = v.name.toLowerCase(); let sc = 0; if (/premium/.test(n)) sc += 30; if (/enhanced|neural|natural/.test(n)) sc += 20; const i = GOOD_VOICE.findIndex((g) => n.includes(g)); if (i >= 0) sc += 15 - i * 0.5; if (v.localService) sc += 1; return sc; };
+    return voicesFor(lang).filter((v) => !BAD_VOICE.test(v.name)).sort((a, b) => score(b) - score(a));
+  }
+  function pickVoice(lang) {
+    if (lang === 'en-US' && S.settings.enVoice) { const w = voicesFor('en').find((v) => v.name === S.settings.enVoice); if (w) return w; }
+    return goodVoices(lang)[0] || (lang === 'en-US' ? goodVoices('en')[0] : null) || voicesFor(lang)[0] || null;
+  }
+  const enRate = (rate) => { const base = S.settings.enRate || 0.75; return rate && rate < 0.7 ? Math.max(0.4, base - 0.25) : base; };
+
   // 朗讀（二年級還在練習認字，可以聽題目）
   function speak(text, lang, rate) {
     if (!('speechSynthesis' in window)) return;
@@ -60,9 +75,9 @@
       try {
         speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(String(text).replace(/<[^>]+>/g, ' ').replace(/___/g, 'blank').replace(/[\u{1F000}-\u{1FFFF}\u2600-\u27BF]/gu, ''));
-        u.lang = 'en-US'; u.rate = rate || 0.85;
-        const v = speechSynthesis.getVoices().find((x) => /^en[-_]US/i.test(x.lang)) || speechSynthesis.getVoices().find((x) => /^en/i.test(x.lang));
-        if (v) u.voice = v;
+        u.lang = 'en-US'; u.rate = enRate(rate);
+        const v = pickVoice('en-US');
+        if (v) { u.voice = v; u.lang = v.lang; }
         speechSynthesis.speak(u);
       } catch (e) { /* 忽略 */ }
       return;
@@ -75,7 +90,7 @@
       speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(t);
       u.lang = 'zh-TW'; u.rate = 0.9;
-      const v = speechSynthesis.getVoices().find((x) => /zh[-_]TW/i.test(x.lang));
+      const v = pickVoice('zh-TW');
       if (v) u.voice = v;
       speechSynthesis.speak(u);
     } catch (e) { /* 忽略 */ }
@@ -299,7 +314,7 @@
     $app.innerHTML = `
       <section class="lesson" style="--c:${sj.color}">
         <header class="ptop"><button class="icon" id="lx" title="回今日任務">✕</button><span class="pt">${sj.icon} ${esc(ls.title)}</span><span class="cnt"></span></header>
-        <iframe src="${esc(ls.file)}" title="${esc(ls.title)}" sandbox="allow-scripts" allow="autoplay"></iframe>
+        <iframe src="${esc(ls.file)}#rate=${S.settings.enRate || 0.75}${S.settings.enVoice ? '&voice=' + encodeURIComponent(S.settings.enVoice) : ''}" title="${esc(ls.title)}" sandbox="allow-scripts" allow="autoplay"></iframe>
       </section>`;
     $app.querySelector('#lx').onclick = () => { hush(); showHome(); };
   }
@@ -932,8 +947,8 @@
     if (!('speechSynthesis' in window)) return;
     try {
       speechSynthesis.cancel();
-      const v = speechSynthesis.getVoices().find((x) => /^en[-_]US/i.test(x.lang)) || speechSynthesis.getVoices().find((x) => /^en/i.test(x.lang));
-      texts.forEach((t) => { const u = new SpeechSynthesisUtterance(t); u.lang = 'en-US'; u.rate = 0.8; if (v) u.voice = v; speechSynthesis.speak(u); });
+      const v = pickVoice('en-US');
+      texts.forEach((t) => { const u = new SpeechSynthesisUtterance(t); u.lang = 'en-US'; u.rate = enRate(); if (v) { u.voice = v; u.lang = v.lang; } speechSynthesis.speak(u); });
     } catch (e) { /* 忽略 */ }
   }
   async function showReadAll() {
@@ -1026,6 +1041,8 @@
       <table class="stats"><thead><tr><th>地區</th><th>作答</th><th>答對率</th><th>星星</th></tr></thead><tbody>${rows}</tbody></table>
       <label class="set"><input type="checkbox" id="ar" ${st.autoRead ? 'checked' : ''}> 自動念題目和劇情</label>
       <label class="set">每隻手下的血量（題數） <select id="cnt">${[4, 6, 8, 10].map((n) => `<option ${n === st.count ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+      <div class="set voiceset"><span>英文語音</span><select id="ev"><option value="">自動（挑最自然的）</option></select></div>
+      <div class="set voiceset"><span>英文速度</span><select id="er">${[[0.6, '很慢'], [0.7, '慢'], [0.75, '稍慢（建議）'], [0.85, '正常']].map(([v, t]) => `<option value="${v}" ${v === (st.enRate || 0.75) ? 'selected' : ''}>${t}</option>`).join('')}</select><button class="hb" id="etest">🔊 試聽</button></div>
       <label class="set"><input type="checkbox" id="sl" ${st.showLands ? 'checked' : ''}> 首頁顯示「選擇國度」自由冒險關卡</label>
       <label class="set"><input type="checkbox" id="rs"> 下次重新播放全部劇情</label>
       <div class="rbtns"><button class="btn danger" id="reset">清除全部進度</button><button class="btn gold" id="done">完成</button></div>`);
@@ -1034,6 +1051,16 @@
     m.querySelector('#done').onclick = close;
     m.querySelector('#ar').onchange = (e) => { st.autoRead = e.target.checked; save(); };
     m.querySelector('#cnt').onchange = (e) => { st.count = +e.target.value; save(); };
+    const ev = m.querySelector('#ev');
+    const fillVoices = () => {
+      const list = goodVoices('en');
+      ev.innerHTML = '<option value="">自動（挑最自然的）</option>' + list.map((v) => `<option value="${esc(v.name)}" ${v.name === st.enVoice ? 'selected' : ''}>${esc(v.name)}（${esc(v.lang)}）</option>`).join('');
+    };
+    fillVoices();
+    try { speechSynthesis.addEventListener('voiceschanged', fillVoices, { once: true }); } catch (e) { /* 忽略 */ }
+    ev.onchange = () => { st.enVoice = ev.value; save(); speak('Hello! How are you today? I am happy.', 'en'); };
+    m.querySelector('#er').onchange = (e) => { st.enRate = +e.target.value; save(); speak('Hello! How are you today? I am happy.', 'en'); };
+    m.querySelector('#etest').onclick = () => speak('Hello! How are you today? I am happy.', 'en');
     m.querySelector('#sl').onchange = (e) => { st.showLands = e.target.checked; save(); };
     m.querySelector('#rs').onchange = (e) => { if (e.target.checked) { S.seen = {}; save(); } };
     m.querySelector('#reset').onclick = () => {

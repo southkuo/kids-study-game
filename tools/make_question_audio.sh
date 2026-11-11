@@ -32,7 +32,7 @@ N=0
 while IFS= read -r LINE; do
   N=$((N + 1))
   # </dev/null：避免 espeak-ng 偷讀下一行
-  espeak-ng -v mb-us2 -s 135 -a 170 -w "$TMP/q$N.wav" "$LINE" </dev/null 2>/dev/null
+  espeak-ng -v mb-us2 -s 112 -g 7 -a 170 -w "$TMP/q$N.wav" "$LINE" </dev/null 2>/dev/null
   ffmpeg -nostdin -v error -y -i "$TMP/q$N.wav" -af "loudnorm=I=-18:TP=-2,aresample=22050" -ac 1 -c:a aac -b:a 64k "$OUT/q$N.m4a"
   printf 'q%s.m4a  %ss  %s\n' "$N" "$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$OUT/q$N.m4a")" "$LINE"
 done < "$TMP/qs.txt"

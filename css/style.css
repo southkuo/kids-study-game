@@ -445,3 +445,7 @@ body:has(.hw) { background: #fffaf0; }
 @keyframes punchR { from { transform: translateX(0) scale(.7); } 70% { transform: translateX(min(40vw, 280px)) scale(1.25); } to { transform: translateX(min(46vw, 320px)) scale(1.4); } }
 .arena.fx-punch .hero.lunge .body { animation: punchLunge .45s ease-in-out; }
 @keyframes punchLunge { 35% { transform: translateX(46px) rotate(6deg) scale(1.08); } }
+
+.voiceset { flex-wrap: wrap; }
+.voiceset span { min-width: 5em; }
+.voiceset select { flex: 1; min-width: 0; max-width: 100%; }
