@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>7 和 9 的乘法</title>
+<style>
+:root { --c: #2f8fd8; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式 ===== */
+.row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center}
+.grp{display:inline-grid;gap:2px;padding:6px 8px;border-radius:16px;background:#e8f3fc;font-size:22px;line-height:1.1;animation:pop .4s ease-out both}
+.grp.g7{grid-template-columns:repeat(7,1fr)}
+.grp.g9{grid-template-columns:repeat(3,1fr)}
+@keyframes pop{0%{transform:scale(.3);opacity:0}100%{transform:scale(1);opacity:1}}
+.eq{font-size:clamp(28px,8vw,44px);font-weight:900;text-align:center;color:var(--c);margin:6px 0}
+.kou{font-size:24px;font-weight:900;text-align:center;color:#b25b00;min-height:1.4em}
+.ctl{display:flex;gap:14px;justify-content:center;align-items:center;margin:8px 0}
+.ctl button{width:64px;height:56px;border:0;border-radius:18px;background:#ffe38a;box-shadow:0 4px 0 #9a6608;font:inherit;font-size:32px;font-weight:900;cursor:pointer}
+.ctl span{font-size:22px;font-weight:900;min-width:90px;text-align:center}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;width:min(100%,420px)}
+.cal b{display:flex;align-items:center;justify-content:center;height:34px;border-radius:8px;background:#e8f3fc;font-size:17px;color:#2f8fd8;animation:pop .3s ease-out both}
+.cal b.end{background:#2f8fd8;color:#fff}
+.cal .hd{background:none;color:#6a5536;animation:none}
+.tbl{display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
+.ten{display:flex;flex-direction:column;gap:5px;align-items:center;width:100%}
+.ten .line{display:flex;gap:3px}
+.ten i{display:inline-block;width:clamp(16px,4.5vw,22px);height:clamp(16px,4.5vw,22px);border-radius:50%;background:#2f8fd8}
+.ten i.x{background:#ffd6d6;position:relative}
+.ten i.x::after{content:'✕';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-style:normal;color:#e5484d;font-weight:900}
+input[type=range]{width:min(100%,360px);height:40px;accent-color:#2f8fd8}
+.qbox{padding:6px 0 16px;border-bottom:3px dashed #eadfc8;margin-bottom:10px}
+
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容：每一頁一個 section.step ===== -->
+  <section class="step" data-auto="一個星期有七天。一個星期，七天。兩個星期，十四天。三個星期，二十一天。四個星期，二十八天。">
+    <h1>7 和 9 的乘法</h1>
+    <div class="stage" style="flex-direction:column"><div class="cal" id="cal"></div></div>
+    <p class="big" id="wk">一個星期有 7 天</p>
+    <p class="small">7、14、21、28……每次多 7！</p>
+  </section>
+
+  <section class="step" data-auto="7 的乘法。一排有七顆星星。按加號，看看有幾顆。">
+    <h1>7 的乘法</h1>
+    <div class="stage"><div class="row" id="s7"></div></div>
+    <div class="ctl"><button id="m7">－</button><span id="n7"></span><button id="p7">＋</button></div>
+    <p class="eq" id="e7"></p><p class="kou" id="k7"></p>
+  </section>
+
+  <section class="step" data-auto="9 的乘法。棒球比賽，一隊上場有九個人。按加號，看看有幾個人。">
+    <h1>9 的乘法</h1>
+    <div class="stage"><div class="row" id="s9"></div></div>
+    <div class="ctl"><button id="m9">－</button><span id="n9"></span><button id="p9">＋</button></div>
+    <p class="eq" id="e9"></p><p class="kou" id="k9"></p>
+  </section>
+
+  <section class="step" data-auto="小祕密！9 比 10 少 1。先算 10 個一數，再每一排拿掉一個，就是 9 的乘法。拉拉看。">
+    <h1>小祕密：9 = 10 − 1</h1>
+    <div class="stage" style="min-height:200px"><div class="ten" id="ten"></div></div>
+    <p class="center"><input type="range" id="tn" min="1" max="9" value="3"></p>
+    <p class="eq" id="te" style="font-size:clamp(21px,5.6vw,30px)"></p>
+    <p class="small">每一排 10 顆，拿掉 1 顆（✕），剩下 9 顆。</p>
+  </section>
+
+  <section class="step" data-auto="一起來背口訣。點一點，聽聽看。">
+    <h1>口訣表</h1>
+    <p class="small">7 的口訣</p><div class="tbl" id="t7"></div>
+    <p class="small">9 的口訣</p><div class="tbl" id="t9"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗。先做第一題：一包球有七顆，六包有幾顆？">
+    <h1>小測驗</h1>
+    <div class="qbox">
+      <p class="big">① 一包球有 7 顆，<br>6 包有幾顆？</p>
+      <p class="center"><button class="say" data-say="一包球有七顆，六包有幾顆">🔊 聽題目</button></p>
+      <div class="quiz" data-why="6 包，每包 7 顆，是 7 × 6 = 42。口訣「七六四十二」。">
+        <button>13</button><button data-right>42</button><button>48</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+    <div>
+      <p class="big">② 9 × 7 = ？</p>
+      <p class="center"><button class="say" data-say="九乘以七等於多少">🔊 聽題目</button></p>
+      <div class="quiz" data-why="口訣「九七六十三」。也可以想 10 × 7 = 70，再拿掉 7，70 − 7 = 63。">
+        <button>56</button><button data-right>63</button><button>72</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+  </section>
+
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+(function(){
+/* 口訣：當天主題的數字在前（7 的乘法：七一得七、七二十四、七三二十一…；9 的乘法：九一得九、九二十八…） */
+var CH='零一二三四五六七八九';
+function kou(a,n){var p=a*n,t=Math.floor(p/10),o=p%10,tail=p<10?'得'+CH[p]:p===10?'一十':p<20?'十'+CH[o]:CH[t]+'十'+(o?CH[o]:'');return CH[a]+CH[n]+tail;}
+window.__kou=kou;
+function mk(a,icon,max,unit){
+ var n=1,s=document.getElementById('s'+a);
+ function draw(){s.innerHTML='';for(var i=0;i<n;i++){var g=document.createElement('span');g.className='grp g'+a;g.innerHTML=new Array(a+1).join('<span>'+icon+'</span>');s.appendChild(g);}
+  document.getElementById('n'+a).textContent=n+' '+unit;
+  document.getElementById('e'+a).textContent=a+' × '+n+' = '+(a*n);
+  document.getElementById('k'+a).textContent='口訣：'+kou(a,n);}
+ function speak(){say(n+'個'+a+'，'+a+'乘以'+n+'等於'+(a*n)+'。'+kou(a,n));}
+ document.getElementById('p'+a).onclick=function(){if(n<max){n++;draw();speak();}};
+ document.getElementById('m'+a).onclick=function(){if(n>1){n--;draw();speak();}};
+ draw();
+}
+mk(7,'⭐',9,'排');mk(9,'🧢',9,'隊');
+[7,9].forEach(function(a){var t=document.getElementById('t'+a);for(var n=1;n<=9;n++){(function(n){var b=document.createElement('button');b.className='say';b.style.fontSize='17px';b.style.margin='3px';
+ b.textContent=kou(a,n)+' ＝ '+a*n;b.onclick=function(){say(kou(a,n)+'，'+a+'乘以'+n+'等於'+a*n);};t.appendChild(b);})(n);}});
+var tn=document.getElementById('tn');
+function ten(speak){var n=+tn.value,h='';
+ for(var r=0;r<n;r++){h+='<div class="line">'+new Array(10).join('<i></i>')+'<i class="x"></i></div>';}
+ document.getElementById('ten').innerHTML=h;
+ document.getElementById('te').textContent='9 × '+n+' = 10 × '+n+' − '+n+' = '+10*n+' − '+n+' = '+9*n;
+ if(speak)say('10乘以'+n+'等於'+10*n+'，拿掉'+n+'個，剩下'+9*n+'。所以9乘以'+n+'等於'+9*n);}
+tn.oninput=function(){ten(false);};tn.onchange=function(){ten(true);};ten(false);
+var tm=[];
+window.onStep=function(i){tm.forEach(clearTimeout);tm=[];if(i!==0)return;var cal=document.getElementById('cal'),wk=document.getElementById('wk');
+ cal.innerHTML='';'日一二三四五六'.split('').forEach(function(d){var b=document.createElement('b');b.className='hd';b.textContent=d;cal.appendChild(b);});wk.textContent='一個星期有 7 天';
+ for(var k=0;k<4;k++)(function(k){tm.push(setTimeout(function(){for(var d=1;d<=7;d++){var b=document.createElement('b');var v=k*7+d;b.textContent=v;if(d===7)b.className='end';b.style.animationDelay=(d*0.06)+'s';cal.appendChild(b);}wk.textContent=(k+1)+' 個星期 → '+7*(k+1)+' 天';},k*1100));})(k);};
+})();
+
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

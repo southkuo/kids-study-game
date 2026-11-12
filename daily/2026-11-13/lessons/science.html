@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>聲音怎麼來？</title>
+<style>
+:root { --c: #2e9d5b; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式 ===== */
+.drumwrap{position:relative;width:240px;height:200px;display:flex;align-items:flex-end;justify-content:center}
+.drum{position:relative;width:200px;height:110px}
+.drum .top{position:absolute;left:0;right:0;top:0;height:44px;border-radius:50%;background:#fff6e0;border:5px solid #b5651d;z-index:2}
+.drum .body{position:absolute;left:0;right:0;top:22px;bottom:0;border-radius:0 0 30px 30px;background:repeating-linear-gradient(90deg,#e05a47 0 22px,#c94434 22px 26px);border:5px solid #b5651d;border-top:0}
+.rice{position:absolute;top:8px;z-index:3;width:9px;height:5px;border-radius:50%;background:#c9b88f}
+.drum.hit .top{animation:shake .08s linear 8}
+@keyframes shake{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
+.rice.jump{animation:rj .25s ease-out 4 alternate}
+@keyframes rj{to{transform:translateY(calc(var(--h) * -1)) rotate(90deg)}}
+.wave{position:absolute;left:50%;top:40%;width:60px;height:60px;margin:-30px 0 0 -30px;border:4px solid #2e9d5b;border-radius:50%;opacity:0;pointer-events:none}
+.wave.go{animation:ring 1s ease-out forwards}
+@keyframes ring{from{opacity:.9;transform:scale(.6)}to{opacity:0;transform:scale(var(--s,3))}}
+.hitbtns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.hitbtns button{min-height:58px;padding:8px 22px;border:0;border-radius:999px;font:inherit;font-size:21px;font-weight:900;cursor:pointer}
+.hitbtns .soft{background:#e3f6ea;box-shadow:0 4px 0 #8fd1a8;color:#1d6b3c}
+.hitbtns .hard{background:#2e9d5b;box-shadow:0 4px 0 #1d6b3c;color:#fff}
+.meter{font-size:22px;font-weight:900;text-align:center;color:#2e9d5b;min-height:1.5em}
+.throat{font-size:110px;display:inline-block}
+.throat.buzz{animation:bz .06s linear 16}
+@keyframes bz{0%,100%{transform:translateX(0)}50%{transform:translateX(3px)}}
+.trip{position:relative;width:100%;height:150px;display:flex;align-items:center;justify-content:space-between;padding:0 10px}
+.trip .src,.trip .ear{font-size:64px;z-index:2}
+.trip .arc{position:absolute;top:50%;left:70px;width:40px;height:80px;margin-top:-40px;border-right:5px solid #2e9d5b;border-radius:0 50% 50% 0;opacity:0}
+.trip.go .arc{animation:fly 2s linear infinite}
+@keyframes fly{0%{opacity:0;transform:translateX(0)}10%{opacity:1}90%{opacity:1}100%{opacity:0;transform:translateX(calc(100vw * .5))}}
+@media (min-width:760px){@keyframes fly{0%{opacity:0;transform:translateX(0)}10%{opacity:1}90%{opacity:1}100%{opacity:0;transform:translateX(480px)}}}
+.qbox{padding:6px 0 16px;border-bottom:3px dashed #eadfc8;margin-bottom:10px}
+
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容：每一頁一個 section.step ===== -->
+  <section class="step" data-auto="咚！咚！咚！聲音是怎麼來的呢？點一下鼓，仔細看鼓面上的米粒。">
+    <h1>聲音怎麼來？</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="drumwrap" id="drum0"></div>
+      <button class="say" id="hit0">🥁 點我敲鼓</button>
+    </div>
+    <p class="big">敲鼓的時候，<br>米粒為什麼會跳起來？</p>
+  </section>
+
+  <section class="step" data-auto="因為鼓面在很快很快地抖動，這叫做振動。東西振動，就會發出聲音。">
+    <h1>東西「振動」就有聲音</h1>
+    <div class="stage" style="flex-direction:column;min-height:200px">
+      <div class="drumwrap" id="drum1"></div>
+    </div>
+    <p class="big">鼓面很快地抖來抖去，<br>這叫做<span style="color:#2e9d5b">「振動」</span>。</p>
+    <p class="big">東西振動，就會發出聲音！</p>
+    <p class="center"><button class="say" data-say="鼓面很快地抖來抖去，這叫做振動。東西振動，就會發出聲音。">🔊 聽一聽</button></p>
+  </section>
+
+  <section class="step" data-auto="我們說話的聲音也是振動來的喔！把手輕輕放在喉嚨上，說：啊！你會覺得喉嚨麻麻的，在振動。">
+    <h1>摸摸喉嚨</h1>
+    <div class="stage" style="flex-direction:column;min-height:200px">
+      <span class="throat" id="thr">🗣️</span>
+      <button class="say" id="ahh">👉 點我，一起說「啊——」</button>
+    </div>
+    <p class="big">手放在喉嚨上說話，<br>會覺得麻麻的，那就是振動！</p>
+  </section>
+
+  <section class="step" data-auto="輕輕敲和用力敲，有什麼不一樣？按按看。">
+    <h1>輕輕敲、用力敲</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="drumwrap" id="drum2"></div>
+    </div>
+    <div class="hitbtns"><button class="soft" id="soft">🤏 輕輕敲</button><button class="hard" id="hard">💪 用力敲</button></div>
+    <p class="meter" id="mtr">按按看，比一比！</p>
+  </section>
+
+  <section class="step" data-auto="聲音會旅行！聲音靠著空氣，一路傳到我們的耳朵，我們就聽到了。">
+    <h1>聲音會旅行</h1>
+    <div class="stage" style="min-height:170px"><div class="trip go"><span class="src">🔔</span><span class="arc"></span><span class="arc" style="animation-delay:.66s"></span><span class="arc" style="animation-delay:1.33s"></span><span class="ear">👂</span></div></div>
+    <p class="big">聲音靠著<span style="color:#2e9d5b">空氣</span>，<br>傳到我們的耳朵。</p>
+    <p class="small">小實驗：耳朵貼在桌子上，請家人輕輕敲桌子，<br>聲音也能從桌子傳過來喔！</p>
+    <p class="center"><button class="say" data-say="聲音靠著空氣，傳到我們的耳朵。聲音也可以從桌子傳過來。">🔊 聽一聽</button></p>
+  </section>
+
+  <section class="step" data-auto="小測驗。先做第一題：敲鼓的時候，鼓面上的米粒為什麼會跳？">
+    <h1>小測驗</h1>
+    <div class="qbox">
+      <p class="big">① 敲鼓的時候，<br>鼓面上的米粒為什麼會跳？</p>
+      <p class="center"><button class="say" data-say="敲鼓的時候，鼓面上的米粒為什麼會跳">🔊 聽題目</button></p>
+      <div class="quiz" data-why="敲鼓時鼓面在振動，把米粒彈起來；振動也讓鼓發出聲音。">
+        <button>因為有風在吹</button><button data-right>因為鼓面在振動</button><button>因為米粒會跳舞</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+    <div>
+      <p class="big">② 輕輕敲和用力敲，<br>哪一個聲音比較大？</p>
+      <p class="center"><button class="say" data-say="輕輕敲和用力敲，哪一個聲音比較大">🔊 聽題目</button></p>
+      <div class="quiz" data-why="用力敲，鼓面振動得比較厲害，聲音就比較大。">
+        <button>輕輕敲</button><button data-right>用力敲</button><button>一樣大</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+  </section>
+
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+(function(){
+var AC=null;
+function boom(vol){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();
+ var t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.setValueAtTime(140,t);o.frequency.exponentialRampToValueAtTime(55,t+0.4);
+ g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+0.01);g.gain.exponentialRampToValueAtTime(0.0001,t+0.6);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+0.65);}catch(e){}}
+function makeDrum(id){var w=document.getElementById(id);
+ var h='<div class="drum"><div class="top"></div><div class="body"></div>';
+ [30,62,95,128,160,78,112].forEach(function(x,i){h+='<span class="rice" style="left:'+x+'px;top:'+(i<5?14:24)+'px"></span>';});
+ h+='</div>';for(var i=0;i<3;i++)h+='<span class="wave"></span>';w.innerHTML=h;return w;}
+function hit(w,power){var d=w.querySelector('.drum');d.classList.remove('hit');void d.offsetWidth;d.classList.add('hit');
+ [].forEach.call(w.querySelectorAll('.rice'),function(r){r.style.setProperty('--h',(power*(14+Math.random()*12))+'px');r.classList.remove('jump');void r.offsetWidth;r.classList.add('jump');});
+ [].forEach.call(w.querySelectorAll('.wave'),function(v,i){v.style.setProperty('--s',power>1.5?4.2:2);v.style.animationDelay=(i*0.18)+'s';v.classList.remove('go');void v.offsetWidth;v.classList.add('go');});}
+var d0=makeDrum('drum0'),d1=makeDrum('drum1'),d2=makeDrum('drum2');
+d0.onclick=document.getElementById('hit0').onclick=function(){hit(d0,1.6);boom(0.6);};
+document.getElementById('soft').onclick=function(){hit(d2,0.6);boom(0.12);document.getElementById('mtr').textContent='🔈 輕輕敲：振動小，聲音小';say('輕輕敲，振動小，聲音小');};
+document.getElementById('hard').onclick=function(){hit(d2,2.2);boom(0.9);document.getElementById('mtr').textContent='🔊 用力敲：振動大，聲音大';say('用力敲，振動大，聲音大');};
+document.getElementById('ahh').onclick=function(){var t=document.getElementById('thr');t.classList.remove('buzz');void t.offsetWidth;t.classList.add('buzz');say('啊——。喉嚨在振動喔！');};
+var loop=null;
+window.onStep=function(i){clearInterval(loop);if(i===1){hit(d1,1.4);loop=setInterval(function(){if(cur===1)hit(d1,1.4);},1800);}};
+})();
+
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

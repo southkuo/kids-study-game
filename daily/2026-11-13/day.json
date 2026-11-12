@@ -411,5 +411,31 @@
         }
       ]
     }
-  }
+  },
+  "lessons": [
+    {
+      "subject": "chinese",
+      "title": "疊字詞：亮晶晶、綠油油",
+      "summary": "看星星變亮晶晶，認識「後面兩個字一樣」的疊字詞，比一比用了疊字詞的句子有多生動，再點卡片聽紅通通、熱呼呼、毛茸茸怎麼用。",
+      "file": "daily/2026-11-13/lessons/chinese.html"
+    },
+    {
+      "subject": "english",
+      "title": "Let's Play Sports!",
+      "summary": "點卡片學 soccer、basketball、swimming 等運動單字，練習說 I like playing soccer. 和 Can you swim? Yes, I can.",
+      "file": "daily/2026-11-13/lessons/english.html"
+    },
+    {
+      "subject": "math",
+      "title": "7 和 9 的乘法",
+      "summary": "從一個星期 7 天和棒球隊 9 個人學 7、9 的乘法，用「9 = 10 − 1」的小祕密算 9 的乘法，再點口訣表背七一得七、九一得九。",
+      "file": "daily/2026-11-13/lessons/math.html"
+    },
+    {
+      "subject": "science",
+      "title": "聲音怎麼來？",
+      "summary": "敲鼓看米粒跳起來，知道東西「振動」就會發出聲音；摸喉嚨感覺說話的振動，比較輕輕敲和用力敲，再看聲音怎麼靠空氣傳到耳朵。",
+      "file": "daily/2026-11-13/lessons/science.html"
+    }
+  ]
 }

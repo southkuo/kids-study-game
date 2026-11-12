@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Let's Play Sports!</title>
+<style>
+:root { --c: #3f6fe0; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式 ===== */
+.field{position:relative;width:100%;height:170px;border-radius:20px;background:linear-gradient(180deg,#bfe3ff 0,#bfe3ff 60%,#7cc576 60%);overflow:hidden}
+.field span{position:absolute;bottom:28px;font-size:50px;animation:bnc .7s ease-in infinite alternate}
+@keyframes bnc{from{transform:translateY(-70px)}to{transform:translateY(0)}}
+.field .runner{bottom:20px;font-size:56px;animation:dash 4s linear infinite}
+@keyframes dash{from{left:-70px}to{left:105%}}
+.en{font-size:clamp(24px,6vw,34px);font-weight:900;color:#3f6fe0;text-align:center;font-family:system-ui,sans-serif}
+.zh{font-size:18px;font-weight:700;color:#6a5536;text-align:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;width:100%}
+.card .e{font-size:46px;display:inline-block}
+.card .w{font-size:21px;font-weight:900;color:#3f6fe0;font-family:system-ui,sans-serif}
+.card .z{font-size:17px;font-weight:700;color:#6a5536}
+.card.lit{background:#e3ebff;box-shadow:0 4px 0 #9db4f3}
+.card.lit .e{animation:spin .6s ease-out}
+@keyframes spin{from{transform:rotate(-25deg) scale(.7)}to{transform:none}}
+.picks{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.picks button{min-height:56px;min-width:64px;border:0;border-radius:16px;background:#fff;box-shadow:0 4px 0 #9db4f3;font:inherit;font-size:34px;cursor:pointer}
+.picks button.on{background:#e3ebff}
+.sent{font-size:clamp(22px,5.6vw,30px);font-weight:900;text-align:center;color:#3f6fe0;font-family:system-ui,sans-serif;min-height:1.5em}
+.sent u{text-decoration:none;background:#fff1a8;border-radius:8px;padding:0 4px}
+.rule{display:grid;gap:8px;width:100%}
+.rule div{padding:10px;border-radius:16px;background:#f2f6ff;font-size:clamp(19px,5vw,24px);font-weight:900;text-align:center;font-family:system-ui,sans-serif;color:#2b3f7a}
+.yn{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.yn button{min-height:56px;padding:8px 20px;border:0;border-radius:999px;font:inherit;font-size:21px;font-weight:900;cursor:pointer;font-family:system-ui,sans-serif}
+.yn .y{background:#d8f7e1;box-shadow:0 4px 0 #2fb35a;color:#0e6b2e}
+.yn .n{background:#ffe1e1;box-shadow:0 4px 0 #e5484d;color:#a0161b}
+.act{font-size:86px;display:inline-block}
+.act.go{animation:hopp .45s ease-out 4 alternate}
+@keyframes hopp{to{transform:translateY(-40px) rotate(8deg)}}
+.quiz button{font-family:system-ui,sans-serif}
+
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容：每一頁一個 section.step ===== -->
+  <section class="step" data-auto="Sports! Let's play sports!" data-lang="en-US">
+    <h1>Let's Play Sports!</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="field"><span style="left:8%">⚽</span><span style="left:40%;animation-delay:-.35s">🏀</span><span style="left:72%;animation-delay:-.2s">🏸</span><span class="runner">🏃</span></div>
+    </div>
+    <p class="en">Let's play sports!</p>
+    <p class="zh">一起來做運動！</p>
+    <p class="center"><button class="say" data-say="Let's play sports!" data-lang="en-US">🔊 Listen</button></p>
+  </section>
+
+  <section class="step" data-auto="Tap a sport and listen." data-lang="en-US">
+    <h1>Sports Words</h1>
+    <p class="small">點一點，聽英文怎麼說。</p>
+    <div class="stage"><div class="grid" id="words"></div></div>
+  </section>
+
+  <section class="step" data-auto="I like playing soccer. I like swimming. Ball games use playing." data-lang="en-US">
+    <h1>I like …</h1>
+    <div class="stage" style="min-height:150px">
+      <div class="rule">
+        <div data-say="I like playing soccer." data-lang="en-US">⚽ 球類：I like <u style="text-decoration:none;background:#fff1a8;border-radius:8px;padding:0 4px">playing</u> soccer.</div>
+        <div data-say="I like swimming." data-lang="en-US">🏊 I like swimming.</div>
+      </div>
+    </div>
+    <p class="small">有球的運動，前面加 <b>playing</b>（打球、踢球）。<br>游泳、跑步直接說 swimming、running。</p>
+    <p class="small">選一個你喜歡的運動：</p>
+    <div class="picks" id="like"></div>
+    <p class="sent" id="likeS">I like ___.</p>
+    <p class="zh" id="likeZ">選一個，跟著說完整的句子！</p>
+  </section>
+
+  <section class="step" data-auto="Can you swim? Yes, I can. No, I can't." data-lang="en-US">
+    <h1>Can you …?</h1>
+    <div class="picks" id="can"></div>
+    <div class="stage" style="min-height:150px;flex-direction:column"><span class="act" id="actor">🏊</span><p class="sent" id="canQ">Can you swim?</p></div>
+    <div class="yn"><button class="y" id="yes">✅ Yes, I can.</button><button class="n" id="no">❌ No, I can't.</button></div>
+    <p class="sent" id="canA" style="margin-top:10px"></p>
+    <p class="zh" id="canZ">先選動作，再回答會不會。</p>
+  </section>
+
+  <section class="step" data-auto="Quiz! I like playing what?" data-lang="en-US">
+    <h1>Quiz 1</h1>
+    <div class="stage" style="min-height:120px"><span style="font-size:80px">🏀</span></div>
+    <p class="big" style="font-family:system-ui,sans-serif">I like playing ______.</p>
+    <p class="center"><button class="say" data-say="Look at the picture. I like playing what?" data-lang="en-US">🔊 Listen</button></p>
+    <div class="quiz" data-why="圖上是籃球，basketball 就是籃球：I like playing basketball.">
+      <button>soccer</button><button data-right>basketball</button><button>badminton</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="Quiz! Can you swim?" data-lang="en-US">
+    <h1>Quiz 2</h1>
+    <p class="big" style="font-family:system-ui,sans-serif">Can you swim? 🏊</p>
+    <p class="center"><button class="say" data-say="Can you swim?" data-lang="en-US">🔊 Listen</button></p>
+    <div class="quiz" data-why="問 Can you…? 就用 can 回答：Yes, I can. 或 No, I can't.">
+      <button>Yes, I am.</button><button data-right>Yes, I can.</button><button>I like apples.</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+(function(){
+var W=[['⚽','soccer','足球'],['🏀','basketball','籃球'],['🏸','badminton','羽毛球'],['⚾','baseball','棒球'],['🏊','swimming','游泳'],['🏃','running','跑步']];
+var g=document.getElementById('words');
+W.forEach(function(w){var c=document.createElement('button');c.className='card';c.innerHTML='<span class="e">'+w[0]+'</span><span class="w">'+w[1]+'</span><span class="z">'+w[2]+'</span>';
+ c.onclick=function(){[].forEach.call(g.children,function(x){x.classList.remove('lit');});void c.offsetWidth;c.classList.add('lit');say(w[1],'en-US');};g.appendChild(c);});
+var L=[['⚽','I like playing soccer.','我喜歡踢足球。'],['🏀','I like playing basketball.','我喜歡打籃球。'],['🏸','I like playing badminton.','我喜歡打羽毛球。'],['⚾','I like playing baseball.','我喜歡打棒球。'],['🏊','I like swimming.','我喜歡游泳。'],['🏃','I like running.','我喜歡跑步。']];
+var lp=document.getElementById('like');
+L.forEach(function(l){var b=document.createElement('button');b.textContent=l[0];b.onclick=function(){[].forEach.call(lp.children,function(x){x.classList.remove('on');});b.classList.add('on');
+ document.getElementById('likeS').textContent=l[1];document.getElementById('likeZ').textContent=l[2];say(l[1],'en-US');};lp.appendChild(b);});
+var C=[['🏊','swim','游泳'],['🏃','run fast','跑得很快'],['🦘','jump high','跳得很高'],['⚽','kick a ball','踢球']],ci=0;
+var cp=document.getElementById('can'),actor=document.getElementById('actor');
+function setC(i,speak){ci=i;[].forEach.call(cp.children,function(x,k){x.classList.toggle('on',k===i);});actor.textContent=C[i][0];actor.classList.remove('go');void actor.offsetWidth;actor.classList.add('go');
+ document.getElementById('canQ').textContent='Can you '+C[i][1]+'?';document.getElementById('canA').textContent='';document.getElementById('canZ').textContent='你會'+C[i][2]+'嗎？';if(speak)say('Can you '+C[i][1]+'?','en-US');}
+C.forEach(function(c,i){var b=document.createElement('button');b.textContent=c[0];b.onclick=function(){setC(i,true);};cp.appendChild(b);});
+document.getElementById('yes').onclick=function(){var t='Yes, I can '+C[ci][1]+'.';document.getElementById('canA').textContent=t;document.getElementById('canZ').textContent='是的，我會'+C[ci][2]+'。';say('Yes, I can. '+t,'en-US');};
+document.getElementById('no').onclick=function(){var t="No, I can't "+C[ci][1]+'.';document.getElementById('canA').textContent=t;document.getElementById('canZ').textContent='不，我不會'+C[ci][2]+'。';say("No, I can't. "+t,'en-US');};
+setC(0,false);
+})();
+
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

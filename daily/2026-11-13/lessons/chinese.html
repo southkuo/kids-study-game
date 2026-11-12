@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>疊字詞：亮晶晶、綠油油</title>
+<style>
+:root { --c: #c0573b; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式 ===== */
+.sky{width:100%;height:200px;border-radius:20px;background:linear-gradient(180deg,#1d2b5a,#3b4f8f);position:relative;overflow:hidden}
+.sky i{position:absolute;font-style:normal;font-size:30px;animation:tw 1.4s ease-in-out infinite alternate}
+@keyframes tw{from{opacity:.35;transform:scale(.8)}to{opacity:1;transform:scale(1.15)}}
+.word{display:flex;gap:6px;justify-content:center;margin:10px 0}
+.word b{display:inline-flex;align-items:center;justify-content:center;width:clamp(64px,18vw,90px);height:clamp(64px,18vw,90px);border-radius:18px;background:#fff3ec;box-shadow:0 4px 0 #e2b9a6;font-size:clamp(40px,11vw,58px);color:#c0573b;opacity:0}
+.word b.in{animation:drop .5s ease-out forwards}
+.word b.same{background:#ffe7a8;box-shadow:0 4px 0 #d6a531}
+@keyframes drop{from{opacity:0;transform:translateY(-40px) scale(.5)}to{opacity:1;transform:none}}
+.cmp{display:grid;gap:10px;width:100%}
+.cmp div{padding:12px;border-radius:18px;font-size:clamp(20px,5.2vw,26px);font-weight:900;text-align:center}
+.cmp .a{background:#f3efe8;color:#6a5536}
+.cmp .b{background:#fff3ec;color:#c0573b}
+.cmp em{font-style:normal;background:#ffe7a8;border-radius:8px;padding:0 4px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;width:100%}
+.card .e{font-size:46px;display:inline-block}
+.card .w{font-size:24px;font-weight:900;color:#c0573b}
+.card.lit{background:#ffe7d9;box-shadow:0 4px 0 #e2a487}
+.card.lit .e{animation:bounce .5s ease-out 2 alternate}
+@keyframes bounce{to{transform:translateY(-14px) scale(1.15)}}
+.sent{font-size:clamp(21px,5.4vw,28px);font-weight:900;text-align:center;color:#c0573b;min-height:1.5em;line-height:1.5}
+.qbox{padding:10px 0 18px;border-bottom:3px dashed #eadfc8;margin-bottom:12px}
+
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容：每一頁一個 section.step ===== -->
+  <section class="step" data-auto="晚上抬頭看，星星很亮。亮，晶晶，亮晶晶！星星亮晶晶。">
+    <h1>疊字詞</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="sky" id="sky"></div>
+    </div>
+    <div class="word" id="w0"><b>亮</b><b class="same">晶</b><b class="same">晶</b></div>
+    <p class="big">星星<span style="color:#c0573b">亮晶晶</span>！</p>
+    <p class="center"><button class="say" data-say="星星亮晶晶。">🔊 聽一聽</button></p>
+  </section>
+
+  <section class="step" data-auto="亮晶晶、綠油油，都是三個字。第一個字說它是什麼樣子，後面兩個字一模一樣，叫做疊字。">
+    <h1>疊字詞的祕密</h1>
+    <div class="stage" style="flex-direction:column;min-height:200px">
+      <div class="word" id="w1"><b>綠</b><b class="same">油</b><b class="same">油</b></div>
+      <p class="small">第 1 個字：說顏色或感覺 ➜ 綠<br>後面 2 個字：一模一樣 ➜ 油油</p>
+    </div>
+    <p class="big">後面兩個字一樣，<br>念起來更好聽、更生動！</p>
+    <p class="center"><button class="say" data-say="綠油油。第一個字是綠，後面兩個字都是油，一模一樣。">🔊 聽一聽</button></p>
+  </section>
+
+  <section class="step" data-auto="比一比。草地很綠，草地綠油油。哪一句讓你更看得到畫面？用了疊字詞，句子就變得更生動。">
+    <h1>比一比</h1>
+    <div class="stage" style="min-height:180px">
+      <div class="cmp">
+        <div class="a" data-say="草地很綠。">🌱 草地很綠。</div>
+        <div class="b" data-say="草地綠油油的。">🌱 草地<em>綠油油</em>的。</div>
+        <div class="a" data-say="臉很紅。">😊 臉很紅。</div>
+        <div class="b" data-say="臉紅通通的。">😊 臉<em>紅通通</em>的。</div>
+      </div>
+    </div>
+    <p class="big">用了疊字詞，<br>好像看到畫面一樣！</p>
+    <p class="small">點一句，聽聽看。</p>
+  </section>
+
+  <section class="step" data-auto="點一點卡片，聽聽疊字詞怎麼用。">
+    <h1>疊字詞百寶箱</h1>
+    <p class="small">點卡片，聽句子。</p>
+    <div class="stage"><div class="grid" id="box"></div></div>
+    <p class="sent" id="boxS">點一張卡片吧！</p>
+  </section>
+
+  <section class="step" data-auto="小測驗。下雪了，地上一片什麼的？">
+    <h1>小測驗 1</h1>
+    <p class="big">下雪了，<br>地上一片（　　）的。</p>
+    <p class="center"><button class="say" data-say="下雪了，地上一片什麼的">🔊 聽題目</button></p>
+    <div class="quiz" data-why="雪是白色的，下了很多雪，看過去一大片都是白的，所以是「白茫茫」。">
+      <button>紅通通</button><button data-right>白茫茫</button><button>熱呼呼</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗。哪一個是疊字詞，後面兩個字一樣？">
+    <h1>小測驗 2</h1>
+    <p class="big">哪一個是疊字詞？<br><span class="small">（後面兩個字一樣）</span></p>
+    <p class="center"><button class="say" data-say="哪一個是疊字詞，後面兩個字一樣">🔊 聽題目</button></p>
+    <div class="quiz" data-why="「胖嘟嘟」的後面兩個字都是「嘟」，和亮晶晶一樣是疊字詞。「胖子」「好胖」沒有重複的字。">
+      <button>胖子</button><button data-right>胖嘟嘟</button><button>好胖</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+(function(){
+var W=[
+ ['🍎','紅通通','蘋果紅通通的。'],
+ ['🌱','綠油油','稻田綠油油的。'],
+ ['⭐','亮晶晶','星星亮晶晶的。'],
+ ['🍲','熱呼呼','湯熱呼呼的。'],
+ ['🧊','冷冰冰','冰塊冷冰冰的。'],
+ ['🍞','香噴噴','麵包香噴噴的。'],
+ ['🐶','毛茸茸','小狗毛茸茸的。'],
+ ['🐷','胖嘟嘟','小豬胖嘟嘟的。']
+];
+var box=document.getElementById('box'),bs=document.getElementById('boxS');
+W.forEach(function(w){var c=document.createElement('button');c.className='card';c.innerHTML='<span class="e">'+w[0]+'</span><span class="w">'+w[1]+'</span>';
+ c.onclick=function(){[].forEach.call(box.children,function(x){x.classList.remove('lit');});void c.offsetWidth;c.classList.add('lit');bs.textContent=w[0]+' '+w[2];say(w[1]+'。'+w[2]);};box.appendChild(c);});
+var sky=document.getElementById('sky');
+for(var i=0;i<14;i++){var s=document.createElement('i');s.textContent=i%3?'✨':'⭐';s.style.left=(5+Math.random()*88)+'%';s.style.top=(5+Math.random()*75)+'%';s.style.animationDelay=(-Math.random()*1.4)+'s';sky.appendChild(s);}
+function drop(id){var bs=document.getElementById(id).children;[].forEach.call(bs,function(b,k){b.classList.remove('in');void b.offsetWidth;b.style.animationDelay=(0.3+k*0.7)+'s';b.classList.add('in');});}
+window.onStep=function(i){if(i===0)drop('w0');if(i===1)drop('w1');};
+})();
+
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>
