@@ -94,11 +94,11 @@
 }
 ```
 
-- `theme`：場景。`space` 是太空（Ivan勇士坐太空飛行船，用雷射射擊），`garden` 是草地，`underworld` 是紫色的冥界（蠟燭、蝙蝠），`jungle` 是叢林，`deepsea` 是深海（Ivan勇士坐潛水艇，用魚雷和泡泡砲攻擊）；不寫就是一般場景。
-- `fx`：寫 `"punch"` 時，Ivan 的攻擊會像拳頭一樣直直打出去（不旋轉），適合拳頭招式。
-- `foe`：敵人。`name` 是名字，`icon` 是一個 emoji，或內建的手繪圖：`svg:mantis-king`（戴皇冠的螳螂王）、`svg:skeleton-general`（骷髏模樣的冥將，戴角盔、穿盔甲）、`svg:steel-tiger`（露出銀色鋼牙的鋼牙虎）、`svg:big-shark`（大鯊魚，畫得比較大）。
+- `theme`：場景。`space` 是太空（Ivan勇士坐太空飛行船，用雷射射擊），`garden` 是草地，`underworld` 是紫色的冥界（蠟燭、蝙蝠），`jungle` 是叢林，`deepsea` 是深海（Ivan勇士坐潛水艇，用魚雷和泡泡砲攻擊），`sky` 是天空和山（老鷹會在天上飛），`river` 是河川（Ivan勇士坐小木船，用水砲和漩渦攻擊）；不寫就是一般場景。
+- `fx`：寫 `"punch"` 時，Ivan 的攻擊會像拳頭一樣直直打出去（不旋轉），適合拳頭招式；寫 `"arrow"` 時，Ivan勇士會拿弓射出真的箭，必殺技一次射三支箭。
+- `foe`：敵人。`name` 是名字，`icon` 是一個 emoji，或內建的手繪圖：`svg:mantis-king`（戴皇冠的螳螂王）、`svg:skeleton-general`（骷髏模樣的冥將，戴角盔、穿盔甲）、`svg:steel-tiger`（露出銀色鋼牙的鋼牙虎）、`svg:big-shark`（大鯊魚，畫得比較大）、`svg:eagle`（會拍翅膀的老鷹）、`svg:water-dragon`（從河裡冒出來的水蛟龍）。
 - `foeMoves`：敵人的招式（Ivan 答錯時敵人出招）；`moves`、`special`：Ivan 的招式和必殺技（不寫就用預設）。格式都是 `["招式名稱", "emoji"]`。
-- 敵人和招式可以配合當天主題（例如乘法日打「倍數外星人」、三點水日打「水怪」），名字要可愛、不恐怖。家長指定過的組合：國文打螳螂王（`garden` + `svg:mantis-king`）、國文打冥將並用拳頭攻擊（`underworld` + `svg:skeleton-general` + `fx: "punch"`，招式如「正義鐵拳」🤜「連環快拳」👊）、國文打鋼牙虎（`jungle` + `svg:steel-tiger`）、數學用太空船打外星人（`space`）、數學在深海打大鯊魚（`deepsea` + `svg:big-shark`）。沒有特別想法時就從這些輪流選。
+- 敵人和招式可以配合當天主題（例如乘法日打「倍數外星人」、三點水日打「水怪」），名字要可愛、不恐怖。家長指定過的組合：國文打螳螂王（`garden` + `svg:mantis-king`）、國文打冥將並用拳頭攻擊（`underworld` + `svg:skeleton-general` + `fx: "punch"`，招式如「正義鐵拳」🤜「連環快拳」👊）、國文打鋼牙虎（`jungle` + `svg:steel-tiger`）、數學用太空船打外星人（`space`）、數學在深海打大鯊魚（`deepsea` + `svg:big-shark`）、國文射箭打老鷹（`sky` + `svg:eagle` + `fx: "arrow"`）、數學在河川打水蛟龍（`river` + `svg:water-dragon`）。沒有特別想法時就從這些輪流選。
 
 ## 數學口訣（家長指定）
 

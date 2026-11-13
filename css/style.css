@@ -471,3 +471,40 @@ body:has(.hw) { background: #fffaf0; }
 @keyframes prop { 50% { transform: scaleY(.3); } }
 .foe-svg.big { width: 1.75em; height: 1.75em; vertical-align: -0.45em; }
 .treasure .foe-svg.big { width: 1.3em; height: 1.3em; }
+
+/* 天空、河川、射箭 */
+.arena.th-sky { background: radial-gradient(ellipse at 20% 105%, #8d9db6 0 22%, transparent 23%), radial-gradient(ellipse at 70% 110%, #7a8ca8 0 30%, transparent 31%), linear-gradient(#64b5f6, #bbdefb 70%); }
+.arena.th-sky::before { content: "☁️　　　　☁️　　　　　☁️　　　☁️"; position: absolute; top: 44px; left: 0; white-space: nowrap; font-size: 30px; opacity: .9; pointer-events: none; animation: clouds 14s linear infinite; }
+@keyframes clouds { from { transform: translateX(10%); } to { transform: translateX(-60%); } }
+.arena.th-sky::after { content: "🏔️　　　　　　　　⛰️"; position: absolute; left: 0; right: 0; bottom: 2px; font-size: 30px; text-align: center; opacity: .7; pointer-events: none; }
+.foe-svg .wing { animation: flap .5s ease-in-out infinite alternate; }
+.foe-svg .w1 { transform-origin: 56px 48px; } .foe-svg .w2 { transform-origin: 46px 50px; }
+@keyframes flap { to { transform: scaleY(.55); } }
+.arena.th-sky .foe .body { animation: swim 2.2s ease-in-out infinite; }
+.arena.th-sky .foe.hit .body { animation: hitR .5s; }
+.arena.th-sky .foe.ko .body { animation: koFall 1.1s ease-in forwards; }
+.arena.th-river { background: linear-gradient(180deg, #a5d6a7 0 34%, #66bb6a 34% 40%, #4fc3f7 40%, #0288d1 100%); }
+.arena.th-river::before { content: ""; position: absolute; left: 0; right: 0; top: 40%; bottom: 0; pointer-events: none;
+  background: repeating-linear-gradient(90deg, transparent 0 40px, rgba(255,255,255,.35) 40px 70px, transparent 70px 120px) 0 25% / 240px 6px repeat-x,
+    repeating-linear-gradient(90deg, transparent 0 60px, rgba(255,255,255,.3) 60px 90px, transparent 90px 150px) 0 55% / 300px 5px repeat-x,
+    repeating-linear-gradient(90deg, transparent 0 30px, rgba(255,255,255,.3) 30px 55px, transparent 55px 100px) 0 85% / 200px 5px repeat-x;
+  animation: river 2.5s linear infinite; }
+@keyframes river { to { background-position: -240px 25%, -300px 55%, -200px 85%; } }
+.arena.th-river::after { content: "🌳　🌾　　　　　🌾　🌳"; position: absolute; left: 0; right: 0; top: 38px; font-size: 24px; text-align: center; opacity: .85; pointer-events: none; }
+.boat { position: relative; display: inline-flex; flex-direction: column; align-items: center; }
+.boat .hero-svg { width: 1em; height: 1em; margin-bottom: -0.18em; position: relative; z-index: 1; }
+.boat-svg { width: 1.45em; height: .5em; }
+.arena.th-river .fighter.hero .body { animation: bob 2.4s ease-in-out infinite; }
+.arena.th-river .hero.lunge .body { animation: lungeR .45s ease-in-out; }
+.arena.th-river .foe .body { animation: swim 2.6s ease-in-out infinite; }
+.arena.th-river .foe.hit .body { animation: hitR .5s; }
+.arena.th-river .foe.ko .body { animation: koFall 1.1s ease-in forwards; }
+.foe-svg .waves { animation: bob 1.6s ease-in-out infinite; }
+.archer { position: relative; display: inline-block; }
+.bow-svg { position: absolute; right: -0.28em; top: 0.08em; width: .36em; height: .9em; }
+.arrow-svg { display: block; width: 76px; height: 16px; filter: drop-shadow(0 2px 2px rgba(0,0,0,.3)); }
+.arena.fx-arrow .proj.to-r { bottom: 92px; font-size: 0; animation: arrowR .42s cubic-bezier(.3, 0, .9, .6) forwards; }
+.arena.fx-arrow .proj.big.to-r { display: flex; flex-direction: column; gap: 10px; bottom: 70px; }
+.arena.fx-arrow .proj.big .arrow-svg { width: 96px; height: 20px; }
+@keyframes arrowR { from { transform: translateX(0); } to { transform: translateX(min(46vw, 320px)); } }
+.fighter .tag { position: relative; z-index: 2; }

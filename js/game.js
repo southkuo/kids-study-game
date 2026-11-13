@@ -297,6 +297,28 @@
       + '<ellipse cx="22" cy="44" rx="4.5" ry="5" fill="#fff"/><circle cx="21" cy="45" r="2.8" fill="#212121"/><circle cx="20.2" cy="44" r="1" fill="#fff"/>'
       + '<path d="M16 37 L27 40" stroke="#263238" stroke-width="2.6" stroke-linecap="round"/>'
       + '<path d="M30 34 Q46 30 62 36" stroke="#b0bec5" stroke-width="2" fill="none" stroke-linecap="round" opacity=".8"/></svg>',
+    'eagle': '<svg class="foe-svg big" viewBox="0 0 100 100" aria-hidden="true">'
+      + '<g class="wing w1"><path d="M50 46 Q66 18 96 12 Q86 26 90 30 Q78 32 80 38 Q68 40 64 50 Z" fill="#6d4c41" stroke="#3e2723" stroke-width="2" stroke-linejoin="round"/></g>'
+      + '<path d="M72 58 L94 52 L90 62 L96 68 L74 66 Z" fill="#fafafa" stroke="#9e9e9e" stroke-width="1.6" stroke-linejoin="round"/>'
+      + '<ellipse cx="56" cy="58" rx="22" ry="13" fill="#795548" stroke="#3e2723" stroke-width="2"/>'
+      + '<path d="M44 66 Q52 72 62 68" stroke="#a1887f" stroke-width="2" fill="none"/>'
+      + '<g stroke="#f9a825" stroke-width="3" stroke-linecap="round" fill="none"><path d="M52 69 L50 80 M50 80 L46 83 M50 80 L51 84"/><path d="M60 69 L60 80 M60 80 L56 83 M60 80 L62 84"/></g>'
+      + '<g class="wing w2"><path d="M48 50 Q36 22 8 18 Q20 30 16 34 Q28 36 26 42 Q38 44 42 54 Z" fill="#8d6e63" stroke="#3e2723" stroke-width="2" stroke-linejoin="round"/></g>'
+      + '<ellipse cx="34" cy="48" rx="13" ry="12" fill="#fafafa" stroke="#9e9e9e" stroke-width="1.6"/>'
+      + '<path d="M24 46 Q14 46 12 53 Q18 51 24 53 Z" fill="#ffb300" stroke="#e65100" stroke-width="1.6" stroke-linejoin="round"/>'
+      + '<path d="M22 41 L33 44" stroke="#3e2723" stroke-width="2.6" stroke-linecap="round"/>'
+      + '<circle cx="28" cy="46" r="3" fill="#ffca28"/><circle cx="27.5" cy="46" r="1.6" fill="#212121"/></svg>',
+    'water-dragon': '<svg class="foe-svg big" viewBox="0 0 100 100" aria-hidden="true">'
+      + '<path d="M88 92 Q96 70 80 60 Q64 52 70 36 Q74 24 60 18" stroke="#00897b" stroke-width="16" fill="none" stroke-linecap="round"/>'
+      + '<path d="M88 92 Q96 70 80 60 Q64 52 70 36 Q74 24 60 18" stroke="#80cbc4" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="3 6"/>'
+      + '<g fill="#4fc3f7" stroke="#0277bd" stroke-width="1.4" stroke-linejoin="round"><path d="M88 66 L98 60 L94 70 Z"/><path d="M76 46 L86 40 L82 50 Z"/><path d="M74 28 L84 22 L80 32 Z"/></g>'
+      + '<path d="M58 12 Q70 8 66 0" stroke="#ffca28" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M50 14 Q56 6 52 -1" stroke="#ffca28" stroke-width="3" fill="none" stroke-linecap="round"/>'
+      + '<path d="M64 20 Q52 8 34 14 Q20 18 14 26 Q22 30 30 30 Q22 36 26 42 Q40 40 50 34 Q64 30 64 20 Z" fill="#26a69a" stroke="#00695c" stroke-width="2" stroke-linejoin="round"/>'
+      + '<path d="M14 26 Q22 30 30 30" stroke="#004d40" stroke-width="1.8" fill="none"/><path d="M18 28 L20 31 L22 28 L24 31 L26 29" stroke="#fff" stroke-width="1.4" fill="none"/>'
+      + '<path d="M20 30 Q10 36 6 30" stroke="#004d40" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M18 24 Q8 20 4 24" stroke="#004d40" stroke-width="1.6" fill="none" stroke-linecap="round"/>'
+      + '<ellipse cx="38" cy="20" rx="4.5" ry="4" fill="#fff"/><circle cx="37" cy="20.5" r="2.4" fill="#d32f2f"/><path d="M33 15 L43 17" stroke="#004d40" stroke-width="2.2" stroke-linecap="round"/>'
+      + '<circle cx="18" cy="22" r="1.4" fill="#004d40"/>'
+      + '<path class="waves" d="M40 96 Q50 88 60 96 Q70 88 80 96 Q90 88 100 96 L100 100 L40 100 Z" fill="#4fc3f7" opacity=".85"/></svg>',
   };
   const artHTML = (icon) => (String(icon).startsWith('svg:') ? (BATTLE_ART[icon.slice(4)] || '❓') : esc(icon));
   // 太空主題：主角坐在太空飛行船裡
@@ -326,11 +348,24 @@
       + `<svg x="66" y="28" width="28" height="28" viewBox="0 0 100 100">${pilot}</svg>`
       + '<path d="M71 32 Q77 29 84 31" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" opacity=".8"/></svg>';
   };
+  // 河川主題：主角站在小木船上
+  const boatHTML = () => '<span class="boat">' + HERO.avatar + '<svg class="boat-svg" viewBox="0 0 120 40" aria-hidden="true">'
+    + '<path d="M4 8 L116 8 Q104 36 60 36 Q16 36 4 8 Z" fill="#8d6e63" stroke="#4e342e" stroke-width="2.5" stroke-linejoin="round"/>'
+    + '<path d="M10 16 L110 16 M16 24 L104 24" stroke="#6d4c41" stroke-width="2"/></svg></span>';
+  // 射箭：主角拿弓
+  const archerHTML = () => '<span class="archer">' + HERO.avatar + '<svg class="bow-svg" viewBox="0 0 40 100" aria-hidden="true">'
+    + '<path d="M8 4 Q40 50 8 96" stroke="#6d4c41" stroke-width="6" fill="none" stroke-linecap="round"/>'
+    + '<path d="M8 4 L8 96" stroke="#eceff1" stroke-width="1.6"/></svg></span>';
+  const ARROW_SVG = '<svg class="arrow-svg" viewBox="0 0 100 20" aria-hidden="true"><path d="M14 10 L84 10" stroke="#6d4c41" stroke-width="4" stroke-linecap="round"/>'
+    + '<path d="M80 3 L98 10 L80 17 Z" fill="#b0bec5" stroke="#546e7a" stroke-width="1.4" stroke-linejoin="round"/>'
+    + '<path d="M2 3 L16 10 L2 17 L8 10 Z" fill="#e53935" stroke="#8e0000" stroke-width="1" stroke-linejoin="round"/></svg>';
   const BATTLE_THEMES = {
     space: { moves: [['雷射光束', '🔆'], ['光子砲', '💥'], ['星星飛彈', '🌟']], special: ['超級光速砲', '☄️'], foeMoves: [['外星光線', '🟢'], ['黏液炸彈', '🦠']], ship: true },
     garden: {},
     underworld: {},
     jungle: {},
+    sky: {},
+    river: { moves: [['激流水砲', '💦'], ['漩渦旋轉', '🌀'], ['浪花飛刀', '🌊']], special: ['大河奔流', '🌊'], foeMoves: [['蛟龍吐水', '💧'], ['龍尾掃浪', '🌊'], ['龍捲水柱', '🌪️']], boat: true },
     deepsea: { moves: [['魚雷發射', '🚀'], ['泡泡砲', '🫧'], ['聲納衝擊波', '🌀']], special: ['深海巨浪砲', '🌊'], foeMoves: [['大嘴咬咬', '🦷'], ['尾巴大浪', '🌊'], ['鯊魚衝撞', '💢']], sub: true },
   };
   function startDailyHomework(subject) {
@@ -347,8 +382,8 @@
     b = b || {};
     const th = BATTLE_THEMES[b.theme] || {};
     return {
-      theme: (BATTLE_THEMES[b.theme] ? b.theme : '') + (b.fx === 'punch' ? ' fx-punch' : ''),
-      heroHTML: th.ship ? shipHTML() : th.sub ? subHTML() : null,
+      theme: (BATTLE_THEMES[b.theme] ? b.theme : '') + (b.fx === 'punch' || b.fx === 'arrow' ? ' fx-' + b.fx : ''),
+      heroHTML: th.ship ? shipHTML() : th.sub ? subHTML() : th.boat ? boatHTML() : b.fx === 'arrow' ? archerHTML() : null,
       st: { moves: b.moves || th.moves || base.moves, special: b.special || th.special || base.special, foeMoves: b.foeMoves || th.foeMoves || base.foeMoves },
       foe: b.foe && b.foe.name ? { name: b.foe.name, icon: b.foe.icon || '👾' } : defFoe,
     };
@@ -579,7 +614,9 @@
     att.classList.remove('lunge'); void att.offsetWidth; att.classList.add('lunge');
     beep('swoosh');
     const p = document.createElement('span');
-    p.className = `proj ${from === 'hero' ? 'to-r' : 'to-l'} ${big ? 'big' : ''}`; p.textContent = fx;
+    p.className = `proj ${from === 'hero' ? 'to-r' : 'to-l'} ${big ? 'big' : ''}`;
+    if (from === 'hero' && arena.classList.contains('fx-arrow')) p.innerHTML = big ? ARROW_SVG.repeat(3) : ARROW_SVG; // 射箭：真的箭，必殺技一次三支
+    else p.textContent = fx;
     arena.appendChild(p);
     if (big) { const f = arena.querySelector('#flash'); f.classList.remove('on'); void f.offsetWidth; f.classList.add('on'); }
     await wait(520);
