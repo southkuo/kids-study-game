@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>本週複習大闖關</title>
+<style>
+:root { --c: #c0573b; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式 ===== */
+.chests{display:grid;grid-template-columns:repeat(2,minmax(130px,1fr));gap:12px;width:100%;max-width:440px}
+.chest{display:flex;flex-direction:column;align-items:center;padding:10px;border-radius:20px;background:#fff1ea;box-shadow:0 4px 0 #f1c6b4;opacity:0;transform:scale(.4)}
+.chest.show{animation:pop .5s ease-out forwards}
+.chest .ic{font-size:44px}
+.chest b{font-size:22px;color:var(--c)}
+@keyframes pop{0%{opacity:0;transform:scale(.4) rotate(-8deg)}70%{opacity:1;transform:scale(1.12)}100%{opacity:1;transform:scale(1)}}
+.pool{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;min-height:70px;width:100%}
+.ch{width:66px;height:66px;border:0;border-radius:18px;background:#fff7ec;box-shadow:0 4px 0 #f0d9b5;font:inherit;font-size:38px;font-weight:900;color:var(--ink);cursor:pointer}
+.ch:active{transform:translateY(3px)}
+.bins{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
+.bin{min-height:150px;padding:8px;border-radius:20px;border:4px dashed #9ec9ea;background:#eef7ff;text-align:center}
+.bin.hand{border-color:#f0b48f;background:#fff3ea}
+.bin h3{margin:2px 0 6px;font-size:22px}
+.bin .in{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.bin .in span{display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:14px;background:#fff;font-size:32px;font-weight:900;animation:pop .45s ease-out both}
+.flip{width:150px;height:130px;perspective:600px;border:0;background:none;padding:0;font:inherit;cursor:pointer}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .6s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .f,.flip .b{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:20px;backface-visibility:hidden;-webkit-backface-visibility:hidden;font-size:30px;font-weight:900}
+.flip .f{background:#fff1ea;box-shadow:0 4px 0 #f1c6b4;color:var(--c)}
+.flip .b{background:#e6f4ff;box-shadow:0 4px 0 #9ec9ea;color:#1d5f99;transform:rotateY(180deg)}
+.flip .e{font-size:40px}
+.qing{display:flex;align-items:center;justify-content:center;gap:10px;font-size:clamp(60px,18vw,96px);font-weight:900;min-height:120px}
+.qing .l{color:var(--c);display:inline-block}
+.qing .l.go{animation:slide .5s ease-out}
+.qing .r{color:#3f6fe0}
+@keyframes slide{from{transform:translateX(-60px);opacity:0}}
+.parts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.parts button{min-width:64px;min-height:56px;border:0;border-radius:16px;background:#fff1ea;box-shadow:0 4px 0 #f1c6b4;font:inherit;font-size:30px;font-weight:900;color:var(--c);cursor:pointer}
+.parts button.sel{background:var(--c);color:#fff}
+.word{font-size:26px;font-weight:900;text-align:center;min-height:1.5em;color:#6a3a22}
+.objs{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.obj{width:130px;min-height:130px;border:0;border-radius:20px;background:#fff7ec;box-shadow:0 4px 0 #f0d9b5;font:inherit;cursor:pointer;padding:8px}
+.obj .e{font-size:48px;display:block}
+.obj .n{font-size:19px;font-weight:900}
+.obj .d{display:block;font-size:22px;font-weight:900;color:var(--c);min-height:1.4em}
+.obj.on .e{animation:wig .6s ease-in-out}
+@keyframes wig{25%{transform:rotate(-12deg) scale(1.2)}75%{transform:rotate(12deg) scale(1.2)}}
+.qbox{padding:6px 0 16px;border-bottom:3px dashed #eadfc8;margin-bottom:10px}
+.quiz.row4{grid-template-columns:repeat(3,1fr)}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <section class="step" data-auto="這個星期，我們學了好多東西！部首、相反詞、形近字、疊字詞。今天來一次複習大闖關！">
+    <h1>本週複習大闖關</h1>
+    <div class="stage"><div class="chests" id="chests">
+      <div class="chest"><span class="ic">💧✋</span><b>部首</b></div>
+      <div class="chest"><span class="ic">🐘🐜</span><b>相反詞</b></div>
+      <div class="chest"><span class="ic">☀️👀</span><b>形近字</b></div>
+      <div class="chest"><span class="ic">⭐✨</span><b>疊字詞</b></div>
+    </div></div>
+    <p class="big">四個寶箱，一個一個打開！</p>
+  </section>
+
+  <section class="step" data-auto="第一關，部首。三點水的字和水有關，提手旁的字和手有關。點一個字，看它住在哪一個家。">
+    <h1>第一關：部首分家</h1>
+    <p class="small">點一個字，它會跑回自己的家！</p>
+    <div class="stage" style="flex-direction:column;min-height:auto">
+      <div class="pool" id="pool"></div>
+    </div>
+    <div class="bins">
+      <div class="bin"><h3 data-say="三點水，和水有關">💧 氵 三點水</h3><div class="in" id="binW"></div></div>
+      <div class="bin hand"><h3 data-say="提手旁，和手有關">✋ 扌 提手旁</h3><div class="in" id="binH"></div></div>
+    </div>
+    <p class="word" id="pmsg"></p>
+  </section>
+
+  <section class="step" data-auto="第二關，相反詞。點一點卡片，翻過來，看看意思相反的詞。">
+    <h1>第二關：相反詞翻翻卡</h1>
+    <div class="stage" id="flips"></div>
+    <p class="small">意思剛好相反的兩個詞，就是相反詞。</p>
+  </section>
+
+  <section class="step" data-auto="第三關，形近字。晴、睛、清、請、情，右邊都是青。左邊的部首不一樣，意思就不一樣。點左邊的部首看看。">
+    <h1>第三關：青字變變變</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="qing"><span class="l" id="ql">？</span><span class="r">青</span></div>
+      <div class="word" id="qw">點下面的部首</div>
+    </div>
+    <div class="parts" id="parts"></div>
+    <p class="small" style="margin-top:12px">看部首，猜意思：日和太陽有關、目和眼睛有關、氵和水有關、言和說話有關、忄和心有關。</p>
+  </section>
+
+  <section class="step" data-auto="第四關，疊字詞。疊字詞讓句子更生動。點一點，看看它們是什麼樣子。">
+    <h1>第四關：疊字詞</h1>
+    <div class="stage"><div class="objs" id="objs"></div></div>
+    <p class="big" id="dsent" style="min-height:1.6em"></p>
+  </section>
+
+  <section class="step" data-auto="小測驗！先做第一題：拍手的拍，部首是什麼？">
+    <h1>小測驗</h1>
+    <div class="qbox">
+      <p class="big">①「拍」的部首是什麼？</p>
+      <p class="center"><button class="say" data-say="拍手的拍，部首是什麼">🔊 聽題目</button></p>
+      <div class="quiz row4" data-why="「拍」的左邊是提手旁「扌」，拍手要用手。">
+        <button>氵</button><button data-right>扌</button><button>日</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+    <div class="qbox">
+      <p class="big">②「高」的相反詞是哪一個？</p>
+      <p class="center"><button class="say" data-say="高的相反詞是哪一個">🔊 聽題目</button></p>
+      <div class="quiz row4" data-why="長頸鹿很高，小企鵝很矮，「高」和「矮」意思相反。">
+        <button>大</button><button>長</button><button data-right>矮</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+    <div class="qbox">
+      <p class="big">③ 下雨不能出去玩，<br>我的心（　）不太好。</p>
+      <p class="center"><button class="say" data-say="下雨不能出去玩，我的心什麼不太好">🔊 聽題目</button></p>
+      <div class="quiz row4" data-why="心情和「心」有關，所以是豎心旁的「情」。">
+        <button>晴</button><button data-right>情</button><button>睛</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+    <div>
+      <p class="big">④ 春天的草地（　）的。</p>
+      <p class="center"><button class="say" data-say="春天的草地什麼的">🔊 聽題目</button></p>
+      <div class="quiz" data-why="草地是綠色的，又綠又有光澤，所以是「綠油油」。">
+        <button>亮晶晶</button><button data-right>綠油油</button><button>冷冰冰</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+  </section>
+
+</main>
+<script>
+(function(){
+var tm=[];
+/* 第一關：部首分家（只用左邊寫成 氵、扌 的字） */
+var CH=[['河','W','河，三點水，河裡有水。'],['打','H','打，提手旁，打球要用手。'],['湖','W','湖，三點水，湖裡有水。'],['推','H','推，提手旁，推門要用手。'],['洗','W','洗，三點水，洗手要用水。'],['拉','H','拉，提手旁，拉繩子要用手。'],['清','W','清，三點水，清水很乾淨。'],['拍','H','拍，提手旁，拍手要用手。']];
+function resetPool(){var p=document.getElementById('pool');p.innerHTML='';document.getElementById('binW').innerHTML='';document.getElementById('binH').innerHTML='';document.getElementById('pmsg').textContent='';
+ CH.forEach(function(c){var b=document.createElement('button');b.className='ch';b.textContent=c[0];b.onclick=function(){b.remove();var s=document.createElement('span');s.textContent=c[0];document.getElementById(c[1]==='W'?'binW':'binH').appendChild(s);
+  var left=p.children.length;document.getElementById('pmsg').textContent=left?c[2]:'🎉 全部回家了！';say(c[2]+(left?'':'全部回家了，好棒！'));};p.appendChild(b);});}
+/* 第二關：相反詞翻翻卡 */
+var OP=[['大','🐘','小','🐜'],['快','🐇','慢','🐢'],['高','🦒','矮','🐧'],['多','🍬🍬🍬','少','🍬'],['打開','🚪','關上','🔒'],['長','🐍','短','🐛']];
+var fl=document.getElementById('flips');
+OP.forEach(function(o){var b=document.createElement('button');b.className='flip';b.innerHTML='<div class="in"><div class="f"><span class="e">'+o[1]+'</span>'+o[0]+'</div><div class="b"><span class="e">'+o[3]+'</span>'+o[2]+'</div></div>';
+ b.onclick=function(){b.classList.toggle('on');say(b.classList.contains('on')?o[0]+'的相反詞是'+o[2]:o[2]+'的相反詞是'+o[0]);};fl.appendChild(b);});
+/* 第三關：青字變變變 */
+var QG=[['日','晴','☀️ 晴天','日字旁，晴天有太陽'],['目','睛','👀 眼睛','目字旁，眼睛用來看'],['氵','清','💧 清水','三點水，清水很乾淨'],['言','請','🙋 請坐','言字旁，請要用說的'],['忄','情','😊 心情','豎心旁，心情在心裡']];
+var pt=document.getElementById('parts');
+QG.forEach(function(q){var b=document.createElement('button');b.textContent=q[0];b.onclick=function(){[].forEach.call(pt.children,function(x){x.classList.remove('sel');});b.classList.add('sel');
+ var l=document.getElementById('ql');l.textContent=q[0];l.classList.remove('go');void l.offsetWidth;l.classList.add('go');
+ document.getElementById('qw').textContent=q[0]+' ＋ 青 ＝ '+q[1]+'　'+q[2];say(q[3]+'。'+q[2].slice(3));};pt.appendChild(b);});
+/* 第四關：疊字詞 */
+var DZ=[['⭐','星星','亮晶晶','天上的星星亮晶晶。'],['🌿','草地','綠油油','草地綠油油。'],['🐷','小豬','胖嘟嘟','小豬胖嘟嘟。'],['🍎','蘋果','紅通通','蘋果紅通通。'],['🧊','冰塊','冷冰冰','冰塊冷冰冰。']];
+var ob=document.getElementById('objs');
+DZ.forEach(function(d){var b=document.createElement('button');b.className='obj';b.innerHTML='<span class="e">'+d[0]+'</span><span class="n">'+d[1]+'</span><span class="d"></span>';
+ b.onclick=function(){b.classList.remove('on');void b.offsetWidth;b.classList.add('on');b.querySelector('.d').textContent=d[2];document.getElementById('dsent').textContent=d[3];say(d[3]);};ob.appendChild(b);});
+window.onStep=function(i,s){tm.forEach(clearTimeout);tm=[];
+ if(i===0){[].forEach.call(document.querySelectorAll('.chest'),function(c,k){c.classList.remove('show');tm.push(setTimeout(function(){c.classList.add('show');},400+k*700));});}
+ if(i===1)resetPool();};
+})();
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

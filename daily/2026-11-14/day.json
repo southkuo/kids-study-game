@@ -431,5 +431,31 @@
         }
       ]
     }
-  }
+  },
+  "lessons": [
+    {
+      "subject": "chinese",
+      "title": "本週複習大闖關",
+      "summary": "四個關卡複習這週學的部首（氵、扌）、相反詞、形近字（晴睛清請情）和疊字詞。",
+      "file": "daily/2026-11-14/lessons/chinese.html"
+    },
+    {
+      "subject": "english",
+      "title": "My Weekend",
+      "summary": "認識一星期七天和週末，學說週末喜歡做什麼、去哪裡，還能做出自己的週末小故事。",
+      "file": "daily/2026-11-14/lessons/english.html"
+    },
+    {
+      "subject": "math",
+      "title": "乘法應用題",
+      "summary": "用三步驟找出「每份幾個」和「有幾份」，分辨加法和乘法，再試試兩個步驟的題目。",
+      "file": "daily/2026-11-14/lessons/math.html"
+    },
+    {
+      "subject": "science",
+      "title": "小種子長大了",
+      "summary": "看種子發芽需要水、空氣和適合的溫度，認識根莖葉花，再跟著番茄走一圈植物的一生。",
+      "file": "daily/2026-11-14/lessons/science.html"
+    }
+  ]
 }

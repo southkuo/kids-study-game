@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>小種子長大了</title>
+<style>
+:root { --c: #2e9d5b; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式 ===== */
+.pl{width:min(100%,300px);height:auto;display:block;margin:0 auto}
+.pl .root,.pl .stem{fill:none;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;transition:stroke-dashoffset 1.2s ease-out}
+.pl .root{stroke:#f3e6c4;stroke-width:5}
+.pl .stem{stroke:#3fa34d;stroke-width:7}
+.pl .lf{opacity:0;transform:scale(0);transform-box:fill-box;transition:opacity .8s,transform .8s}
+.pl .lf.l{transform-origin:right bottom}.pl .lf.r{transform-origin:left bottom}
+.pl .seed{transition:transform 1s;transform-box:fill-box;transform-origin:center}
+.pl .crack{opacity:0;transition:opacity .6s}
+.pl.s1 .seed{transform:scale(1.3)}
+.pl.s2 .seed{transform:scale(1.3)}.pl.s2 .crack{opacity:1}.pl.s2 .root{stroke-dashoffset:70}
+.pl.s3 .seed{transform:scale(1.3)}.pl.s3 .crack{opacity:1}.pl.s3 .root{stroke-dashoffset:0}.pl.s3 .stem{stroke-dashoffset:50}
+.pl.s4 .seed{transform:scale(1.3)}.pl.s4 .crack{opacity:1}.pl.s4 .root{stroke-dashoffset:0}.pl.s4 .stem{stroke-dashoffset:0}.pl.s4 .lf{opacity:1;transform:scale(1)}
+.tog{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.tog button{display:flex;flex-direction:column;align-items:center;min-width:96px;min-height:84px;border:0;border-radius:18px;background:#eee;box-shadow:0 4px 0 #ccc;font:inherit;font-size:18px;font-weight:900;color:#888;cursor:pointer}
+.tog button .e{font-size:34px;filter:grayscale(1);opacity:.5}
+.tog button.on{background:#dff5e7;box-shadow:0 4px 0 #2e9d5b;color:#1d6b3c}
+.tog button.on .e{filter:none;opacity:1}
+.go{min-height:56px;padding:8px 26px;border:0;border-radius:999px;background:var(--c);box-shadow:0 4px 0 #1d6b3c;font:inherit;font-size:21px;font-weight:900;color:#fff;cursor:pointer}
+.msg{font-size:clamp(20px,5.2vw,26px);font-weight:900;text-align:center;min-height:1.6em;color:#1d6b3c}
+input[type=range]{width:min(100%,360px);height:40px;accent-color:#2e9d5b}
+.part{cursor:pointer}
+.body .hl{animation:glow 1s ease-in-out 2}
+@keyframes glow{50%{filter:drop-shadow(0 0 8px #ffd400) brightness(1.3)}}
+.lbls{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.lbls button{min-width:80px;min-height:52px;border:0;border-radius:16px;background:#dff5e7;box-shadow:0 4px 0 #8fd1a3;font:inherit;font-size:20px;font-weight:900;color:#1d6b3c;cursor:pointer}
+.cyc{position:relative;width:min(100%,330px);aspect-ratio:1;margin:0 auto}
+.cyc .nd{position:absolute;width:86px;height:86px;margin:-43px 0 0 -43px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:0;border-radius:50%;background:#fff;box-shadow:0 4px 0 #cfe8d7;font:inherit;font-size:15px;font-weight:900;color:#1d6b3c;cursor:pointer;transition:transform .3s,background .3s}
+.cyc .nd .e{font-size:32px}
+.cyc .nd.on{background:#ffe98a;transform:scale(1.15);box-shadow:0 4px 0 #e0b400}
+.cyc .mid{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:44px;animation:spin 6s linear infinite}
+@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+.qbox{padding:6px 0 16px;border-bottom:3px dashed #eadfc8;margin-bottom:10px}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <section class="step" data-auto="小小的種子，埋在土裡。過了幾天，它吸了水，先長出根，再長出莖和葉子。種子發芽了！">
+    <h1>小種子長大了</h1>
+    <div class="stage">
+      <svg class="pl" id="pl0" viewBox="0 0 200 200" aria-label="種子發芽"></svg>
+    </div>
+    <p class="big" id="m0">小種子，要發芽囉！</p>
+  </section>
+
+  <section class="step" data-auto="種子發芽，需要三個好朋友：水、空氣、和適合的溫度。點一點，把它們都打開，再按種下去。">
+    <h1>發芽需要什麼？</h1>
+    <div class="tog" id="tog">
+      <button data-k="水"><span class="e">💧</span>水</button>
+      <button data-k="空氣"><span class="e">🌬️</span>空氣</button>
+      <button data-k="適合的溫度"><span class="e">🌡️</span>溫暖</button>
+    </div>
+    <div class="stage" style="min-height:200px">
+      <svg class="pl" id="pl1" viewBox="0 0 200 200" style="width:min(100%,220px)"></svg>
+    </div>
+    <p class="center"><button class="go" id="plant">🌱 種下去</button></p>
+    <p class="msg" id="m1"></p>
+  </section>
+
+  <section class="step" data-auto="綠豆發芽日記。拉一拉，看看綠豆每天的變化。">
+    <h1>綠豆發芽日記</h1>
+    <div class="stage" style="flex-direction:column">
+      <svg class="pl" id="pl2" viewBox="0 0 200 200" style="width:min(100%,240px)"></svg>
+    </div>
+    <p class="center"><input type="range" id="day" min="1" max="4" value="1"></p>
+    <p class="msg" id="m2"></p>
+  </section>
+
+  <section class="step" data-auto="植物的身體有根、莖、葉，有的還會開花。點一點，聽聽看它們做什麼工作。">
+    <h1>植物的身體</h1>
+    <div class="stage">
+      <svg class="body" viewBox="0 0 200 230" style="width:min(100%,250px)">
+        <rect x="0" y="160" width="200" height="70" fill="#b98a5a"/>
+        <g class="part" data-p="花" id="p花"><circle cx="100" cy="30" r="10" fill="#ffd54f"/><g fill="#ff8fb1"><circle cx="100" cy="14" r="10"/><circle cx="116" cy="30" r="10"/><circle cx="100" cy="46" r="10"/><circle cx="84" cy="30" r="10"/></g><circle cx="100" cy="30" r="8" fill="#ffd54f"/></g>
+        <g class="part" data-p="莖" id="p莖"><path d="M100 160 L100 52" stroke="#3fa34d" stroke-width="9" stroke-linecap="round"/></g>
+        <g class="part" data-p="葉" id="p葉"><path d="M100 110 C70 90 50 105 45 120 C65 128 88 124 100 110Z" fill="#5cc26a"/><path d="M100 85 C130 65 150 80 155 95 C135 103 112 99 100 85Z" fill="#5cc26a"/></g>
+        <g class="part" data-p="根" id="p根" fill="none" stroke="#f3e6c4" stroke-width="5" stroke-linecap="round"><path d="M100 160 L100 215"/><path d="M100 172 L76 200"/><path d="M100 180 L126 208"/><path d="M100 195 L84 222"/></g>
+      </svg>
+    </div>
+    <div class="lbls" id="lbls"><button>根</button><button>莖</button><button>葉</button><button>花</button></div>
+    <p class="msg" id="m3"></p>
+  </section>
+
+  <section class="step" data-auto="番茄的一生。種子發芽，長大，開花，結出果實。果實裡面又有新的種子，又可以再種一次。點一點，跟著轉一圈。">
+    <h1>植物的一生</h1>
+    <div class="stage"><div class="cyc" id="cyc"><span class="mid">🔄</span></div></div>
+    <p class="msg" id="m4"></p>
+  </section>
+
+  <section class="step" data-auto="小測驗！先做第一題：種子發芽，需要什麼？">
+    <h1>小測驗</h1>
+    <div class="qbox">
+      <p class="big">① 種子發芽需要什麼？</p>
+      <p class="center"><button class="say" data-say="種子發芽需要什麼">🔊 聽題目</button></p>
+      <div class="quiz" data-why="種子發芽需要水、空氣和適合的溫度。">
+        <button>🍬 糖果</button><button data-right>💧 水</button><button>🎵 音樂</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+    <div class="qbox">
+      <p class="big">② 綠豆發芽時，<br>最先長出來的是什麼？</p>
+      <p class="center"><button class="say" data-say="綠豆發芽時，最先長出來的是什麼">🔊 聽題目</button></p>
+      <div class="quiz" data-why="綠豆的種皮裂開後，先長出根，根往下長，再長出莖和葉子。">
+        <button data-right>根</button><button>花</button><button>果實</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+    <div>
+      <p class="big">③ 番茄的種子藏在哪裡？</p>
+      <p class="center"><button class="say" data-say="番茄的種子藏在哪裡">🔊 聽題目</button></p>
+      <div class="quiz" data-why="把番茄切開，裡面有很多小小的種子。花謝了會長出果實，果實裡有種子。">
+        <button>葉子上</button><button data-right>果實裡面</button><button>根裡面</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+  </section>
+
+</main>
+<script>
+(function(){
+function E(id){return document.getElementById(id);}
+var SPROUT='<rect x="0" y="0" width="200" height="120" fill="#e6f6ff"/><rect x="0" y="120" width="200" height="80" fill="#b98a5a"/>'+
+ '<path class="root" pathLength="100" d="M100 140 C98 155 104 170 100 195"/>'+
+ '<path class="stem" pathLength="100" d="M100 132 C100 110 98 90 100 72"/>'+
+ '<path class="lf l" d="M100 74 C85 58 66 62 60 72 C72 82 90 82 100 74Z" fill="#5cc26a"/>'+
+ '<path class="lf r" d="M100 74 C115 58 134 62 140 72 C128 82 110 82 100 74Z" fill="#5cc26a"/>'+
+ '<ellipse class="seed" cx="100" cy="136" rx="13" ry="9" fill="#3c8a3c"/><path class="crack" d="M90 134 L96 138 L102 133 L108 138" stroke="#e9f7d0" stroke-width="2.5" fill="none"/>';
+['pl0','pl1','pl2'].forEach(function(id){E(id).innerHTML=SPROUT;});
+function stage(id,n){E(id).setAttribute('class','pl'+(n?' s'+n:''));}
+var tm=[];
+/* 第 1 頁：開場動畫 */
+function intro(){stage('pl0',0);var M=['小種子，要發芽囉！','吸了水，變胖了！','種皮裂開，長出根！','莖往上長！','長出葉子了！🌱'];E('m0').textContent=M[0];
+ [1,2,3,4].forEach(function(n){tm.push(setTimeout(function(){stage('pl0',n);E('m0').textContent=M[n];},900+n*1400));});}
+/* 第 2 頁：發芽三要素 */
+var tog=E('tog');
+[].forEach.call(tog.children,function(b){b.onclick=function(){b.classList.toggle('on');say(b.dataset.k+(b.classList.contains('on')?'，有了！':'，拿走了。'));stage('pl1',0);E('m1').textContent='';};});
+E('plant').onclick=function(){tm.forEach(clearTimeout);tm=[];var miss=[].filter.call(tog.children,function(b){return !b.classList.contains('on');}).map(function(b){return b.dataset.k;});
+ stage('pl1',0);
+ if(miss.length){var t='少了'+miss.join('、')+'，種子不會發芽。';E('m1').style.color='#a0161b';E('m1').textContent='😢 '+t;say(t);return;}
+ E('m1').style.color='#1d6b3c';E('m1').textContent='水、空氣、溫暖都有了……';say('水、空氣、適合的溫度都有了，種子發芽了！');
+ [1,2,3,4].forEach(function(n){tm.push(setTimeout(function(){stage('pl1',n);if(n===4)E('m1').textContent='🎉 發芽了！';},n*700));});};
+/* 第 3 頁：綠豆日記 */
+var D=['第 1 步：綠豆泡水，吸水變胖。','第 2 步：種皮裂開，先長出白白的根。','第 3 步：根往下長，莖往上長。','第 4 步：長出葉子，接下來需要陽光。'];
+function day(sp){var n=+E('day').value;stage('pl2',n);E('m2').textContent=D[n-1];if(sp)say(D[n-1]);}
+E('day').oninput=function(){day(false);};E('day').onchange=function(){day(true);};
+/* 第 4 頁：植物的身體 */
+var P={'根':'根：抓住泥土，讓植物站穩，還會吸水。','莖':'莖：撐住植物，把水送到葉子。','葉':'葉：照到陽光，幫植物做出養分。','花':'花：花謝了以後，會長出果實。'};
+function part(k){[].forEach.call(document.querySelectorAll('.body .part'),function(g){g.classList.remove('hl');});var g=E('p'+k);void g.getBoundingClientRect();g.classList.add('hl');E('m3').textContent=P[k];say(P[k]);}
+[].forEach.call(document.querySelectorAll('.body .part'),function(g){g.addEventListener('click',function(){part(g.dataset.p);});});
+[].forEach.call(E('lbls').children,function(b){b.onclick=function(){part(b.textContent);};});
+/* 第 5 頁：植物的一生 */
+var C=[['🟤','種子','番茄的種子，種在土裡。'],['🌱','發芽','種子發芽了，長出根和小芽。'],['🌿','長大','莖和葉子越長越多。'],['🌼','開花','開出黃色的小花。'],['🍅','結果','花謝了，長出番茄。'],['🔍','新種子','番茄裡面有新的種子，又可以再種！']];
+var cyc=E('cyc');
+C.forEach(function(c,i){var a=-Math.PI/2+i*2*Math.PI/C.length,b=document.createElement('button');b.className='nd';b.style.left=(50+38*Math.cos(a))+'%';b.style.top=(50+38*Math.sin(a))+'%';b.innerHTML='<span class="e">'+c[0]+'</span>'+c[1];
+ b.onclick=function(){[].forEach.call(cyc.querySelectorAll('.nd'),function(x){x.classList.remove('on');});b.classList.add('on');E('m4').textContent=(i+1)+'. '+c[2];say(c[2]);};cyc.appendChild(b);});
+window.onStep=function(i){tm.forEach(clearTimeout);tm=[];if(i===0)intro();if(i===1){stage('pl1',0);E('m1').textContent='';}if(i===2){E('day').value=1;day(false);}
+ if(i===4){[].forEach.call(cyc.querySelectorAll('.nd'),function(x){x.classList.remove('on');});E('m4').textContent='';}};
+})();
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Weekend</title>
+<style>
+:root { --c: #3f6fe0; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式 ===== */
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;width:100%}
+.day{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:84px;padding:6px 2px;border:0;border-radius:16px;background:#eef2fd;box-shadow:0 4px 0 #c5d2f5;font:inherit;font-weight:900;color:#2b3f7a;cursor:pointer}
+.day .s{font-size:clamp(15px,4vw,20px)}
+.day .z{font-size:15px;color:#6a5536}
+.day.we{background:#ffe9a8;box-shadow:0 4px 0 #e0a92a;color:#8a4a00}
+.day.jump{animation:jump .7s ease-in-out 2}
+@keyframes jump{30%{transform:translateY(-16px) scale(1.08)}60%{transform:translateY(0)}}
+.sun{position:absolute;top:8px;right:14px;font-size:54px;animation:spin 8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.cards{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.card .e{font-size:46px}
+.card .en{font-size:19px;font-weight:900;color:var(--c)}
+.card .zh{font-size:16px;font-weight:700;color:#6a5536}
+.card.on{background:#e3ecff;box-shadow:0 4px 0 #9cb4f0}
+.card.on .e{animation:jump .6s ease-in-out}
+.line{font-size:clamp(21px,5.6vw,28px);font-weight:900;text-align:center;color:#2b3f7a;min-height:1.5em}
+.road{position:relative;width:100%;height:90px;border-radius:16px;background:linear-gradient(#bfe3ff 0 55%,#9bd27a 55%)}
+.road .car{position:absolute;left:4%;bottom:6px;font-size:44px;transform:scaleX(-1);transition:left 1.4s ease-in-out}
+.road .to{position:absolute;right:4%;bottom:6px;font-size:50px}
+.road.go .car{left:68%}
+.bld{display:grid;gap:10px;width:100%}
+.bld .row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center}
+.bld .lab{font-size:20px;font-weight:900;color:#2b3f7a}
+.chip{min-height:52px;padding:6px 12px;border:0;border-radius:999px;background:#eef2fd;box-shadow:0 3px 0 #c5d2f5;font:inherit;font-size:18px;font-weight:900;color:#2b3f7a;cursor:pointer}
+.chip.sel{background:var(--c);color:#fff;box-shadow:0 3px 0 #23459c}
+.story{width:100%;padding:12px;border-radius:18px;background:#fffbea;border:3px dashed #e0c36a;font-size:clamp(19px,5vw,24px);font-weight:900;line-height:1.6;text-align:center;color:#3a2a08}
+.qbox{padding:6px 0 16px;border-bottom:3px dashed #eadfc8;margin-bottom:10px}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <section class="step" data-auto="Saturday and Sunday are the weekend. No school today. Hooray!" data-lang="en-US">
+    <h1>My Weekend</h1>
+    <div class="stage" style="flex-direction:column;padding-top:70px"><span class="sun">☀️</span>
+      <div class="week" id="w1"></div>
+    </div>
+    <p class="big">Saturday and Sunday<br>are the <span style="color:var(--c)">weekend</span>!</p>
+    <p class="small">星期六和星期日是週末，不用上學！</p>
+    <p class="center"><button class="say" data-say="Saturday and Sunday are the weekend." data-lang="en-US">🔊 Listen</button><button class="say" data-say="星期六和星期日是週末，不用上學！">🔊 中文</button></p>
+  </section>
+
+  <section class="step" data-auto="There are seven days in a week. Tap a day and listen." data-lang="en-US">
+    <h1>Seven Days</h1>
+    <p class="small">一個星期有七天。點一點，聽聽看！黃色的是週末。</p>
+    <div class="stage"><div class="week" id="w2"></div></div>
+    <p class="line" id="dline"></p>
+  </section>
+
+  <section class="step" data-auto="What do you like to do on weekends? Tap a picture." data-lang="en-US">
+    <h1>What do you like to do?</h1>
+    <p class="center"><button class="say" data-say="What do you like to do on weekends?" data-lang="en-US">🔊 What do you like to do on weekends?</button></p>
+    <div class="stage"><div class="cards" id="acts"></div></div>
+    <p class="line" id="aline"></p>
+  </section>
+
+  <section class="step" data-auto="Where do you like to go on weekends? Tap a place." data-lang="en-US">
+    <h1>Where do you like to go?</h1>
+    <p class="center"><button class="say" data-say="Where do you like to go on weekends?" data-lang="en-US">🔊 Where do you like to go?</button></p>
+    <div class="road" id="road"><span class="car">🚗</span><span class="to" id="to">❓</span></div>
+    <div class="stage" style="min-height:auto"><div class="cards" id="places"></div></div>
+    <p class="line" id="pline"></p>
+  </section>
+
+  <section class="step" data-auto="Make your own weekend story. Pick one in each line, then read it." data-lang="en-US">
+    <h1>My Weekend Story</h1>
+    <p class="small">每一行選一個，做出你自己的週末小故事！</p>
+    <div class="bld" id="bld"></div>
+    <div class="story" id="story" style="margin-top:12px"></div>
+    <p class="center"><button class="say" id="readStory">🔊 Read my story</button></p>
+  </section>
+
+  <section class="step" data-auto="Quiz time! Which days are the weekend?" data-lang="en-US">
+    <h1>Quiz</h1>
+    <div class="qbox">
+      <p class="big">① Which days are the weekend?</p>
+      <p class="center"><button class="say" data-say="Which days are the weekend?" data-lang="en-US">🔊 Listen</button></p>
+      <div class="quiz" data-why="Saturday 星期六和 Sunday 星期日是週末。">
+        <button>Monday and Tuesday</button><button data-right>Saturday and Sunday</button><button>Friday and Monday</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+    <div class="qbox">
+      <p class="big">②「我喜歡去圖書館。」<br>英文怎麼說？</p>
+      <p class="center"><button class="say" data-say="我喜歡去圖書館，英文怎麼說">🔊 聽題目</button></p>
+      <div class="quiz" data-why="library 是圖書館，I like to go to the library。">
+        <button>I like to go to the zoo.</button><button>I like to read books.</button><button data-right>I like to go to the library.</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+    <div class="qbox">
+      <p class="big">③ 🚲 I like to ____ my bike.</p>
+      <p class="center"><button class="say" data-say="I like to blank my bike." data-lang="en-US">🔊 Listen</button></p>
+      <div class="quiz" data-why="騎腳踏車是 ride my bike，I like to ride my bike。">
+        <button data-right>ride</button><button>read</button><button>draw</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+    <div>
+      <p class="big">④ Do you get up early on weekends?<br><span style="font-size:.8em;color:#6a5536">（我週末比較晚起床）</span></p>
+      <p class="center"><button class="say" data-say="Do you get up early on weekends?" data-lang="en-US">🔊 Listen</button></p>
+      <div class="quiz" data-why="用 Do you 問，就用 do 回答：No, I don't. I get up late on weekends。">
+        <button>No, I am not.</button><button data-right>No, I don't. I get up late.</button><button>No, I can't.</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+  </section>
+
+</main>
+<script>
+(function(){
+var DAYS=[['Monday','Mon','星期一'],['Tuesday','Tue','星期二'],['Wednesday','Wed','星期三'],['Thursday','Thu','星期四'],['Friday','Fri','星期五'],['Saturday','Sat','星期六'],['Sunday','Sun','星期日']];
+function week(el,tap){var w=document.getElementById(el);w.innerHTML='';DAYS.forEach(function(d,i){var b=document.createElement('button');b.className='day'+(i>4?' we':'');b.innerHTML='<span class="s">'+d[1]+'</span><span class="z">'+d[2].slice(2)+'</span>';
+ if(tap)b.onclick=function(){document.getElementById('dline').textContent=d[0]+' '+d[2]+(i>4?' 🎉 weekend!':'');say(d[0]+(i>4?'. It is the weekend!':''),'en-US');};w.appendChild(b);});return w;}
+week('w1',false);week('w2',true);
+function cards(el,list,line,fmt,extra){var c=document.getElementById(el);list.forEach(function(a){var b=document.createElement('button');b.className='card';b.innerHTML='<span class="e">'+a[0]+'</span><span class="en">'+a[1]+'</span><span class="zh">'+a[2]+'</span>';
+ b.onclick=function(){[].forEach.call(c.children,function(x){x.classList.remove('on');});void b.offsetWidth;b.classList.add('on');var s=fmt(a);document.getElementById(line).textContent=s;say(s,'en-US');if(extra)extra(a);};c.appendChild(b);});}
+var ACTS=[['📚','read books','看書'],['🚲','ride my bike','騎腳踏車'],['🎨','draw pictures','畫畫'],['📺','watch TV','看電視'],['🧩','play games','玩遊戲']];
+var PLACES=[['🌳','the park','公園'],['🦁','the zoo','動物園'],['📖','the library','圖書館'],['🏖️','the beach','海邊'],['👵','my grandma\'s house','奶奶家']];
+cards('acts',ACTS,'aline',function(a){return 'I like to '+a[1]+'.';});
+var road=document.getElementById('road');
+cards('places',PLACES,'pline',function(a){return 'I like to go to '+a[1]+'.';},function(a){road.classList.remove('go');document.getElementById('to').textContent=a[0];void road.offsetWidth;setTimeout(function(){road.classList.add('go');},50);});
+/* 週末小故事 */
+var ROWS=[['I get up',[['🌅 early','early'],['😴 late','late']],' on weekends.'],['I like to',ACTS.map(function(a){return [a[0]+' '+a[1],a[1]];}),'.'],['I feel',[['😊 happy','happy'],['😌 relaxed','relaxed'],['🤩 excited','excited'],['😪 sleepy','sleepy']],' on weekends.']];
+var pick=[0,0,0],bld=document.getElementById('bld');
+function story(){return ROWS.map(function(r,i){return r[0]+' '+r[1][pick[i]][1]+r[2];});}
+function draw(){document.getElementById('story').innerHTML=story().join('<br>');}
+ROWS.forEach(function(r,i){var row=document.createElement('div');row.className='row';row.innerHTML='<span class="lab">'+r[0]+'</span>';
+ r[1].forEach(function(o,k){var b=document.createElement('button');b.className='chip'+(k===0?' sel':'');b.textContent=o[0];b.onclick=function(){pick[i]=k;[].forEach.call(row.querySelectorAll('.chip'),function(x){x.classList.remove('sel');});b.classList.add('sel');draw();say(story()[i],'en-US');};row.appendChild(b);});bld.appendChild(row);});
+draw();
+document.getElementById('readStory').onclick=function(){say(story().join(' '),'en-US');};
+window.onStep=function(i){if(i===0){[].forEach.call(document.querySelectorAll('#w1 .we'),function(d){d.classList.remove('jump');void d.offsetWidth;d.classList.add('jump');});}
+ if(i===3){road.classList.remove('go');document.getElementById('to').textContent='❓';}};
+})();
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>
