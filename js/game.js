@@ -266,6 +266,37 @@
       + '<path d="M31 28 Q31 9 50 8 Q69 9 69 28 Q60 21 50 21 Q40 21 31 28 Z" fill="#37474f" stroke="#1c262b" stroke-width="1.6"/>'
       + '<path d="M34 17 Q21 13 22 1 Q28 9 38 12 Z" fill="#eceff1" stroke="#9e9e9e" stroke-width="1.2"/><path d="M66 17 Q79 13 78 1 Q72 9 62 12 Z" fill="#eceff1" stroke="#9e9e9e" stroke-width="1.2"/>'
       + '<path d="M50 8 L47 15 L53 15 Z" fill="#ce93d8"/></svg>',
+    'steel-tiger': '<svg class="foe-svg" viewBox="0 0 100 100" aria-hidden="true">'
+      + '<path d="M86 58 Q98 46 94 32" stroke="#ef6c00" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M93 40 L98 38 M90 48 L96 48" stroke="#212121" stroke-width="2.5" stroke-linecap="round"/>'
+      + '<ellipse cx="62" cy="66" rx="27" ry="18" fill="#fb8c00" stroke="#bf5f00" stroke-width="2"/>'
+      + '<path d="M56 50 Q60 60 55 70 M68 49 Q72 60 67 72 M80 54 Q83 63 79 72" stroke="#212121" stroke-width="3.2" fill="none" stroke-linecap="round"/>'
+      + '<ellipse cx="60" cy="76" rx="16" ry="7" fill="#fff3e0"/>'
+      + '<g fill="#fb8c00" stroke="#bf5f00" stroke-width="2"><rect x="42" y="74" width="11" height="18" rx="5"/><rect x="74" y="74" width="11" height="18" rx="5"/></g>'
+      + '<g fill="#fff3e0"><ellipse cx="47.5" cy="91" rx="7" ry="4"/><ellipse cx="79.5" cy="91" rx="7" ry="4"/></g>'
+      + '<circle cx="20" cy="20" r="8" fill="#fb8c00" stroke="#bf5f00" stroke-width="2"/><circle cx="20" cy="20" r="4" fill="#ffccbc"/>'
+      + '<circle cx="52" cy="18" r="8" fill="#fb8c00" stroke="#bf5f00" stroke-width="2"/><circle cx="52" cy="18" r="4" fill="#ffccbc"/>'
+      + '<ellipse cx="36" cy="40" rx="25" ry="23" fill="#fb8c00" stroke="#bf5f00" stroke-width="2"/>'
+      + '<path d="M30 18 L31 27 M37 17 L37 26 M44 18 L43 27 M13 36 L21 38 M12 44 L20 44 M60 36 L52 38 M61 44 L53 44" stroke="#212121" stroke-width="3" stroke-linecap="round"/>'
+      + '<ellipse cx="35" cy="52" rx="16" ry="11" fill="#fff3e0"/>'
+      + '<path d="M22 33 L31 36 M50 33 L41 36" stroke="#3e2723" stroke-width="3" stroke-linecap="round"/>'
+      + '<ellipse cx="27" cy="40" rx="4.5" ry="5" fill="#fff"/><ellipse cx="45" cy="40" rx="4.5" ry="5" fill="#fff"/>'
+      + '<circle cx="26" cy="41" r="2.8" fill="#33691e"/><circle cx="44" cy="41" r="2.8" fill="#33691e"/><circle cx="25.3" cy="40" r="1" fill="#fff"/><circle cx="43.3" cy="40" r="1" fill="#fff"/>'
+      + '<path d="M32 47 L40 47 L36 51 Z" fill="#3e2723"/><path d="M36 51 L36 54 M28 56 Q36 60 44 56" stroke="#3e2723" stroke-width="2" fill="none" stroke-linecap="round"/>'
+      + '<path d="M26 55 L29.5 73 L35 56 Z" fill="#cfd8dc" stroke="#455a64" stroke-width="1.6" stroke-linejoin="round"/><path d="M37 56 L42.5 73 L46 55 Z" fill="#cfd8dc" stroke="#455a64" stroke-width="1.6" stroke-linejoin="round"/>'
+      + '<path class="shine" d="M29 58 L30.5 66 M40 58 L41.5 66" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>'
+      + '<g stroke="#5d4037" stroke-width="1" stroke-linecap="round"><path d="M24 52 L12 50 M24 55 L12 57"/><path d="M47 52 L59 50 M47 55 L59 57"/></g></svg>',
+    'big-shark': '<svg class="foe-svg big" viewBox="0 0 100 100" aria-hidden="true">'
+      + '<path d="M78 52 L98 34 L94 52 L98 70 Z" fill="#546e7a" stroke="#37474f" stroke-width="2" stroke-linejoin="round"/>'
+      + '<path d="M46 30 L58 10 L64 32 Z" fill="#607d8b" stroke="#37474f" stroke-width="2" stroke-linejoin="round"/>'
+      + '<path d="M6 54 Q12 30 46 28 Q72 28 82 52 Q72 72 44 74 Q14 74 6 54 Z" fill="#78909c" stroke="#37474f" stroke-width="2.2"/>'
+      + '<path d="M10 58 Q30 72 72 62 Q60 72 44 73 Q18 74 10 58 Z" fill="#eceff1"/>'
+      + '<path d="M52 64 L62 82 L66 62 Z" fill="#607d8b" stroke="#37474f" stroke-width="2" stroke-linejoin="round"/>'
+      + '<path d="M38 44 L38 56 M43 43 L43 57 M48 44 L48 56" stroke="#455a64" stroke-width="1.8" stroke-linecap="round"/>'
+      + '<path d="M8 56 Q18 63 32 58" stroke="#37474f" stroke-width="2" fill="#b71c1c"/>'
+      + '<path d="M10 57 L12 61 L14 58 L16 62 L18 59 L20 63 L22 59 L24 62 L26 59 L28 61 L30 58" stroke="#fff" stroke-width="1.6" fill="#fff" stroke-linejoin="round"/>'
+      + '<ellipse cx="22" cy="44" rx="4.5" ry="5" fill="#fff"/><circle cx="21" cy="45" r="2.8" fill="#212121"/><circle cx="20.2" cy="44" r="1" fill="#fff"/>'
+      + '<path d="M16 37 L27 40" stroke="#263238" stroke-width="2.6" stroke-linecap="round"/>'
+      + '<path d="M30 34 Q46 30 62 36" stroke="#b0bec5" stroke-width="2" fill="none" stroke-linecap="round" opacity=".8"/></svg>',
   };
   const artHTML = (icon) => (String(icon).startsWith('svg:') ? (BATTLE_ART[icon.slice(4)] || '❓') : esc(icon));
   // 太空主題：主角坐在太空飛行船裡
@@ -282,10 +313,25 @@
       + `<svg x="53" y="24" width="26" height="26" viewBox="0 0 100 100">${pilot}</svg>`
       + '<path d="M58 28 Q64 25 70 27" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" opacity=".8"/></svg>';
   };
+  // 深海主題：主角坐在潛水艇裡
+  const subHTML = () => {
+    const pilot = HERO.avatar.replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, '');
+    return '<svg class="ship-svg" viewBox="0 0 120 80" aria-hidden="true">'
+      + '<g class="prop"><ellipse cx="10" cy="44" rx="3" ry="11" fill="#90a4ae"/></g><rect x="10" y="41" width="10" height="6" fill="#607d8b"/>'
+      + '<path d="M60 22 L62 8 L74 8 L76 22 Z" fill="#ffb300" stroke="#c77800" stroke-width="2" stroke-linejoin="round"/><path d="M70 8 L70 1 L80 1" stroke="#546e7a" stroke-width="3" fill="none" stroke-linecap="round"/>'
+      + '<rect x="18" y="20" width="92" height="48" rx="24" fill="#ffca28" stroke="#c77800" stroke-width="2.5"/>'
+      + '<path d="M22 54 Q64 64 106 54" stroke="#ff8f00" stroke-width="4" fill="none"/>'
+      + '<circle cx="34" cy="40" r="5" fill="#81d4fa" stroke="#c77800" stroke-width="2"/><circle cx="48" cy="40" r="5" fill="#81d4fa" stroke="#c77800" stroke-width="2"/>'
+      + '<circle cx="80" cy="42" r="16" fill="#b3e5fc" stroke="#c77800" stroke-width="3"/>'
+      + `<svg x="66" y="28" width="28" height="28" viewBox="0 0 100 100">${pilot}</svg>`
+      + '<path d="M71 32 Q77 29 84 31" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" opacity=".8"/></svg>';
+  };
   const BATTLE_THEMES = {
     space: { moves: [['雷射光束', '🔆'], ['光子砲', '💥'], ['星星飛彈', '🌟']], special: ['超級光速砲', '☄️'], foeMoves: [['外星光線', '🟢'], ['黏液炸彈', '🦠']], ship: true },
     garden: {},
     underworld: {},
+    jungle: {},
+    deepsea: { moves: [['魚雷發射', '🚀'], ['泡泡砲', '🫧'], ['聲納衝擊波', '🌀']], special: ['深海巨浪砲', '🌊'], foeMoves: [['大嘴咬咬', '🦷'], ['尾巴大浪', '🌊'], ['鯊魚衝撞', '💢']], sub: true },
   };
   function startDailyHomework(subject) {
     const hw = DAY.data.homework[subject], cfg = DAILY_FOES[subject], sb = SUBJECTS.find((x) => x.id === cfg.subject);
@@ -302,7 +348,7 @@
     const th = BATTLE_THEMES[b.theme] || {};
     return {
       theme: (BATTLE_THEMES[b.theme] ? b.theme : '') + (b.fx === 'punch' ? ' fx-punch' : ''),
-      heroHTML: th.ship ? shipHTML() : null,
+      heroHTML: th.ship ? shipHTML() : th.sub ? subHTML() : null,
       st: { moves: b.moves || th.moves || base.moves, special: b.special || th.special || base.special, foeMoves: b.foeMoves || th.foeMoves || base.foeMoves },
       foe: b.foe && b.foe.name ? { name: b.foe.name, icon: b.foe.icon || '👾' } : defFoe,
     };

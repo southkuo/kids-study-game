@@ -24,7 +24,7 @@ function unsafeHtml(html) {
 function checkQuestions(where, hw) {
   if (!isStr(hw.title)) err(where, '缺少 title');
   if (hw.battle != null) {
-    const b = hw.battle, THEMES = ['space', 'garden', 'underworld'], ART = ['mantis-king', 'skeleton-general'];
+    const b = hw.battle, THEMES = ['space', 'garden', 'underworld', 'jungle', 'deepsea'], ART = ['mantis-king', 'skeleton-general', 'steel-tiger', 'big-shark'];
     if (b.theme != null && !THEMES.includes(b.theme)) err(where, `battle.theme 只能是 ${THEMES.join('／')}（或不寫）`);
     if (b.foe != null) {
       if (!isStr(b.foe.name)) err(where, 'battle.foe 需要 name');

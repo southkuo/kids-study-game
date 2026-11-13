@@ -6,42 +6,23 @@
       "title": "國文作業",
       "topic": "疊字詞：亮晶晶、綠油油",
       "battle": {
-        "theme": "underworld",
-        "fx": "punch",
+        "theme": "jungle",
         "foe": {
-          "name": "冥將",
-          "icon": "svg:skeleton-general"
+          "name": "鋼牙虎",
+          "icon": "svg:steel-tiger"
         },
-        "moves": [
-          [
-            "正義鐵拳",
-            "🤜"
-          ],
-          [
-            "連環快拳",
-            "👊"
-          ],
-          [
-            "閃亮亮拳",
-            "✊"
-          ]
-        ],
-        "special": [
-          "亮晶晶無敵神拳",
-          "🤜"
-        ],
         "foeMoves": [
           [
-            "冷冰冰寒氣",
-            "🌫️"
+            "鋼牙大咬",
+            "🦷"
           ],
           [
-            "黑漆漆迷霧",
-            "🌑"
+            "猛虎撲擊",
+            "🐾"
           ],
           [
-            "骨頭飛鏢",
-            "🦴"
+            "虎嘯震波",
+            "💢"
           ]
         ]
       },
@@ -148,25 +129,11 @@
       "title": "數學作業",
       "topic": "7 和 9 的乘法",
       "battle": {
-        "theme": "space",
+        "theme": "deepsea",
         "foe": {
-          "name": "七星外星人",
-          "icon": "👾"
-        },
-        "foeMoves": [
-          [
-            "七彩光線",
-            "🌈"
-          ],
-          [
-            "九連星彈",
-            "💫"
-          ],
-          [
-            "隕石雨",
-            "☄️"
-          ]
-        ]
+          "name": "大鯊魚",
+          "icon": "svg:big-shark"
+        }
       },
       "questions": [
         {
