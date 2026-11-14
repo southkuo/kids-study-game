@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>溫度計</title>
+<style>
+:root { --c: #2e9d5b; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式 ===== */
+.thermo { position: relative; width: 120px; height: 330px; flex: none; }
+.thermo .tube { position: absolute; left: 44px; top: 0; width: 26px; height: 280px; border: 4px solid #90a4ae; border-bottom: 0; border-radius: 14px 14px 0 0; background: #fafafa; overflow: hidden; }
+.thermo .col { position: absolute; left: 5px; right: 5px; bottom: 0; height: 30%; border-radius: 6px 6px 0 0; background: #e53935; transition: height 1.6s ease-in-out; }
+.thermo .bulb { position: absolute; left: 32px; top: 268px; width: 50px; height: 50px; border: 4px solid #90a4ae; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #ff8a80, #e53935 60%); }
+.thermo .ticks { position: absolute; left: 76px; top: 0; height: 280px; width: 44px; }
+.thermo .ticks span { position: absolute; left: 0; transform: translateY(50%); font-size: 13px; font-weight: 900; color: #455a64; white-space: nowrap; }
+.thermo .ticks span::before { content: ""; display: inline-block; width: 8px; height: 2px; margin-right: 3px; vertical-align: middle; background: #455a64; }
+.thermo .lab { position: absolute; right: 84px; padding: 6px 10px; border: 0; border-radius: 12px; background: #e8f5e9; box-shadow: 0 3px 0 #a5d6a7; font: inherit; font-size: 17px; font-weight: 900; color: #1b5e20; white-space: nowrap; cursor: pointer; }
+.thermo.wide { width: 230px; padding-left: 110px; }
+.thermo.wide > .tube, .thermo.wide > .bulb, .thermo.wide > .ticks { margin-left: 110px; }
+.thermo.wide > .lab { right: auto; left: 0; }
+.cups { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.cups button { min-height: 72px; min-width: 120px; border: 0; border-radius: 18px; background: #f1f8e9; box-shadow: 0 4px 0 #a5d6a7; font: inherit; font-size: 18px; font-weight: 900; color: #1b5e20; cursor: pointer; }
+.cups button span { display: block; font-size: 32px; }
+.cups button.on { background: #2e9d5b; color: #fff; box-shadow: 0 4px 0 #1b5e20; }
+.readout { font-size: 34px; font-weight: 900; text-align: center; min-height: 1.3em; color: #e53935; }
+.note { font-size: 18px; font-weight: 900; text-align: center; min-height: 2.6em; color: #2e7d32; }
+.ex { display: grid; gap: 10px; width: 100%; }
+.ex .card { flex-direction: row; gap: 12px; text-align: left; }
+.ex .card span { font-size: 40px; flex: none; }
+.ex .card b { display: block; font-size: 19px; }
+.ex .card small { font-size: 15px; font-weight: 800; color: #2e7d32; }
+.cold { position: absolute; font-size: 34px; animation: blow 4s ease-in-out infinite; }
+@keyframes blow { 0%, 100% { transform: translateX(0); opacity: .4; } 50% { transform: translateX(30px); opacity: 1; } }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容 ===== -->
+
+  <section class="step" data-auto="天氣變冷了！到底有多冷呢？我們可以用溫度計量一量。">
+    <h1>🌡️ 有多冷？量一量！</h1>
+    <div class="stage">
+      <span class="cold" style="left:16px;top:30px">🌬️</span>
+      <span class="cold" style="right:20px;top:120px;animation-delay:-2s">❄️</span>
+      <div class="thermo" id="t0"></div>
+    </div>
+    <p class="big">冷冷熱熱，用手摸不準，<br>用<span style="color:#2e9d5b">溫度計</span>量才清楚！</p>
+  </section>
+
+  <section class="step" data-auto="溫度計有三個地方要認識：球部、液柱和刻度。點一點綠色的牌子聽聽看。">
+    <h1>🔍 認識溫度計</h1>
+    <div class="stage"><div class="thermo wide" id="t1"></div></div>
+    <p class="big">溫度的單位是「度」，<br>寫成 <span style="color:#e53935">°C</span>。</p>
+    <p class="center"><button class="say" data-say="二十五度，寫成二十五，再加上一個小圓圈和大寫的C。">🔊 25°C 怎麼念？</button></p>
+  </section>
+
+  <section class="step" data-auto="把溫度計放進不同的杯子，看看紅色的液柱會怎麼變。">
+    <h1>🧪 放進杯子量量看</h1>
+    <div class="stage">
+      <div class="thermo" id="t2"></div>
+      <div class="cups" id="cups">
+        <button data-t="0" data-n="冰水很冰，大約零度。液柱降得很低。"><span>🧊</span>冰水</button>
+        <button data-t="25" data-n="教室裡的空氣，大約二十五度。"><span>🏫</span>教室</button>
+        <button data-t="40" data-n="溫水大約四十度，比我們的身體還要溫一點。"><span>🥛</span>溫水</button>
+        <button data-t="80" data-n="熱水大約八十度，液柱升得好高！熱水會燙傷，千萬不要用手摸。"><span>♨️</span>熱水</button>
+      </div>
+    </div>
+    <div class="readout" id="read"></div>
+    <div class="note" id="note">點一個杯子試試看！</div>
+    <p class="small">越熱，紅色液柱升得越高；越冷，降得越低。</p>
+  </section>
+
+  <section class="step" data-auto="怎麼正確使用溫度計？點一點每張卡片聽聽看。">
+    <h1>👀 正確的看法</h1>
+    <div class="stage"><div class="ex">
+      <button class="card" data-say="看溫度計的時候，眼睛要和液柱的頂端一樣高，不要從上面或下面斜斜的看。"><span>👁️</span><div><b>眼睛和液柱頂端一樣高</b><small>平平的看，才讀得準</small></div></button>
+      <button class="card" data-say="液柱會慢慢升高或降低，要等它停下來不動了，再讀刻度。"><span>⏳</span><div><b>等液柱不動了再讀</b><small>它還在動就先等一等</small></div></button>
+      <button class="card" data-say="拿溫度計要拿上面，不要用手握住下面的球部，因為手的溫度會讓液柱升高。"><span>✋</span><div><b>不要握住球部</b><small>手的溫度會讓液柱升高</small></div></button>
+      <button class="card" data-say="溫度計是玻璃做的，要輕輕拿、輕輕放，不可以拿來玩或敲東西。"><span>🫙</span><div><b>輕拿輕放</b><small>玻璃做的，摔了會破</small></div></button>
+    </div></div>
+  </section>
+
+  <section class="step" data-auto="小測驗！把溫度計放進熱水裡，紅色的液柱會怎麼樣？">
+    <h1>✏️ 小測驗 1</h1>
+    <p class="big">把溫度計放進熱水裡，<br>紅色液柱會怎麼樣？</p>
+    <div class="quiz" data-why="溫度越高，液柱升得越高，所以放進熱水，液柱會上升。">
+      <button data-right>⬆️ 上升</button>
+      <button>⬇️ 下降</button>
+      <button>➖ 不會動</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗！讀溫度計的時候，眼睛要放在哪裡？">
+    <h1>✏️ 小測驗 2</h1>
+    <p class="big">讀溫度計的時候，<br>眼睛要放在哪裡？</p>
+    <div class="quiz" data-why="眼睛要和液柱頂端一樣高，平平的看，讀出來的溫度才準確。">
+      <button>從上面往下看</button>
+      <button data-right>和液柱頂端一樣高</button>
+      <button>從下面往上看</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+// 刻度 0～100 度，管子 280px，每 10 度 28px
+function makeThermo(el, labels) {
+  var h = '<div class="tube"><div class="col"></div></div><div class="bulb"></div><div class="ticks">';
+  for (var t = 0; t <= 100; t += 10) h += '<span style="bottom:' + (t * 2.8) + 'px">' + t + '</span>';
+  h += '</div>';
+  if (labels) {
+    h += '<button class="lab" style="top:110px;left:236px" data-say="刻度：旁邊的數字和小線，用來讀出溫度。">⬅️ 刻度</button>';
+    h += '<button class="lab" style="top:190px" data-say="液柱：管子裡紅色的液體。溫度高，液柱上升；溫度低，液柱下降。">液柱 ➡️</button>';
+    h += '<button class="lab" style="top:278px" data-say="球部：最下面圓圓的地方，裝著紅色的液體，要放進要量的東西裡。">球部 ➡️</button>';
+  }
+  el.innerHTML = h;
+}
+function setLevel(el, t) { el.querySelector('.col').style.height = (t * 2.8) + 'px'; }
+makeThermo(document.getElementById('t0'));
+makeThermo(document.getElementById('t1'), true);
+makeThermo(document.getElementById('t2'));
+setLevel(document.getElementById('t1'), 25);
+[].forEach.call(document.querySelectorAll('#cups button'), function (b) {
+  b.onclick = function () {
+    [].forEach.call(document.querySelectorAll('#cups button'), function (x) { x.classList.toggle('on', x === b); });
+    setLevel(document.getElementById('t2'), +b.dataset.t);
+    document.getElementById('read').textContent = '';
+    document.getElementById('note').textContent = '液柱在移動，等它停下來…';
+    say('液柱在移動，等它停下來再讀。');
+    clearTimeout(window._tt);
+    window._tt = setTimeout(function () {
+      document.getElementById('read').textContent = '大約 ' + b.dataset.t + '°C';
+      document.getElementById('note').textContent = b.dataset.n;
+      say(b.dataset.n);
+    }, 1800);
+  };
+});
+window.onStep = function (i) {
+  if (i === 0) { var t0 = document.getElementById('t0'); setLevel(t0, 60); setTimeout(function () { setLevel(t0, 15); }, 1700); }
+  if (i === 2) { setLevel(document.getElementById('t2'), 20); document.getElementById('read').textContent = ''; document.getElementById('note').textContent = '點一個杯子試試看！'; }
+};
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

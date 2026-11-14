@@ -417,5 +417,31 @@
         }
       ]
     }
-  }
+  },
+  "lessons": [
+    {
+      "subject": "chinese",
+      "title": "量詞：一本書、一雙鞋",
+      "summary": "認識量詞住在數字和東西中間，看東西的樣子選本、雙、件、張、輛、棵、朵、把，再玩量詞配對遊戲。",
+      "file": "daily/2026-11-15/lessons/chinese.html"
+    },
+    {
+      "subject": "english",
+      "title": "What's the weather like?",
+      "summary": "學 sunny、rainy、windy、cold 等天氣的字，用天氣魔法機變出天氣，說出 It is rainy. I need an umbrella.",
+      "file": "daily/2026-11-15/lessons/english.html"
+    },
+    {
+      "subject": "math",
+      "title": "二位數加法：進位",
+      "summary": "用積木看懂「十個一換一個十」，跟著直式一步一步算，再用積木加法機自己試試看進位。",
+      "file": "daily/2026-11-15/lessons/math.html"
+    },
+    {
+      "subject": "science",
+      "title": "溫度計",
+      "summary": "認識溫度計的球部、液柱和刻度，把溫度計放進冰水、熱水看液柱升降，學會正確讀溫度。",
+      "file": "daily/2026-11-15/lessons/science.html"
+    }
+  ]
 }

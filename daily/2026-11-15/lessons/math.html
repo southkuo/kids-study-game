@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>二位數加法：進位</title>
+<style>
+:root { --c: #2f8fd8; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式 ===== */
+.blocks { display: flex; align-items: flex-end; gap: 5px; flex-wrap: wrap; justify-content: center; min-height: 120px; }
+.rod { width: 16px; height: 120px; border-radius: 4px; background: repeating-linear-gradient(#2f8fd8 0 11px, #1b6fb3 11px 12px); box-shadow: 0 2px 0 #145a91; animation: rise .4s ease-out backwards; }
+.cube { width: 16px; height: 16px; border-radius: 3px; background: #ffb74d; box-shadow: 0 2px 0 #e08e1b; animation: rise .4s ease-out backwards; }
+.cube.hot { background: #ff7043; box-shadow: 0 2px 0 #c43e14; }
+.cubes { display: grid; grid-template-columns: repeat(5, 16px); gap: 4px; align-content: end; }
+@keyframes rise { from { transform: translateY(-30px); opacity: 0; } }
+.grp { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px; border-radius: 18px; background: #f2f8fe; }
+.grp b { font-size: 26px; }
+.op { font-size: 36px; font-weight: 900; color: #2f8fd8; }
+.bundle { display: flex; align-items: center; gap: 16px; justify-content: center; }
+.ten { display: grid; grid-template-columns: repeat(5, 22px); gap: 5px; transition: all .8s; }
+.ten .cube { width: 22px; height: 22px; transition: all .8s; animation: none; }
+.ten.squash { grid-template-columns: 22px; gap: 0; }
+.ten.squash .cube { height: 12px; border-radius: 0; background: #2f8fd8; box-shadow: none; }
+.arrow { font-size: 36px; }
+.vert { display: inline-grid; grid-template-columns: 40px 54px 54px; font-size: 46px; font-weight: 900; line-height: 1.25; text-align: center; font-variant-numeric: tabular-nums; }
+.vert .carry { font-size: 26px; color: #e5484d; height: 34px; line-height: 34px; }
+.vert .line { grid-column: 1 / 4; border-top: 4px solid #2b2112; margin: 2px 0; }
+.vert .ans { color: #2f8fd8; }
+.vert .hl { background: #fff3c4; border-radius: 10px; }
+.tip { min-height: 2.8em; font-size: 20px; font-weight: 900; text-align: center; color: #1b6fb3; }
+.setter { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.setter > div { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px; border-radius: 18px; background: #f2f8fe; }
+.setter .n { font-size: 40px; font-weight: 900; }
+.setter .row { display: flex; gap: 6px; }
+.setter button, .go { min-width: 56px; min-height: 50px; border: 0; border-radius: 14px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 17px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.go { min-width: 180px; background: #2f8fd8; color: #fff; box-shadow: 0 4px 0 #145a91; font-size: 21px; }
+.place { display: flex; gap: 18px; align-items: flex-end; justify-content: center; }
+.place > div { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.place small { font-size: 16px; font-weight: 800; color: #6a5536; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容 ===== -->
+
+  <section class="step" data-auto="小安有三十八元，媽媽又給他二十五元。個位加起來超過十，怎麼辦？今天來學進位！">
+    <h1>🧮 加起來超過 10 怎麼辦？</h1>
+    <div class="stage">
+      <div class="grp"><div class="blocks" id="o1"></div><b>38</b></div>
+      <span class="op">＋</span>
+      <div class="grp"><div class="blocks" id="o2"></div><b>25</b></div>
+    </div>
+    <p class="big">藍色長條是「十」，<br>橘色小方塊是「一」。</p>
+    <p class="small">8 個一 加 5 個一 ＝ 13 個一，超過 10 了！</p>
+  </section>
+
+  <section class="step" data-auto="個位滿了十個，就把十個一，綁成一條十，送到十位去。這就叫做進位。">
+    <h1>🎁 十個一，換一個十</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="bundle"><div class="ten" id="ten"></div><span class="arrow">➡️</span><b style="font-size:28px">1 個十</b></div>
+      <p class="center"><button class="say" id="squash">✨ 綁起來</button></p>
+    </div>
+    <p class="big">個位滿 10，<br>就向十位<span style="color:#e5484d">進 1</span>！</p>
+  </section>
+
+  <section class="step" data-auto="用直式算二十七加十五。按下一小步，一步一步來。">
+    <h1>📝 直式一步一步算</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="vert" id="vert"></div>
+      <div class="tip" id="vTip">先寫好直式，個位對個位、十位對十位。</div>
+      <button class="go" id="vNext">下一小步 ▶</button>
+    </div>
+    <p class="small">口訣：先算個位，滿十進一，十位別忘了加 1！</p>
+  </section>
+
+  <section class="step" data-auto="積木加法機！自己選兩個數，按合起來，看看有沒有進位。">
+    <h1>🎛️ 積木加法機</h1>
+    <div class="setter">
+      <div><span class="n" id="nA">38</span><div class="row"><button data-k="a" data-d="10">＋10</button><button data-k="a" data-d="1">＋1</button></div><div class="row"><button data-k="a" data-d="-10">－10</button><button data-k="a" data-d="-1">－1</button></div></div>
+      <span class="op" style="align-self:center">＋</span>
+      <div><span class="n" id="nB">25</span><div class="row"><button data-k="b" data-d="10">＋10</button><button data-k="b" data-d="1">＋1</button></div><div class="row"><button data-k="b" data-d="-10">－10</button><button data-k="b" data-d="-1">－1</button></div></div>
+    </div>
+    <p class="center"><button class="go" id="mGo">🧲 合起來</button></p>
+    <div class="stage" style="min-height:200px">
+      <div class="place"><div><div class="blocks" id="mTens"></div><small>十位</small></div><div><div class="cubes" id="mOnes"></div><small>個位</small></div></div>
+    </div>
+    <div class="tip" id="mTip">兩個數加起來要在 99 以內喔。</div>
+  </section>
+
+  <section class="step" data-auto="小測驗！三十八加二十五等於多少？">
+    <h1>✏️ 小測驗 1</h1>
+    <p class="big">38 ＋ 25 ＝ ？</p>
+    <div class="quiz" data-why="個位 8 加 5 等於 13，寫 3，向十位進 1；十位 3 加 2 再加進位的 1 等於 6，所以是 63。">
+      <button>53</button>
+      <button data-right>63</button>
+      <button>513</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗！四十六加三十七，個位六加七等於十三，十位要怎麼算？">
+    <h1>✏️ 小測驗 2</h1>
+    <p class="big">46 ＋ 37<br>個位 6 ＋ 7 ＝ 13<br>十位要怎麼算？</p>
+    <div class="quiz" data-why="個位滿十進一，十位要算 4 加 3 再加進位的 1，等於 8，答案是 83。">
+      <button>4 ＋ 3 ＝ 7</button>
+      <button data-right>4 ＋ 3 ＋ 1 ＝ 8</button>
+      <button>4 ＋ 3 ＋ 13 ＝ 20</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+function drawBlocks(el, n, hotFrom) {
+  var t = Math.floor(n / 10), o = n % 10, h = '';
+  for (var i = 0; i < t; i++) h += '<i class="rod" style="animation-delay:' + i * .12 + 's"></i>';
+  h += '<span class="cubes">';
+  for (var j = 0; j < o; j++) h += '<i class="cube" style="animation-delay:' + (t * .12 + j * .08) + 's"></i>';
+  el.innerHTML = h + '</span>';
+}
+drawBlocks(document.getElementById('o1'), 38);
+drawBlocks(document.getElementById('o2'), 25);
+
+function resetTen() {
+  var t = document.getElementById('ten'), h = '';
+  for (var i = 0; i < 10; i++) h += '<i class="cube"></i>';
+  t.innerHTML = h; t.classList.remove('squash');
+}
+document.getElementById('squash').onclick = function () {
+  var t = document.getElementById('ten');
+  if (t.classList.contains('squash')) { resetTen(); say('再看一次。'); return; }
+  t.classList.add('squash'); say('十個一，綁成一個十！');
+};
+
+// 直式 27 + 15
+var V = [
+  { c: ['', '', ''], a: ['', '', ''], hl: -1, tip: '先寫好直式，個位對個位、十位對十位。', s: '先寫好直式，個位對個位，十位對十位。' },
+  { c: ['', '', ''], a: ['', '', ''], hl: 2, tip: '先算個位：7 ＋ 5 ＝ 12', s: '先算個位，七加五等於十二。' },
+  { c: ['', '1', ''], a: ['', '', '2'], hl: 2, tip: '12 是 1 個十和 2 個一：個位寫 2，十位上面記一個小 1。', s: '十二是一個十和兩個一。個位寫二，向十位進一。' },
+  { c: ['', '1', ''], a: ['', '4', '2'], hl: 1, tip: '再算十位：2 ＋ 1 ＋ 1（進位）＝ 4', s: '再算十位，二加一，再加進位的一，等於四。' },
+  { c: ['', '1', ''], a: ['', '4', '2'], hl: -2, tip: '🎉 27 ＋ 15 ＝ 42', s: '答案是四十二！' }
+];
+var vi = 0;
+function vDraw() {
+  var v = V[vi], h = '';
+  function cell(txt, col, cls) { return '<span class="' + (cls || '') + (v.hl === col || (v.hl === -2 && cls === 'ans') ? ' hl' : '') + '">' + txt + '</span>'; }
+  h += '<span class="carry"></span><span class="carry">' + v.c[1] + '</span><span class="carry"></span>';
+  h += '<span></span>' + cell('2', 1) + cell('7', 2);
+  h += '<span>＋</span>' + cell('1', 1) + cell('5', 2);
+  h += '<span class="line"></span>';
+  h += '<span></span>' + cell(v.a[1], 1, 'ans') + cell(v.a[2], 2, 'ans');
+  document.getElementById('vert').innerHTML = h;
+  document.getElementById('vTip').textContent = v.tip;
+  document.getElementById('vNext').textContent = vi === V.length - 1 ? '🔁 再看一次' : '下一小步 ▶';
+}
+document.getElementById('vNext').onclick = function () { vi = (vi + 1) % V.length; vDraw(); say(V[vi].s); };
+
+// 積木加法機
+var mA = 38, mB = 25;
+function mShow() { document.getElementById('nA').textContent = mA; document.getElementById('nB').textContent = mB; }
+[].forEach.call(document.querySelectorAll('.setter button'), function (b) {
+  b.onclick = function () {
+    var d = +b.dataset.d;
+    if (b.dataset.k === 'a') { var na = mA + d; if (na >= 10 && na <= 89 && na + mB <= 99) mA = na; else return say('不能再變了'); }
+    else { var nb = mB + d; if (nb >= 10 && nb <= 89 && mA + nb <= 99) mB = nb; else return say('不能再變了'); }
+    mShow(); say(String(b.dataset.k === 'a' ? mA : mB));
+  };
+});
+document.getElementById('mGo').onclick = function () {
+  var tens = Math.floor(mA / 10) + Math.floor(mB / 10), ones = mA % 10 + mB % 10, tipEl = document.getElementById('mTip');
+  var T = document.getElementById('mTens'), O = document.getElementById('mOnes'), h = '', k;
+  for (k = 0; k < tens; k++) h += '<i class="rod" style="animation-delay:' + k * .1 + 's"></i>';
+  T.innerHTML = h; h = '';
+  for (k = 0; k < ones; k++) h += '<i class="cube' + (ones >= 10 && k < 10 ? ' hot' : '') + '" style="animation-delay:' + k * .06 + 's"></i>';
+  O.innerHTML = h;
+  var sum = mA + mB;
+  if (ones >= 10) {
+    tipEl.textContent = '個位 ' + (mA % 10) + ' ＋ ' + (mB % 10) + ' ＝ ' + ones + '，滿 10 了！紅色的 10 個要綁成一個十…';
+    say('個位' + (mA % 10) + '加' + (mB % 10) + '等於' + ones + '，滿十了，要進位！');
+    setTimeout(function () {
+      var h2 = '';
+      for (var r = 0; r < tens + 1; r++) h2 += '<i class="rod"' + (r === tens ? ' style="background:repeating-linear-gradient(#ff7043 0 11px,#c43e14 11px 12px)"' : ' style="animation:none"') + '></i>';
+      T.innerHTML = h2;
+      var h3 = ''; for (var q = 0; q < ones - 10; q++) h3 += '<i class="cube" style="animation:none"></i>';
+      O.innerHTML = h3;
+      tipEl.textContent = '進位後：' + (tens + 1) + ' 個十、' + (ones - 10) + ' 個一，' + mA + ' ＋ ' + mB + ' ＝ ' + sum;
+      say(mA + '加' + mB + '等於' + sum);
+    }, 2200);
+  } else {
+    tipEl.textContent = '個位 ' + (mA % 10) + ' ＋ ' + (mB % 10) + ' ＝ ' + ones + '，沒有滿 10，不用進位。' + mA + ' ＋ ' + mB + ' ＝ ' + sum;
+    say('個位沒有滿十，不用進位。' + mA + '加' + mB + '等於' + sum);
+  }
+};
+
+window.onStep = function (i) {
+  if (i === 1) resetTen();
+  if (i === 2) { vi = 0; vDraw(); }
+  if (i === 3) mShow();
+};
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

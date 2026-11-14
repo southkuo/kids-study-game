@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>量詞：一本書、一雙鞋</title>
+<style>
+:root { --c: #c0573b; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式 ===== */
+.shelf { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; }
+.shelf div { display: flex; flex-direction: column; align-items: center; padding: 8px 4px; border-radius: 18px; background: #fff3ee; animation: pop .5s ease-out backwards; }
+.shelf div:nth-child(2) { animation-delay: .3s; } .shelf div:nth-child(3) { animation-delay: .6s; } .shelf div:nth-child(4) { animation-delay: .9s; }
+.shelf div:nth-child(5) { animation-delay: 1.2s; } .shelf div:nth-child(6) { animation-delay: 1.5s; } .shelf div:nth-child(7) { animation-delay: 1.8s; } .shelf div:nth-child(8) { animation-delay: 2.1s; }
+@keyframes pop { from { transform: scale(.2) rotate(-20deg); opacity: 0; } }
+.shelf span { font-size: 44px; }
+.shelf b { font-size: 19px; }
+.shelf b em { font-style: normal; color: #c0573b; font-size: 23px; }
+.formula { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
+.box { display: flex; flex-direction: column; align-items: center; min-width: 92px; padding: 10px; border-radius: 18px; font-size: 44px; font-weight: 900; animation: drop .5s ease-out backwards; }
+.box small { font-size: 16px; color: #6a5536; }
+.box.num { background: #e3f2fd; } .box.mw { background: #ffe0d6; color: #c0573b; animation-delay: .7s; } .box.thing { background: #e8f5e9; animation-delay: 1.4s; }
+@keyframes drop { from { transform: translateY(-60px); opacity: 0; } }
+.plus { font-size: 30px; font-weight: 900; color: #b0a08a; }
+.mwgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; }
+.mwgrid .card { flex-direction: row; gap: 10px; text-align: left; min-width: 0; }
+.mwgrid .card i { font-style: normal; font-size: 40px; font-weight: 900; color: #c0573b; flex: none; width: 48px; text-align: center; }
+.mwgrid .card b { display: block; font-size: 18px; }
+.mwgrid .card small { font-size: 15px; font-weight: 800; color: #6a5536; }
+@media (max-width: 520px) { .mwgrid { grid-template-columns: 1fr; } .shelf { grid-template-columns: repeat(2, 1fr); } }
+.game { flex-direction: column; }
+.thing { font-size: 92px; line-height: 1.1; }
+.thing.bounce { animation: bounce .5s; }
+@keyframes bounce { 40% { transform: scale(1.25); } }
+.phrase { font-size: 34px; font-weight: 900; }
+.phrase u { display: inline-block; min-width: 48px; text-decoration: none; border-bottom: 4px solid #c0573b; color: #c0573b; }
+.picks { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.picks button { min-width: 72px; min-height: 64px; border: 0; border-radius: 18px; background: #fff3ee; box-shadow: 0 4px 0 #e8b9a8; font: inherit; font-size: 32px; font-weight: 900; color: #c0573b; cursor: pointer; }
+.picks button.yes { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.picks button.no { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; }
+.stars { font-size: 26px; min-height: 1.3em; letter-spacing: 2px; }
+.msg { font-size: 20px; font-weight: 900; text-align: center; min-height: 2.8em; color: #0e6b2e; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容 ===== -->
+
+  <section class="step" data-auto="數東西的時候，數字和東西中間，要加一個小字，叫做量詞。像一本書、一雙鞋、一件外套。">
+    <h1>📦 量詞小百貨</h1>
+    <div class="stage"><div class="shelf">
+      <div data-say="一本書"><span>📕</span><b>一<em>本</em>書</b></div>
+      <div data-say="一雙鞋"><span>👟</span><b>一<em>雙</em>鞋</b></div>
+      <div data-say="一件外套"><span>🧥</span><b>一<em>件</em>外套</b></div>
+      <div data-say="一朵花"><span>🌷</span><b>一<em>朵</em>花</b></div>
+      <div data-say="一棵樹"><span>🌳</span><b>一<em>棵</em>樹</b></div>
+      <div data-say="一張紙"><span>📄</span><b>一<em>張</em>紙</b></div>
+      <div data-say="一輛汽車"><span>🚗</span><b>一<em>輛</em>汽車</b></div>
+      <div data-say="一把雨傘"><span>☂️</span><b>一<em>把</em>雨傘</b></div>
+    </div></div>
+    <p class="big">紅色的小字叫做「量詞」。</p>
+    <p class="small">點一點上面的東西，聽聽怎麼說。</p>
+  </section>
+
+  <section class="step" data-auto="量詞住在數字和東西的中間。一，本，書，合起來就是一本書。">
+    <h1>🏠 量詞住在哪裡？</h1>
+    <div class="stage"><div class="formula">
+      <div class="box num">一<small>數字</small></div><span class="plus">＋</span>
+      <div class="box mw">本<small>量詞</small></div><span class="plus">＋</span>
+      <div class="box thing">📕<small>東西</small></div>
+    </div></div>
+    <p class="big">一 ＋ <span style="color:#c0573b">本</span> ＋ 書 ＝ 一本書</p>
+    <p class="small">不能只說「一書」，中間要放量詞才對喔！</p>
+    <p class="center"><button class="say" data-say="一本書。兩本書。三本書。量詞放在數字和東西的中間。">🔊 一本書、兩本書、三本書</button></p>
+  </section>
+
+  <section class="step" data-auto="看東西的樣子，就能猜出量詞。點一點每張卡片，聽聽為什麼。">
+    <h1>👀 看樣子選量詞</h1>
+    <div class="stage"><div class="mwgrid">
+      <button class="card" data-say="書有很多頁，一頁一頁合在一起，用本。一本書，一本筆記本。"><i>本</i><div><b>一頁一頁合起來</b><small>書、筆記本</small></div></button>
+      <button class="card" data-say="兩個配成一對的東西，用雙。一雙鞋，一雙筷子，一雙手套。"><i>雙</i><div><b>兩個配成一對</b><small>鞋、筷子、手套</small></div></button>
+      <button class="card" data-say="穿在身上的衣服，用件。一件外套，一件毛衣。"><i>件</i><div><b>穿在身上的衣服</b><small>外套、毛衣</small></div></button>
+      <button class="card" data-say="又平又薄的東西，用張。一張紙，一張照片，一張卡片。"><i>張</i><div><b>又平又薄</b><small>紙、照片、卡片</small></div></button>
+      <button class="card" data-say="有輪子的車子，用輛。輛是車字旁。一輛汽車，一輛公車。"><i>輛</i><div><b>有輪子的車</b><small>汽車、公車</small></div></button>
+      <button class="card" data-say="從土裡長出來的樹，用棵。棵是木字旁。一棵樹。"><i>棵</i><div><b>長在土裡的樹</b><small>樹</small></div></button>
+      <button class="card" data-say="圓圓一團的花和雲，用朵。一朵花，一朵白雲。"><i>朵</i><div><b>圓圓一團</b><small>花、白雲</small></div></button>
+      <button class="card" data-say="有把手、可以用手握住的東西，用把。一把雨傘，一把剪刀。"><i>把</i><div><b>可以用手握住</b><small>雨傘、剪刀</small></div></button>
+    </div></div>
+  </section>
+
+  <section class="step" data-auto="量詞配對遊戲！看看圖，選出正確的量詞。">
+    <h1>🎯 量詞配對遊戲</h1>
+    <div class="stage game">
+      <div class="thing" id="cThing">📕</div>
+      <div class="phrase">一<u id="cBlank">？</u><span id="cName">書</span></div>
+      <div class="picks" id="cPicks"></div>
+      <div class="msg" id="cMsg"></div>
+      <div class="stars" id="cStars"></div>
+    </div>
+    <p class="center"><button class="say" id="cNext" style="display:none">➡️ 下一個</button></p>
+  </section>
+
+  <section class="step" data-auto="小測驗！天氣變冷了，小樂穿上一什麼毛衣？">
+    <h1>✏️ 小測驗 1</h1>
+    <p class="big">天氣變冷了，<br>小樂穿上一（　）毛衣。</p>
+    <div class="quiz" data-why="毛衣是穿在身上的衣服，用「件」，所以是一件毛衣。">
+      <button>本</button>
+      <button>雙</button>
+      <button data-right>件</button>
+      <button>棵</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗！下面哪一個說法是錯的？">
+    <h1>✏️ 小測驗 2</h1>
+    <p class="big">下面哪一個說法是<span style="color:#e5484d">錯的</span>？</p>
+    <div class="quiz" data-why="雨傘有把手，可以用手握住，要說一把雨傘，不是一本雨傘。">
+      <button>一雙筷子</button>
+      <button>一張照片</button>
+      <button data-right>一本雨傘</button>
+      <button>一輛公車</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+var C_ITEMS = [
+  ['📕', '書', '本', '書有很多頁合在一起，用本。'],
+  ['👟', '鞋', '雙', '鞋子左腳右腳配成一對，用雙。'],
+  ['🧥', '外套', '件', '外套是穿在身上的衣服，用件。'],
+  ['📄', '紙', '張', '紙又平又薄，用張。'],
+  ['🚌', '公車', '輛', '公車有輪子，用輛。'],
+  ['🌳', '樹', '棵', '樹長在土裡，用棵。'],
+  ['🌼', '花', '朵', '花開成圓圓一團，用朵。'],
+  ['☂️', '雨傘', '把', '雨傘可以用手握住，用把。'],
+  ['🧤', '手套', '雙', '手套左手右手配成一對，用雙。'],
+  ['☁️', '白雲', '朵', '白雲一團一團的，用朵。']
+];
+var C_ALL = ['本', '雙', '件', '張', '輛', '棵', '朵', '把'];
+var cIdx = 0, cScore = 0, cTries = 0;
+function cShow() {
+  var it = C_ITEMS[cIdx];
+  var th = document.getElementById('cThing');
+  th.textContent = it[0]; th.classList.remove('bounce'); void th.offsetWidth; th.classList.add('bounce');
+  document.getElementById('cName').textContent = it[1];
+  document.getElementById('cBlank').textContent = '？';
+  document.getElementById('cMsg').textContent = '第 ' + (cIdx + 1) + ' 題，共 ' + C_ITEMS.length + ' 題';
+  document.getElementById('cMsg').style.color = '#6a5536';
+  document.getElementById('cNext').style.display = 'none';
+  var opts = [it[2]], pool = C_ALL.filter(function (x) { return x !== it[2]; });
+  while (opts.length < 4) { var p = pool.splice(Math.floor(Math.random() * pool.length), 1)[0]; opts.push(p); }
+  opts.sort(function () { return Math.random() - .5; });
+  var box = document.getElementById('cPicks'); box.innerHTML = ''; cTries = 0;
+  opts.forEach(function (o) {
+    var b = document.createElement('button'); b.textContent = o;
+    b.onclick = function () {
+      if (document.getElementById('cBlank').textContent !== '？') return;
+      var m = document.getElementById('cMsg');
+      if (o === it[2]) {
+        document.getElementById('cBlank').textContent = o; b.classList.add('yes');
+        if (cTries === 0) cScore++;
+        document.getElementById('cStars').textContent = '⭐'.repeat(cScore);
+        m.style.color = '#0e6b2e'; m.textContent = '🎉 一' + o + it[1] + '！' + it[3];
+        say('答對了！一' + o + it[1] + '。' + it[3]);
+        if (cIdx < C_ITEMS.length - 1) document.getElementById('cNext').style.display = '';
+        else { m.textContent += ' 全部完成！'; say('全部完成！你得到' + cScore + '顆星星。'); }
+      } else {
+        cTries++; b.classList.add('no'); m.style.color = '#a0161b'; m.textContent = '一' + o + it[1] + '？怪怪的，再想想看！'; say('再想想看');
+      }
+    };
+    box.appendChild(b);
+  });
+}
+document.getElementById('cNext').onclick = function () { cIdx++; cShow(); };
+window.onStep = function (i) {
+  if (i === 3) { cIdx = 0; cScore = 0; document.getElementById('cStars').textContent = ''; cShow(); }
+};
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>
