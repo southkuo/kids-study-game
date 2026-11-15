@@ -406,5 +406,31 @@
         }
       ]
     }
-  }
+  },
+  "lessons": [
+    {
+      "subject": "chinese",
+      "title": "句型：因為、雖然、一邊",
+      "summary": "坐上句子小火車，分清楚「因為……所以……」說原因和結果、「雖然……但是……」說想不到的事、「一邊……一邊……」說同時做兩件事，再到句子修理站練習。",
+      "file": "daily/2026-11-16/lessons/chinese.html"
+    },
+    {
+      "subject": "english",
+      "title": "My Home",
+      "summary": "學 bedroom、kitchen、living room 等房間的字，把東西放進房間說 There is a bed.，點問題讓房間亮燈，練習 Where do you sleep? I sleep in the bedroom.",
+      "file": "daily/2026-11-16/lessons/english.html"
+    },
+    {
+      "subject": "math",
+      "title": "二位數減法：退位",
+      "summary": "看積木把「一個十拆成十個一」，跟著直式一步一步算 53 − 26，用積木減法機自己試退位，再學用加法檢查答案。",
+      "file": "daily/2026-11-16/lessons/math.html"
+    },
+    {
+      "subject": "science",
+      "title": "垃圾分類與回收",
+      "summary": "認識資源回收、廚餘、一般垃圾三種垃圾桶，看寶特瓶怎麼變成做衣服的線，再玩分類小幫手，把家裡的垃圾丟對地方。",
+      "file": "daily/2026-11-16/lessons/science.html"
+    }
+  ]
 }

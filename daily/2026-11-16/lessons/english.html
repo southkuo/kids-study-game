@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Home</title>
+<style>
+:root { --c: #3f6fe0; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式 ===== */
+.house { position: relative; width: min(100%, 420px); margin: 0 auto; }
+.roof { height: 80px; background: #e57373; clip-path: polygon(50% 0, 100% 100%, 0 100%); animation: drop .7s ease-out backwards; }
+.rooms { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 6px; background: #8d6e63; border-radius: 0 0 14px 14px; }
+.room { min-height: 92px; border: 0; border-radius: 10px; background: #455a64; display: flex; flex-direction: column; align-items: center; justify-content: center; font: inherit; color: #fff; cursor: pointer; transition: background .4s, transform .3s; }
+.room span { font-size: 38px; line-height: 1.1; opacity: .25; transition: opacity .4s; }
+.room b { font-size: 17px; opacity: .5; }
+.room.lit { background: #fff3c4; color: #3f2b00; }
+.room.lit span, .room.lit b { opacity: 1; }
+.room.pop { transform: scale(1.06); }
+.room.wide { grid-column: 1 / 3; }
+@keyframes drop { from { transform: translateY(-60px); opacity: 0; } }
+.qline { font-size: clamp(22px, 5.8vw, 30px); font-weight: 900; text-align: center; color: #3f6fe0; margin: 8px 0; }
+.words { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; width: 100%; }
+.words .card span { font-size: 46px; }
+.words .card b { font-size: 21px; color: #3f6fe0; }
+.words .card small { font-size: 16px; color: #6a5536; }
+.sent { min-height: 2.6em; font-size: clamp(20px, 5.2vw, 26px); font-weight: 900; text-align: center; color: #2b2112; line-height: 1.4; }
+.sent em { font-style: normal; color: #3f6fe0; }
+.bedroom { position: relative; width: 100%; min-height: 150px; border-radius: 18px; background: linear-gradient(#e3edff 70%, #c9a27e 70%); display: flex; align-items: flex-end; justify-content: center; gap: 10px; padding: 10px; flex-wrap: wrap; }
+.bedroom .it { font-size: 52px; animation: pop .5s ease-out; }
+@keyframes pop { from { transform: scale(0) rotate(-30deg); } 70% { transform: scale(1.25); } }
+.picks { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 10px; }
+.pick { min-height: 56px; padding: 8px 16px; border: 0; border-radius: 16px; background: #e8efff; box-shadow: 0 4px 0 #a8bff5; font: inherit; font-size: 19px; font-weight: 900; color: #1d3f99; cursor: pointer; }
+.pick:active { transform: translateY(3px); }
+.note { font-size: 17px; font-weight: 800; color: #6a5536; text-align: center; }
+.qwrap { margin-bottom: 26px; padding-bottom: 8px; border-bottom: 3px dashed #eadfc8; }
+.pick { display: inline-flex; align-items: center; gap: 6px; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容 ===== -->
+  <section class="step" data-auto="Welcome to my home!" data-lang="en-US">
+    <h1>🏠 My Home</h1>
+    <div class="stage" style="background:#dff1ff">
+      <div class="house">
+        <div class="roof"></div>
+        <div class="rooms" id="h0">
+          <div class="room" data-r="bedroom"><span>🛏️</span><b>bedroom</b></div>
+          <div class="room" data-r="kitchen"><span>🍳</span><b>kitchen</b></div>
+          <div class="room" data-r="living"><span>🛋️</span><b>living room</b></div>
+          <div class="room" data-r="bath"><span>🛁</span><b>bathroom</b></div>
+        </div>
+      </div>
+    </div>
+    <p class="qline">Welcome to my home!</p>
+    <p class="small">歡迎來我家！燈一間一間亮起來囉 💡</p>
+    <p class="center"><button class="say" data-say="Welcome to my home!" data-lang="en-US">🔊 Welcome to my home!</button></p>
+  </section>
+
+  <section class="step" data-auto="Rooms in my home. Tap and listen." data-lang="en-US">
+    <h1>🚪 Rooms 房間</h1>
+    <div class="stage"><div class="words">
+      <button class="card" data-say="bedroom. I sleep in the bedroom." data-lang="en-US"><span>🛏️</span><b>bedroom</b><small>臥室、房間</small></button>
+      <button class="card" data-say="kitchen. My mom cooks in the kitchen." data-lang="en-US"><span>🍳</span><b>kitchen</b><small>廚房</small></button>
+      <button class="card" data-say="living room. I watch TV in the living room." data-lang="en-US"><span>🛋️</span><b>living room</b><small>客廳</small></button>
+      <button class="card" data-say="dining room. I eat dinner in the dining room." data-lang="en-US"><span>🍽️</span><b>dining room</b><small>餐廳（吃飯的地方）</small></button>
+      <button class="card" data-say="bathroom. I take a bath in the bathroom." data-lang="en-US"><span>🛁</span><b>bathroom</b><small>浴室</small></button>
+    </div></div>
+    <p class="small">點卡片，聽單字和一句話 🔊</p>
+  </section>
+
+  <section class="step" data-auto="What is in your bedroom? Tap a thing and put it in the bedroom." data-lang="en-US">
+    <h1>🛏️ There is… / There are…</h1>
+    <p class="qline">What is in your bedroom?</p>
+    <div class="stage" style="flex-direction:column;min-height:auto">
+      <div class="bedroom" id="bed"></div>
+      <div class="sent" id="bSent">點下面的東西，放進房間！</div>
+    </div>
+    <div class="picks" id="bPicks">
+      <button class="pick" data-i="0">🛏️ bed</button>
+      <button class="pick" data-i="1"><svg viewBox="0 0 60 50" width="26" height="22" aria-hidden="true"><rect x="3" y="10" width="54" height="7" rx="2" fill="#a1673a"/><rect x="7" y="17" width="5" height="31" fill="#8a5530"/><rect x="48" y="17" width="5" height="31" fill="#8a5530"/><rect x="30" y="17" width="18" height="13" fill="#b97a48"/><circle cx="39" cy="23.5" r="1.8" fill="#fff"/></svg> desk</button>
+      <button class="pick" data-i="2">💡 lamp</button>
+      <button class="pick" data-i="3">🧸 toys</button>
+      <button class="pick" data-i="4">📖 books</button>
+    </div>
+    <p class="note">一個用 <b style="color:#3f6fe0">There is a…</b>，很多個用 <b style="color:#3f6fe0">There are many…</b></p>
+  </section>
+
+  <section class="step" data-auto="Where do you eat dinner? Tap a question. The room will light up." data-lang="en-US">
+    <h1>💡 Where do you…?</h1>
+    <div class="stage" style="background:#dff1ff;flex-direction:column">
+      <div class="house">
+        <div class="rooms" id="h1">
+          <div class="room" data-r="bedroom"><span>🛏️</span><b>bedroom</b></div>
+          <div class="room" data-r="kitchen"><span>🍳</span><b>kitchen</b></div>
+          <div class="room" data-r="living"><span>🛋️</span><b>living room</b></div>
+          <div class="room" data-r="bath"><span>🛁</span><b>bathroom</b></div>
+          <div class="room wide" data-r="dining"><span>🍽️</span><b>dining room</b></div>
+        </div>
+      </div>
+      <div class="sent" id="wSent">點一個問題 👇</div>
+    </div>
+    <div class="picks" id="wQs"></div>
+  </section>
+
+  <section class="step" data-auto="Do you help at home? Yes, I do. I make my bed." data-lang="en-US">
+    <h1>🧹 Do you help at home?</h1>
+    <p class="qline">Do you help at home?<br><span style="color:#2b2112">Yes, I do. 👍</span></p>
+    <div class="stage"><div class="words">
+      <button class="card" data-say="Yes, I do. I make my bed." data-lang="en-US"><span>🛏️</span><b>I make my bed.</b><small>我整理床</small></button>
+      <button class="card" data-say="Yes, I do. I put away my toys." data-lang="en-US"><span>🧸</span><b>I put away my toys.</b><small>我把玩具收好</small></button>
+      <button class="card" data-say="Yes, I do. I help wash the dishes." data-lang="en-US"><span>🍽️</span><b>I help wash the dishes.</b><small>我幫忙洗碗</small></button>
+      <button class="card" data-say="Yes, I do. I help take out the trash." data-lang="en-US"><span>🗑️</span><b>I help take out the trash.</b><small>我幫忙倒垃圾</small></button>
+    </div></div>
+    <p class="small">先說 Yes, I do. 再說你做什麼，就是完整的回答！</p>
+  </section>
+
+  <section class="step" data-auto="Quiz time! Choose the best answer." data-lang="en-US">
+    <h1>✏️ Quiz</h1>
+    <div class="qwrap">
+      <p class="center" style="font-size:64px;margin:4px 0">😴🛏️</p>
+      <p class="big">Where do you sleep?</p>
+      <div class="quiz" data-why="睡覺的地方是臥室 bedroom，要用完整句子：I sleep in the bedroom.">
+        <button>I sleep in the kitchen.</button>
+        <button data-right>I sleep in the bedroom.</button>
+        <button>Bedroom sleep I.</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+    <div class="qwrap">
+      <p class="center" style="font-size:64px;margin:4px 0">🧸🧸🧸</p>
+      <p class="big">What is in your bedroom?</p>
+      <div class="quiz" data-why="玩具有很多個，要用 There are many toys，toys 後面有 s。">
+        <button>There is a toys in my bedroom.</button>
+        <button data-right>There are many toys in my bedroom.</button>
+        <button>There are a toy in my bedroom.</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+var litTimer = [];
+function lightUp() {
+  litTimer.forEach(clearTimeout); litTimer = [];
+  var rs = document.querySelectorAll('#h0 .room');
+  [].forEach.call(rs, function (r, i) {
+    r.classList.remove('lit');
+    litTimer.push(setTimeout(function () { r.classList.add('lit'); }, 900 + i * 600));
+  });
+}
+
+var THINGS = [
+  { e: '🛏️', s: 'There is a bed in my bedroom.' },
+  { e: '<svg viewBox="0 0 60 50" width="62" height="52" aria-hidden="true"><rect x="3" y="10" width="54" height="7" rx="2" fill="#a1673a"/><rect x="7" y="17" width="5" height="31" fill="#8a5530"/><rect x="48" y="17" width="5" height="31" fill="#8a5530"/><rect x="30" y="17" width="18" height="13" fill="#b97a48"/><circle cx="39" cy="23.5" r="1.8" fill="#fff"/></svg>', s: 'There is a desk in my bedroom.' },
+  { e: '💡', s: 'There is a lamp in my bedroom.' },
+  { e: '🧸🧸🧸', s: 'There are many toys in my bedroom.' },
+  { e: '📖📖📖', s: 'There are many books in my bedroom.' }
+];
+document.getElementById('bPicks').onclick = function (e) {
+  var b = e.target.closest('.pick'); if (!b) return;
+  var t = THINGS[+b.dataset.i], bed = document.getElementById('bed');
+  var old = bed.querySelector('[data-i="' + b.dataset.i + '"]');
+  if (!old) { var sp = document.createElement('span'); sp.className = 'it'; sp.dataset.i = b.dataset.i; sp.innerHTML = t.e; bed.appendChild(sp); }
+  else { old.style.animation = 'none'; void old.offsetWidth; old.style.animation = ''; }
+  document.getElementById('bSent').innerHTML = t.s.replace(/^(There (?:is a|are many))/, '<em>$1</em>');
+  say(t.s, 'en-US');
+};
+
+var WQ = [
+  { q: 'Where do you sleep?', a: 'I sleep in the bedroom.', r: 'bedroom', zh: '你在哪裡睡覺？' },
+  { q: 'Where do you eat dinner?', a: 'I eat dinner in the dining room.', r: 'dining', zh: '你在哪裡吃晚餐？' },
+  { q: 'Where do you watch TV?', a: 'I watch TV in the living room.', r: 'living', zh: '你在哪裡看電視？' },
+  { q: 'Where does Mom cook?', a: 'She cooks in the kitchen.', r: 'kitchen', zh: '媽媽在哪裡煮飯？' },
+  { q: 'Where do you brush your teeth?', a: 'I brush my teeth in the bathroom.', r: 'bath', zh: '你在哪裡刷牙？' }
+];
+(function () {
+  var h = '';
+  WQ.forEach(function (w, i) { h += '<button class="pick" data-i="' + i + '">' + w.q + '</button>'; });
+  document.getElementById('wQs').innerHTML = h;
+})();
+document.getElementById('wQs').onclick = function (e) {
+  var b = e.target.closest('.pick'); if (!b) return;
+  var w = WQ[+b.dataset.i];
+  [].forEach.call(document.querySelectorAll('#h1 .room'), function (r) {
+    var on = r.dataset.r === w.r; r.classList.toggle('lit', on); r.classList.toggle('pop', on);
+  });
+  document.getElementById('wSent').innerHTML = w.q + '<br><em>' + w.a + '</em><div class="note">' + w.zh + '</div>';
+  say(w.q + ' ' + w.a, 'en-US');
+};
+
+window.onStep = function (i) {
+  if (i === 0) lightUp();
+  if (i === 2) { document.getElementById('bed').innerHTML = ''; document.getElementById('bSent').textContent = '點下面的東西，放進房間！'; }
+  if (i === 3) {
+    [].forEach.call(document.querySelectorAll('#h1 .room'), function (r) { r.classList.remove('lit', 'pop'); });
+    document.getElementById('wSent').textContent = '點一個問題 👇';
+  }
+};
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

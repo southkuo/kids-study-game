@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>垃圾分類與回收</title>
+<style>
+:root { --c: #2e9d5b; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式 ===== */
+.bins { display: flex; gap: 12px; justify-content: center; flex-wrap: nowrap; width: 100%; margin-top: 14px; }
+.bin { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; width: calc((100% - 24px) / 3); max-width: 140px; min-height: 140px; padding: 10px 4px; border: 0; border-radius: 14px 14px 22px 22px; font: inherit; font-size: 19px; font-weight: 900; color: #fff; cursor: pointer; box-shadow: 0 5px 0 rgba(0,0,0,.2); }
+.bin::before { content: ""; position: absolute; top: -12px; left: -6px; right: -6px; height: 16px; border-radius: 10px; background: inherit; filter: brightness(.85); transition: transform .3s; transform-origin: left center; }
+.bin.open::before { transform: rotate(-25deg); }
+.bin .e { font-size: 44px; }
+.bin small { font-size: 15px; text-align: center; font-weight: 800; opacity: .95; }
+.bin.g { background: #78909c; } .bin.r { background: #2e9d5b; } .bin.f { background: #b8743a; }
+.bin:active { transform: translateY(3px); }
+.fall { position: absolute; top: -60px; font-size: 42px; animation: fall 1.6s ease-in forwards; }
+@keyframes fall { 0% { transform: translateY(0) rotate(0); opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(220px) rotate(200deg); opacity: 0; } }
+.cycle { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; font-size: 54px; }
+.cycle .sp { animation: spin 3s linear infinite; display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.cycle .hide { opacity: 0; transform: scale(.3); transition: all .6s; }
+.cycle .show { opacity: 1; transform: none; }
+.lbl { font-size: 17px; font-weight: 900; color: #1f6b3d; text-align: center; }
+.item { font-size: 90px; line-height: 1.1; text-align: center; animation: wob 1.6s ease-in-out infinite; }
+@keyframes wob { 50% { transform: rotate(-8deg) scale(1.06); } }
+.iname { font-size: clamp(22px, 5.8vw, 28px); font-weight: 900; text-align: center; margin: 2px 0 8px; }
+.tip { min-height: 2.8em; font-size: 19px; font-weight: 900; text-align: center; color: #1f6b3d; }
+.score { font-size: 18px; font-weight: 900; color: #6a5536; text-align: center; }
+.steps3 { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.steps3 .card span { font-size: 42px; }
+.steps3 .card b { font-size: 19px; color: #1f6b3d; }
+.qwrap { margin-bottom: 26px; padding-bottom: 8px; border-bottom: 3px dashed #eadfc8; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容 ===== -->
+  <section class="step" data-auto="家裡每天都會有垃圾。喝完的飲料瓶、吃剩的果皮、用過的衛生紙，要丟到哪裡呢？">
+    <h1>🗑️ 垃圾要去哪裡？</h1>
+    <div class="stage" id="rain" style="min-height:260px;align-items:flex-end">
+      <div class="bins">
+        <div class="bin g"><span class="e">🗑️</span>一般垃圾</div>
+        <div class="bin r"><span class="e">♻️</span>資源回收</div>
+        <div class="bin f"><span class="e">🍌</span>廚餘</div>
+      </div>
+    </div>
+    <p class="big">垃圾不是全部丟在一起，<br>要<span style="color:#2e9d5b">分類</span>！</p>
+    <p class="center"><button class="say" id="again">🔁 再丟一次</button></p>
+  </section>
+
+  <section class="step" data-auto="垃圾分成三類。點一點每一個垃圾桶，聽聽看裡面裝什麼。">
+    <h1>🧺 三種垃圾桶</h1>
+    <div class="stage">
+      <div class="bins">
+        <button class="bin r" data-say="資源回收。寶特瓶、鋁罐、紙盒、報紙、玻璃瓶，可以回收再利用。"><span class="e">♻️</span>資源回收<small>🧴 🥫 📦 📰</small></button>
+        <button class="bin f" data-say="廚餘。吃剩的飯菜、果皮，是廚餘。"><span class="e">🍌</span>廚餘<small>🍚 🍎 🍌</small></button>
+        <button class="bin g" data-say="一般垃圾。用過的衛生紙、髒掉不能回收的東西，是一般垃圾。"><span class="e">🗑️</span>一般垃圾<small>🧻 用過的衛生紙</small></button>
+      </div>
+    </div>
+    <p class="big">♻️ 回收　🍌 廚餘　🗑️ 一般垃圾</p>
+    <p class="small">點垃圾桶，聽聽看裡面裝什麼 🔊</p>
+  </section>
+
+  <section class="step" data-auto="為什麼要回收？回收的東西可以再做成新的東西。寶特瓶可以變成做衣服的線，舊報紙可以再做成紙。這樣垃圾變少，地球更乾淨。">
+    <h1>♻️ 回收有什麼用？</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="cycle" id="cyc"><span>🧴</span><span>➡️</span><span class="sp">♻️</span><span>➡️</span><span class="hide" id="cycOut">👕</span></div>
+      <div class="lbl" id="cycTxt">寶特瓶 → 回收工廠 → ？</div>
+      <button class="say" id="cycBtn">✨ 變變變</button>
+    </div>
+    <p class="big">回收的東西可以<br>再做成<span style="color:#2e9d5b">新的東西</span>！</p>
+    <div class="steps3">
+      <button class="card" data-say="回收前，先把瓶子裡的飲料倒乾淨。"><span>🫗</span><b>倒乾淨</b></button>
+      <button class="card" data-say="用水沖一沖，才不會臭臭的。"><span>🚿</span><b>沖一沖</b></button>
+      <button class="card" data-say="放進正確的回收桶。"><span>♻️</span><b>放對地方</b></button>
+    </div>
+    <p class="small">回收前的小習慣，點一點聽聽看</p>
+  </section>
+
+  <section class="step" data-auto="分類小幫手！看看上面的東西，點它應該去的垃圾桶。">
+    <h1>🎮 分類小幫手</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="score" id="sNo"></div>
+      <div class="item" id="sItem"></div>
+      <div class="iname" id="sName"></div>
+      <div class="bins" id="sBins">
+        <button class="bin r" data-b="r"><span class="e">♻️</span>資源回收</button>
+        <button class="bin f" data-b="f"><span class="e">🍌</span>廚餘</button>
+        <button class="bin g" data-b="g"><span class="e">🗑️</span>一般垃圾</button>
+      </div>
+      <div class="tip" id="sTip"></div>
+    </div>
+  </section>
+
+  <section class="step" data-auto="小測驗！想一想，這個東西要丟到哪裡？">
+    <h1>✏️ 小測驗</h1>
+    <div class="qwrap">
+      <p class="center" style="font-size:64px;margin:4px 0">🧴</p>
+      <p class="big">喝完的寶特瓶，<br>倒乾淨以後要放哪裡？</p>
+      <div class="quiz" data-why="寶特瓶可以回收，再做成新的東西，所以放資源回收。">
+        <button>🍌 廚餘</button>
+        <button data-right>♻️ 資源回收</button>
+        <button>🗑️ 一般垃圾</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+    <div class="qwrap">
+      <p class="center" style="font-size:64px;margin:4px 0">🧻</p>
+      <p class="big">用過的衛生紙要丟哪裡？</p>
+      <div class="quiz" data-why="衛生紙雖然是紙，但是用過已經髒了，不能回收，要丟一般垃圾。">
+        <button>♻️ 資源回收</button>
+        <button>🍌 廚餘</button>
+        <button data-right>🗑️ 一般垃圾</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+function dropAll() {
+  var st = document.getElementById('rain');
+  [].forEach.call(st.querySelectorAll('.fall'), function (f) { f.remove(); });
+  var bins = st.querySelectorAll('.bin'), sr = st.getBoundingClientRect();
+  [['🧴', 1], ['🍎', 2], ['🧻', 0], ['🥫', 1], ['🍌', 2], ['📦', 1]].forEach(function (d, i) {
+    var b = bins[d[1]], r = b.getBoundingClientRect();
+    var s = document.createElement('span'); s.className = 'fall'; s.textContent = d[0];
+    s.style.left = (r.left - sr.left + r.width / 2 - 22) + 'px';
+    s.style.animationDelay = (i * .45) + 's';
+    st.appendChild(s);
+    setTimeout(function () { b.classList.add('open'); setTimeout(function () { b.classList.remove('open'); }, 400); }, i * 450 + 1200);
+  });
+}
+document.getElementById('again').onclick = function () { dropAll(); say('分類好，丟對地方！'); };
+
+var CY = [['🧴', '👕', '寶特瓶 → 回收工廠 → 做衣服的線', '寶特瓶回收以後，可以做成做衣服的線！'],
+          ['📰', '📄', '舊報紙 → 回收工廠 → 新的紙', '舊報紙回收以後，可以再做成紙！']], cy = 0, cyShown = false;
+function cyDraw() {
+  var c = CY[cy], el = document.getElementById('cyc');
+  el.firstElementChild.textContent = c[0];
+  var o = document.getElementById('cycOut'); o.textContent = c[1]; o.className = 'hide';
+  document.getElementById('cycTxt').textContent = c[2].replace(/→ [^→]+$/, '→ ？');
+  document.getElementById('cycBtn').textContent = '✨ 變變變';
+  cyShown = false;
+}
+document.getElementById('cycBtn').onclick = function () {
+  if (cyShown) { cy = (cy + 1) % CY.length; cyDraw(); say('再看一個！'); return; }
+  var c = CY[cy];
+  document.getElementById('cycOut').className = 'show';
+  document.getElementById('cycTxt').textContent = c[2];
+  document.getElementById('cycBtn').textContent = '👉 下一個';
+  say(c[3]); cyShown = true;
+};
+
+var S = [
+  { e: '🧴', n: '喝完的寶特瓶', b: 'r', why: '寶特瓶倒乾淨，可以回收。' },
+  { e: '🍌', n: '香蕉皮', b: 'f', why: '果皮是廚餘。' },
+  { e: '🥫', n: '空的鐵罐', b: 'r', why: '鐵罐、鋁罐沖乾淨，可以回收。' },
+  { e: '🧻', n: '用過的衛生紙', b: 'g', why: '用過的衛生紙髒了，不能回收，是一般垃圾。' },
+  { e: '🍚', n: '吃剩的飯菜', b: 'f', why: '吃剩的飯菜是廚餘。' },
+  { e: '📦', n: '紙盒', b: 'r', why: '乾淨的紙盒可以回收。' },
+  { e: '🍾', n: '玻璃瓶', b: 'r', why: '玻璃瓶可以回收。小心不要打破喔！' },
+  { e: '🍎', n: '蘋果皮', b: 'f', why: '果皮是廚餘。' }
+], si = 0, sOk = 0, sLock = false, sTry = false;
+var BN = { r: '資源回收', f: '廚餘', g: '一般垃圾' };
+function sDraw() {
+  sLock = false; sTry = false;
+  if (si >= S.length) {
+    document.getElementById('sItem').textContent = '🏆';
+    document.getElementById('sName').textContent = '全部分好了！';
+    document.getElementById('sNo').textContent = '一次就答對 ' + sOk + ' 個／共 ' + S.length + ' 個';
+    document.getElementById('sTip').textContent = '點任何一個垃圾桶，再玩一次。';
+    say('全部分好了！你是分類小幫手！');
+    return;
+  }
+  var s = S[si];
+  document.getElementById('sNo').textContent = '第 ' + (si + 1) + ' 個／共 ' + S.length + ' 個';
+  document.getElementById('sItem').textContent = s.e;
+  document.getElementById('sName').textContent = s.n;
+  document.getElementById('sTip').textContent = '';
+}
+document.getElementById('sBins').onclick = function (e) {
+  var b = e.target.closest('.bin'); if (!b || sLock) return;
+  if (si >= S.length) { si = 0; sOk = 0; sDraw(); say(S[0].n + '要丟哪裡？'); return; }
+  var s = S[si];
+  if (b.dataset.b === s.b) {
+    sLock = true; if (!sTry) sOk++;
+    b.classList.add('open');
+    document.getElementById('sTip').textContent = '🎉 對了！' + s.why;
+    say('對了！' + s.why);
+    setTimeout(function () { b.classList.remove('open'); si++; sDraw(); if (si < S.length) say(S[si].n + '要丟哪裡？'); }, 2600);
+  } else {
+    sTry = true;
+    document.getElementById('sTip').textContent = '不是' + BN[b.dataset.b] + '喔，再想想看！';
+    say('不是' + BN[b.dataset.b] + '喔，再想想看！');
+  }
+};
+
+window.onStep = function (i) {
+  if (i === 0) setTimeout(dropAll, 300);
+  if (i === 2) { cy = 0; cyDraw(); }
+  if (i === 3) { si = 0; sOk = 0; sDraw(); }
+};
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>
