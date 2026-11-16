@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Colors and Shapes</title>
+<style>
+:root { --c: #3f6fe0; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式 ===== */
+.rain { display: flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: wrap; }
+.rain svg { width: 64px; height: 64px; animation: drop .7s cubic-bezier(.3,1.6,.5,1) backwards; }
+@keyframes drop { from { transform: translateY(-120px) rotate(-90deg); opacity: 0; } }
+.spin { animation: spin 6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 10px; width: 100%; }
+.cb { display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 110px; padding: 10px 6px; border: 0; border-radius: 20px; background: #f3f6ff; box-shadow: 0 4px 0 #c5d3f5; font: inherit; cursor: pointer; }
+.cb:active { transform: translateY(3px); }
+.cb .dot { width: 56px; height: 56px; border-radius: 50%; border: 3px solid rgba(0,0,0,.15); }
+.cb b { font-size: 22px; color: #1f3f8f; }
+.cb small { font-size: 17px; font-weight: 800; color: #6a5536; }
+.cb.hit { animation: jelly .5s; }
+@keyframes jelly { 30% { transform: scale(1.18, .86); } 60% { transform: scale(.92, 1.08); } }
+.cb svg { width: 60px; height: 60px; }
+.pick { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.pick button { min-width: 52px; min-height: 52px; border: 3px solid transparent; border-radius: 16px; background: #f3f6ff; box-shadow: 0 3px 0 #c5d3f5; font: inherit; font-size: 18px; font-weight: 900; color: #1f3f8f; cursor: pointer; }
+.pick button.sel { border-color: #3f6fe0; background: #dfe8ff; }
+.pick .sw { display: inline-block; width: 30px; height: 30px; border-radius: 50%; vertical-align: middle; border: 2px solid rgba(0,0,0,.15); }
+.pick svg { width: 34px; height: 34px; vertical-align: middle; }
+#canvas svg { width: 150px; height: 150px; animation: drop .6s cubic-bezier(.3,1.6,.5,1); }
+.en { font-size: clamp(24px, 6vw, 32px); font-weight: 900; text-align: center; color: #1f3f8f; min-height: 1.4em; }
+.zh { font-size: 18px; font-weight: 800; text-align: center; color: #6a5536; min-height: 1.3em; }
+.qa { width: 100%; padding: 12px; border-radius: 18px; background: #f3f6ff; margin-bottom: 10px; }
+.qa .q { font-size: clamp(21px, 5.4vw, 27px); font-weight: 900; color: #3f6fe0; text-align: center; }
+.qa .q small { display: block; font-size: 17px; color: #6a5536; }
+.ans { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 8px; }
+.qwrap { margin-bottom: 26px; padding-bottom: 8px; border-bottom: 3px dashed #eadfc8; }
+.qwrap svg { width: 110px; height: 110px; display: block; margin: 0 auto; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容 ===== -->
+<section class="step" data-lang="en-US" data-auto="Colors and shapes! Let's learn them together.">
+    <h1>🌈 Colors and Shapes</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="rain" id="rain"></div>
+      <div class="big" style="margin:4px 0">顏色和形狀</div>
+    </div>
+    <p class="big">Red circle, blue square,<br>yellow star! ⭐</p>
+    <p class="center"><button class="say" data-lang="en-US" data-say="Red circle. Blue square. Yellow star.">🔊 Listen</button></p>
+  </section>
+
+  <section class="step" data-auto="點顏色，聽英文怎麼說！">
+    <h1>🎨 Colors 顏色</h1>
+    <div class="grid" id="colors"></div>
+    <p class="small" style="margin-top:12px">點一點，聽一聽，跟著念！</p>
+  </section>
+
+  <section class="step" data-auto="點形狀，聽英文怎麼說！">
+    <h1>🔺 Shapes 形狀</h1>
+    <div class="grid" id="shapes"></div>
+    <p class="small" style="margin-top:12px">square 是四個邊一樣長；rectangle 是長長的。</p>
+  </section>
+
+  <section class="step" data-auto="小畫家！先選一個顏色，再選一個形狀，聽聽看英文怎麼說。">
+    <h1>🖌️ I can draw…</h1>
+    <div class="pick" id="pickC"></div>
+    <div class="pick" id="pickS" style="margin-top:8px"></div>
+    <div class="stage" style="flex-direction:column;min-height:230px">
+      <div id="canvas"></div>
+      <div class="en" id="drawEn"></div>
+      <div class="zh" id="drawZh"></div>
+    </div>
+    <p class="center"><button class="say" id="drawSay">🔊 再聽一次</button></p>
+  </section>
+
+  <section class="step" data-auto="練習回答問題！點答案，聽完整的句子。">
+    <h1>💬 Answer in full sentences</h1>
+    <div class="qa">
+      <div class="q" data-lang="en-US" data-say="What is your favorite color?">🔊 What is your favorite color?<small>你最喜歡什麼顏色？</small></div>
+      <div class="ans">
+        <button class="say" data-lang="en-US" data-say="My favorite color is blue.">My favorite color is blue.</button>
+        <button class="say" data-lang="en-US" data-say="My favorite color is green.">My favorite color is green.</button>
+      </div>
+    </div>
+    <div class="qa">
+      <div class="q" data-lang="en-US" data-say="What color are bananas?">🔊 What color are bananas?<small>香蕉是什麼顏色？</small></div>
+      <div class="ans"><button class="say" data-lang="en-US" data-say="Bananas are yellow.">🍌 Bananas are yellow.</button></div>
+    </div>
+    <div class="qa">
+      <div class="q" data-lang="en-US" data-say="What shape is the clock?">🔊 What shape is the clock?<small>時鐘是什麼形狀？</small></div>
+      <div class="ans"><button class="say" data-lang="en-US" data-say="It is a circle.">🕒 It is a circle.</button></div>
+    </div>
+  </section>
+
+  <section class="step" data-auto="小測驗！看圖，選出正確的英文。">
+    <h1>✏️ Quiz</h1>
+    <div class="qwrap">
+      <p class="big">What is it? 這是什麼？</p>
+      <svg viewBox="0 0 100 100"><polygon points="50,8 94,90 6,90" fill="#e53935" stroke="#9e1f1c" stroke-width="4" stroke-linejoin="round"/></svg>
+      <div class="quiz" data-why="紅色是 red，三角形是 triangle，所以是 a red triangle。">
+        <button>a red square</button>
+        <button data-right>a red triangle</button>
+        <button>a blue triangle</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+    <div class="qwrap">
+      <p class="big">Which shape has <u>three</u> sides?<br>哪一個形狀有三個邊？</p>
+      <div class="quiz" data-why="三角形有三個邊，英文是 triangle。正方形有四個邊，圓形沒有直直的邊。">
+        <button>a circle</button>
+        <button>a square</button>
+        <button data-right>a triangle</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+    <div class="qwrap">
+      <p class="big">What color is the grass?<br>草是什麼顏色？</p>
+      <div class="quiz" data-why="草是綠色的，英文要說 The grass is green.">
+        <button>The grass is pink.</button>
+        <button data-right>The grass is green.</button>
+        <button>The grass is black.</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+var COLORS = [
+  ['red', '紅色', '#e53935'], ['blue', '藍色', '#1e63d6'], ['yellow', '黃色', '#fdd835'], ['green', '綠色', '#2e9d43'],
+  ['orange', '橘色', '#fb8c00'], ['purple', '紫色', '#8e44c9'], ['pink', '粉紅色', '#f48fb1'], ['brown', '咖啡色', '#8d5a3b'],
+  ['black', '黑色', '#222222'], ['white', '白色', '#ffffff']
+];
+function shapeSvg(name, fill) {
+  var st = ' fill="' + fill + '" stroke="rgba(0,0,0,.35)" stroke-width="4" stroke-linejoin="round"';
+  var p = {
+    circle: '<circle cx="50" cy="50" r="42"' + st + '/>',
+    square: '<rect x="10" y="10" width="80" height="80" rx="4"' + st + '/>',
+    triangle: '<polygon points="50,8 94,90 6,90"' + st + '/>',
+    rectangle: '<rect x="4" y="26" width="92" height="48" rx="4"' + st + '/>',
+    star: '<polygon points="50,6 61,38 95,38 67,58 78,92 50,71 22,92 33,58 5,38 39,38"' + st + '/>',
+    heart: '<path d="M50 88 C10 60 4 38 16 22 C28 8 46 14 50 30 C54 14 72 8 84 22 C96 38 90 60 50 88 Z"' + st + '/>'
+  }[name];
+  return '<svg viewBox="0 0 100 100">' + p + '</svg>';
+}
+var SHAPES = [['circle', '圓形'], ['square', '正方形'], ['triangle', '三角形'], ['rectangle', '長方形'], ['star', '星形'], ['heart', '愛心']];
+function aOrAn(w) { return /^[aeiou]/.test(w) ? 'an' : 'a'; }
+
+// 開場：形狀掉下來
+(function () {
+  var h = '', list = [['circle', '#e53935'], ['square', '#1e63d6'], ['star', '#fdd835'], ['triangle', '#2e9d43'], ['heart', '#f48fb1'], ['rectangle', '#8e44c9']];
+  list.forEach(function (s, i) { h += shapeSvg(s[0], s[1]).replace('<svg', '<svg style="animation-delay:' + i * .18 + 's"'); });
+  document.getElementById('rain').innerHTML = h;
+})();
+
+// 顏色卡
+document.getElementById('colors').innerHTML = COLORS.map(function (c) {
+  return '<button class="cb" data-lang="en-US" data-say="' + c[0] + '"><span class="dot" style="background:' + c[2] + '"></span><b>' + c[0] + '</b><small>' + c[1] + '</small></button>';
+}).join('');
+// 形狀卡
+var SC = ['#e53935', '#1e63d6', '#2e9d43', '#fb8c00', '#fdd835', '#f48fb1'];
+document.getElementById('shapes').innerHTML = SHAPES.map(function (s, i) {
+  return '<button class="cb" data-lang="en-US" data-say="' + aOrAn(s[0]) + ' ' + s[0] + '. This is ' + aOrAn(s[0]) + ' ' + s[0] + '.">' + shapeSvg(s[0], SC[i]) + '<b>' + s[0] + '</b><small>' + s[1] + '</small></button>';
+}).join('');
+document.addEventListener('click', function (e) {
+  var b = e.target.closest('.cb'); if (!b) return;
+  b.classList.remove('hit'); void b.offsetWidth; b.classList.add('hit');
+});
+
+// 小畫家
+var dc = 0, ds = 0;
+document.getElementById('pickC').innerHTML = COLORS.slice(0, 8).map(function (c, i) { return '<button data-c="' + i + '" aria-label="' + c[0] + '"><span class="sw" style="background:' + c[2] + '"></span></button>'; }).join('');
+document.getElementById('pickS').innerHTML = SHAPES.map(function (s, i) { return '<button data-s="' + i + '" aria-label="' + s[0] + '">' + shapeSvg(s[0], '#cfd8ee') + '</button>'; }).join('');
+function draw(speak) {
+  var c = COLORS[dc], s = SHAPES[ds];
+  document.getElementById('canvas').innerHTML = shapeSvg(s[0], c[2]);
+  var en = 'I can draw ' + aOrAn(c[0]) + ' ' + c[0] + ' ' + s[0] + '.';
+  document.getElementById('drawEn').textContent = en;
+  document.getElementById('drawZh').textContent = '我會畫一個' + c[1] + '的' + s[1] + '。';
+  [].forEach.call(document.querySelectorAll('#pickC button'), function (b, i) { b.classList.toggle('sel', i === dc); });
+  [].forEach.call(document.querySelectorAll('#pickS button'), function (b, i) { b.classList.toggle('sel', i === ds); });
+  if (speak) say(en, 'en-US');
+}
+document.getElementById('pickC').onclick = function (e) { var b = e.target.closest('[data-c]'); if (b) { dc = +b.dataset.c; draw(true); } };
+document.getElementById('pickS').onclick = function (e) { var b = e.target.closest('[data-s]'); if (b) { ds = +b.dataset.s; draw(true); } };
+document.getElementById('drawSay').onclick = function () { say(document.getElementById('drawEn').textContent, 'en-US'); };
+
+window.onStep = function (i) {
+  if (i === 3) { dc = 0; ds = 0; draw(false); }
+};
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

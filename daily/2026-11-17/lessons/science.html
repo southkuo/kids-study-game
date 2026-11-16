@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>會跳的心臟、會呼吸的肺</title>
+<style>
+:root { --c: #2e9d5b; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式 ===== */
+.heart { width: 150px; height: 150px; cursor: pointer; animation: beat var(--bt, 1s) ease-in-out infinite; transform-origin: 50% 55%; }
+@keyframes beat { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.16); } 30% { transform: scale(.98); } 45% { transform: scale(1.08); } }
+.dong { font-size: 30px; font-weight: 900; color: #d64545; animation: fadeb var(--bt, 1s) ease-out infinite; }
+@keyframes fadeb { 0%, 50% { opacity: 1; } 100% { opacity: .2; } }
+.body { width: 220px; height: 300px; }
+.lungs { width: 220px; height: 200px; }
+.lg { transform-box: fill-box; }
+.lungs .lg { transform-origin: 50% 30%; transition: transform 2.5s ease-in-out; }
+.lungs.in .lg { transform: scale(1.18); }
+.air { transition: opacity .6s; }
+.btns { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.pill { min-height: 54px; min-width: 130px; padding: 8px 16px; border: 0; border-radius: 999px; background: #e3f6ea; box-shadow: 0 4px 0 #8fd1a8; font: inherit; font-size: 20px; font-weight: 900; color: #17663a; cursor: pointer; }
+.pill.sel { background: #2e9d5b; color: #fff; box-shadow: 0 4px 0 #17663a; }
+.pill:active { transform: translateY(3px); }
+.state { font-size: 22px; font-weight: 900; text-align: center; color: #17663a; min-height: 1.5em; }
+.meters { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; align-items: center; justify-items: center; }
+.meters > div { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.meters b { font-size: 19px; }
+.kid { font-size: 80px; line-height: 1; }
+.kid.run { animation: runb .4s ease-in-out infinite; }
+@keyframes runb { 50% { transform: translateY(-8px); } }
+.mini { width: 90px; height: 90px; }
+.mini.heart { cursor: default; }
+.lungs.small { width: 110px; height: 100px; }
+.breathe .lg { animation: br var(--br, 4s) ease-in-out infinite; transform-origin: 50% 30%; }
+@keyframes br { 50% { transform: scale(1.18); } }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; width: 100%; }
+.cd { display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 120px; padding: 10px; border: 0; border-radius: 20px; background: #effaf3; box-shadow: 0 4px 0 #b9e3c8; font: inherit; cursor: pointer; }
+.cd span { font-size: 46px; line-height: 1.1; }
+.cd b { font-size: 19px; color: #17663a; }
+.cd:active { transform: translateY(3px); }
+.wrist { font-size: 70px; line-height: 1; position: relative; display: inline-block; }
+.wrist::after { content: ''; position: absolute; left: 50%; top: 55%; width: 18px; height: 18px; margin: -9px; border-radius: 50%; background: rgba(214,69,69,.6); animation: ping 1s ease-out infinite; }
+@keyframes ping { from { transform: scale(.4); opacity: 1; } to { transform: scale(2.2); opacity: 0; } }
+.qwrap { margin-bottom: 26px; padding-bottom: 8px; border-bottom: 3px dashed #eadfc8; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容 ===== -->
+<section class="step" data-auto="咚、咚、咚！你聽得到嗎？身體裡有一個從來不休息的小幫手，就是心臟。點點看它！">
+    <h1>❤️ 身體裡的咚咚聲</h1>
+    <div class="stage" style="flex-direction:column">
+      <div data-say="咚咚咚，我是心臟，我每天都在跳，從來不休息！"><svg class="heart" viewBox="0 0 100 100"><path d="M50 88 C12 62 6 40 18 24 C30 10 46 16 50 30 C54 16 70 10 82 24 C94 40 88 62 50 88 Z" fill="#e05a5a" stroke="#a62f2f" stroke-width="3"/><path d="M28 30 C24 36 24 44 28 50" stroke="#ffb3b3" stroke-width="5" fill="none" stroke-linecap="round"/></svg></div>
+      <div class="dong">咚、咚、咚</div>
+    </div>
+    <p class="big">心臟一直跳，<br>從出生到現在都<span style="color:#d64545">沒有休息</span>過！</p>
+    <p class="small">今天認識兩個好朋友：心臟和肺。</p>
+  </section>
+
+  <section class="step" data-auto="心臟在胸口的中間，稍微偏左邊，大約像你的拳頭那麼大。心臟像一個幫浦，一縮一放，把血液送到全身。">
+    <h1>💓 心臟是血液的幫浦</h1>
+    <div class="stage" style="gap:16px">
+      <svg class="body" viewBox="0 0 220 300" aria-label="身體">
+        <circle cx="110" cy="45" r="34" fill="#ffe0bd" stroke="#d9a877" stroke-width="3"/>
+        <path d="M60 90 Q110 74 160 90 L170 200 Q110 215 50 200 Z" fill="#ffe0bd" stroke="#d9a877" stroke-width="3"/>
+        <path d="M60 92 L28 190 M160 92 L192 190" stroke="#ffe0bd" stroke-width="22" stroke-linecap="round"/>
+        <path d="M80 205 L74 292 M140 205 L146 292" stroke="#ffe0bd" stroke-width="24" stroke-linecap="round"/>
+        <path d="M110 115 C 82 100, 82 30, 110 30 C 138 30, 138 100, 110 115 C 60 130, 45 250, 80 280 C 98 292, 122 292, 140 280 C 175 250, 160 130, 110 115" fill="none" stroke="#f3b3b3" stroke-width="4" stroke-dasharray="6 6"/>
+        <circle r="6" fill="#d64545"><animateMotion dur="3s" repeatCount="indefinite" begin="0s" path="M110 115 C 82 100, 82 30, 110 30 C 138 30, 138 100, 110 115 C 60 130, 45 250, 80 280 C 98 292, 122 292, 140 280 C 175 250, 160 130, 110 115"/></circle>
+        <circle r="6" fill="#d64545"><animateMotion dur="3s" repeatCount="indefinite" begin="-1s" path="M110 115 C 82 100, 82 30, 110 30 C 138 30, 138 100, 110 115 C 60 130, 45 250, 80 280 C 98 292, 122 292, 140 280 C 175 250, 160 130, 110 115"/></circle>
+        <circle r="6" fill="#d64545"><animateMotion dur="3s" repeatCount="indefinite" begin="-2s" path="M110 115 C 82 100, 82 30, 110 30 C 138 30, 138 100, 110 115 C 60 130, 45 250, 80 280 C 98 292, 122 292, 140 280 C 175 250, 160 130, 110 115"/></circle>
+        <g transform="translate(103 104) scale(.32)"><path d="M50 88 C12 62 6 40 18 24 C30 10 46 16 50 30 C54 16 70 10 82 24 C94 40 88 62 50 88 Z" fill="#e05a5a" stroke="#a62f2f" stroke-width="6"/></g>
+      </svg>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:center">
+        <button class="pill" data-say="心臟在胸口中間，稍微偏左邊。">📍 在哪裡？</button>
+        <button class="pill" data-say="心臟大約像自己的拳頭那麼大。">✊ 多大？</button>
+        <button class="pill" data-say="心臟把血液送到全身，血液帶著氧氣和養分，讓身體有力氣。">🩸 做什麼？</button>
+      </div>
+    </div>
+    <p class="big">心臟一縮一放，<br>把<span style="color:#d64545">血液</span>送到全身。</p>
+  </section>
+
+  <section class="step" data-auto="肺在胸口裡，左右各一個。吸氣的時候，空氣從鼻子進去，肺就變大；吐氣的時候，肺就變小。按按鈕，跟著一起呼吸！">
+    <h1>🫁 肺會變大變小</h1>
+    <div class="stage" style="flex-direction:column">
+      <svg class="lungs" id="lungs" viewBox="0 0 220 180">
+        <g class="air" id="airIn"><text x="128" y="34" font-size="34">💨</text></g>
+        <g class="lg"><path d="M96 60 C70 55 40 90 38 140 C37 165 60 172 86 160 C98 154 100 140 100 120 Z" fill="#f48fa0" stroke="#c2566a" stroke-width="3"/><path d="M124 60 C150 55 180 90 182 140 C183 165 160 172 134 160 C122 154 120 140 120 120 Z" fill="#f48fa0" stroke="#c2566a" stroke-width="3"/></g><path d="M110 10 V70 M110 70 L96 84 M110 70 L124 84" stroke="#c2566a" stroke-width="8" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div class="state" id="lState">按「吸氣」試試看</div>
+      <div class="btns">
+        <button class="pill" id="bIn">😮 吸氣</button>
+        <button class="pill" id="bOut">😗 吐氣</button>
+      </div>
+    </div>
+    <p class="big"><span style="color:#2e9d5b">吸氣</span>：肺變大，胸口鼓起來。<br><span style="color:#c2566a">吐氣</span>：肺變小，胸口扁下去。</p>
+    <p class="small">把手放在胸口，吸一口氣，感覺一下！</p>
+  </section>
+
+  <section class="step" data-auto="跑步的時候，身體需要更多的氧氣，所以呼吸會變快，心臟也會跳得更快。按按鈕看看！">
+    <h1>🏃 跑步以後會怎樣？</h1>
+    <div class="btns">
+      <button class="pill sel" data-mode="rest">🧍 休息</button>
+      <button class="pill" data-mode="run">🏃 跑步</button>
+    </div>
+    <div class="stage" style="flex-direction:column">
+      <div class="kid" id="kid">🧍</div>
+      <div class="meters">
+        <div><svg class="heart mini" id="mh" viewBox="0 0 100 100"><path d="M50 88 C12 62 6 40 18 24 C30 10 46 16 50 30 C54 16 70 10 82 24 C94 40 88 62 50 88 Z" fill="#e05a5a" stroke="#a62f2f" stroke-width="3"/><path d="M28 30 C24 36 24 44 28 50" stroke="#ffb3b3" stroke-width="5" fill="none" stroke-linecap="round"/></svg><b>心跳</b></div>
+        <div><svg class="lungs small breathe" id="ml" viewBox="0 0 220 180"><g class="lg"><path d="M96 60 C70 55 40 90 38 140 C37 165 60 172 86 160 C98 154 100 140 100 120 Z" fill="#f48fa0" stroke="#c2566a" stroke-width="3"/><path d="M124 60 C150 55 180 90 182 140 C183 165 160 172 134 160 C122 154 120 140 120 120 Z" fill="#f48fa0" stroke="#c2566a" stroke-width="3"/></g><path d="M110 10 V70 M110 70 L96 84 M110 70 L124 84" stroke="#c2566a" stroke-width="8" fill="none" stroke-linecap="round"/></svg><b>呼吸</b></div>
+      </div>
+      <div class="state" id="mState">休息時：心跳和呼吸都慢慢的。</div>
+    </div>
+    <p class="small">跑完休息一下，就會慢慢變回來。</p>
+  </section>
+
+  <section class="step" data-auto="你也可以摸到自己的心跳！把兩根手指輕輕放在手腕上，就能感覺到一跳一跳的，這叫做脈搏。要怎麼照顧心臟和肺呢？點點看。">
+    <h1>🤚 摸摸看，照顧它</h1>
+    <div class="stage" style="flex-direction:column;min-height:170px">
+      <span class="wrist">✋</span>
+      <p class="big" style="margin:0">兩根手指放在手腕，<br>感覺一跳一跳的<span style="color:#d64545">脈搏</span>。</p>
+    </div>
+    <div class="cards">
+      <button class="cd" data-say="多運動，心臟和肺會更強壯。"><span>⚽</span><b>多運動</b></button>
+      <button class="cd" data-say="早點睡覺，讓身體好好休息。"><span>😴</span><b>早點睡</b></button>
+      <button class="cd" data-say="遠離菸味，保護我們的肺。"><span>🚭</span><b>遠離菸味</b></button>
+      <button class="cd" data-say="多吃蔬菜水果，身體健康。"><span>🥦</span><b>多吃蔬果</b></button>
+    </div>
+  </section>
+
+  <section class="step" data-auto="小測驗！想一想，選出正確的答案。">
+    <h1>✏️ 小測驗</h1>
+    <div class="qwrap">
+      <p class="big">吸氣的時候，肺會怎樣？</p>
+      <div class="quiz" data-why="吸氣時空氣進到肺裡，肺會變大，胸口也會鼓起來。">
+        <button>變小</button>
+        <button data-right>變大</button>
+        <button>不會動</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+    <div class="qwrap">
+      <p class="big">跑完步以後，心跳會怎樣？</p>
+      <div class="quiz" data-why="跑步時身體需要更多氧氣，心臟要跳得更快，才能快一點把血液送到全身。">
+        <button data-right>變快</button>
+        <button>變慢</button>
+        <button>停下來</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+    <div class="qwrap">
+      <p class="big">心臟的工作是什麼？</p>
+      <div class="quiz" data-why="心臟像幫浦，一縮一放，把血液送到全身。吸空氣是肺的工作喔。">
+        <button>吸進空氣</button>
+        <button>消化食物</button>
+        <button data-right>把血液送到全身</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+// 呼吸
+function lungs(inhale) {
+  var l = document.getElementById('lungs');
+  l.classList.toggle('in', inhale);
+  document.getElementById('airIn').style.opacity = inhale ? 1 : 0;
+  document.getElementById('lState').textContent = inhale ? '😮 吸氣：空氣進來，肺變大！' : '😗 吐氣：空氣出去，肺變小！';
+  say(inhale ? '吸氣，空氣進來，肺變大。' : '吐氣，空氣出去，肺變小。');
+}
+document.getElementById('bIn').onclick = function () { lungs(true); };
+document.getElementById('bOut').onclick = function () { lungs(false); };
+
+// 休息／跑步
+function mode(run, speak) {
+  var mh = document.getElementById('mh'), ml = document.getElementById('ml'), k = document.getElementById('kid');
+  mh.style.setProperty('--bt', run ? '.45s' : '1s');
+  ml.style.setProperty('--br', run ? '1.4s' : '4s');
+  k.textContent = run ? '🏃' : '🧍'; k.classList.toggle('run', run);
+  [].forEach.call(document.querySelectorAll('[data-mode]'), function (b) { b.classList.toggle('sel', (b.dataset.mode === 'run') === run); });
+  document.getElementById('mState').textContent = run ? '跑步時：心跳變快，呼吸也變快！' : '休息時：心跳和呼吸都慢慢的。';
+  if (speak) say(run ? '跑步的時候，心跳變快，呼吸也變快！' : '休息的時候，心跳和呼吸都慢慢的。');
+}
+[].forEach.call(document.querySelectorAll('[data-mode]'), function (b) { b.onclick = function () { mode(b.dataset.mode === 'run', true); }; });
+
+window.onStep = function (i) {
+  if (i === 2) { var l = document.getElementById('lungs'); l.classList.remove('in'); document.getElementById('airIn').style.opacity = 0; document.getElementById('lState').textContent = '按「吸氣」試試看'; }
+  if (i === 3) mode(false, false);
+};
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

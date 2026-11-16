@@ -398,5 +398,31 @@
         }
       ]
     }
-  }
+  },
+  "lessons": [
+    {
+      "subject": "chinese",
+      "title": "同音字：在和再、做和作",
+      "summary": "念起來一樣的字怎麼分？「在」說地方、「再」是又一次，「做」是動手做、「作」用在作文、作業。",
+      "file": "daily/2026-11-17/lessons/chinese.html"
+    },
+    {
+      "subject": "english",
+      "title": "Colors and Shapes",
+      "summary": "點一點學顏色和形狀的英文，當小畫家說 I can draw a red star，再練習用完整句子回答。",
+      "file": "daily/2026-11-17/lessons/english.html"
+    },
+    {
+      "subject": "math",
+      "title": "加還是減？應用題小偵探",
+      "summary": "找出「又、一共」和「用掉、還剩」這些線索，決定用加法或減法，還會算兩步驟的公車題。",
+      "file": "daily/2026-11-17/lessons/math.html"
+    },
+    {
+      "subject": "science",
+      "title": "會跳的心臟、會呼吸的肺",
+      "summary": "心臟像幫浦把血液送到全身，肺吸氣變大、吐氣變小；跑步時心跳和呼吸都會變快。",
+      "file": "daily/2026-11-17/lessons/science.html"
+    }
+  ]
 }

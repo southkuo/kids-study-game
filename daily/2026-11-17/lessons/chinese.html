@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>同音字：在和再、做和作</title>
+<style>
+:root { --c: #c0573b; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式 ===== */
+.zi { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; width: 130px; height: 150px; border: 0; border-radius: 24px; background: #fff3ee; box-shadow: 0 5px 0 #e9b5a3; font: inherit; cursor: pointer; animation: pop .6s ease-out backwards; }
+.zi b { font-size: 76px; line-height: 1; color: #c0573b; }
+.zi small { font-size: 18px; font-weight: 900; color: #6a5536; margin-top: 6px; }
+.zi.blue { background: #eaf2ff; box-shadow: 0 5px 0 #a9c3ef; }
+.zi.blue b { color: #2f5fb8; }
+.zi:active { transform: translateY(3px); }
+@keyframes pop { from { transform: scale(.2) rotate(-15deg); opacity: 0; } }
+.wave { font-size: 46px; font-weight: 900; color: #c0573b; animation: wob 1.6s ease-in-out infinite; }
+@keyframes wob { 50% { transform: scale(1.15); } }
+.eq { font-size: 46px; font-weight: 900; color: #6a5536; }
+.room { position: relative; width: 300px; height: 210px; margin: 0 auto; }
+.room .thing { position: absolute; font-size: 64px; line-height: 1; }
+#cat { position: absolute; z-index: 1; left: 130px; top: 10px; font-size: 48px; line-height: 1; transition: left .8s ease-in-out, top .8s ease-in-out; }
+.btns { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.pill { min-height: 52px; padding: 8px 16px; border: 0; border-radius: 999px; background: #fff3ee; box-shadow: 0 3px 0 #e9b5a3; font: inherit; font-size: 19px; font-weight: 900; color: #8a3720; cursor: pointer; }
+.pill.blue { background: #eaf2ff; box-shadow: 0 3px 0 #a9c3ef; color: #1f4690; }
+.pill:active { transform: translateY(2px); }
+.sent { min-height: 2.4em; font-size: clamp(22px, 5.6vw, 30px); font-weight: 900; text-align: center; }
+.sent em { font-style: normal; color: #c0573b; background: #fff3c4; border-radius: 8px; padding: 0 4px; }
+.sent em.b { color: #2f5fb8; }
+.ball { font-size: 56px; display: inline-block; }
+.ball.go { animation: bounce .9s ease-in-out; }
+@keyframes bounce { 25% { transform: translateY(-80px) rotate(120deg); } 50% { transform: translateY(0) rotate(240deg); } 75% { transform: translateY(-40px) rotate(300deg); } }
+.count { font-size: 30px; font-weight: 900; color: #2f5fb8; min-height: 1.4em; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; width: 100%; }
+.wc { min-height: 64px; border: 0; border-radius: 18px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; font-size: 24px; font-weight: 900; color: #2b2112; cursor: pointer; }
+.wc b { color: #c0573b; }
+.wc.z b { color: #2f5fb8; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
+.two > div { padding: 12px; border-radius: 20px; text-align: center; }
+.two h3 { margin: 0 0 6px; font-size: 22px; }
+.slot { display: inline-block; min-width: 1.4em; border-bottom: 4px solid #c0573b; color: #c0573b; }
+.slot.fill { animation: pop .5s ease-out; }
+.tip { min-height: 2.6em; font-size: 20px; font-weight: 900; text-align: center; color: #8a3720; }
+.score { font-size: 20px; font-weight: 900; text-align: center; color: #6a5536; }
+.qwrap { margin-bottom: 26px; padding-bottom: 8px; border-bottom: 3px dashed #eadfc8; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容 ===== -->
+<section class="step" data-auto="在和再，念起來一模一樣。做和作，念起來也一樣。聲音一樣，意思不一樣，今天來分清楚！">
+    <h1>👂 聽起來一樣的字</h1>
+    <div class="stage" style="flex-direction:column;gap:6px">
+      <div class="btns" style="align-items:center;gap:12px">
+        <button class="zi" data-say="在，在哪裡的在"><b>在</b><small>ㄗㄞˋ</small></button>
+        <span class="eq">≈</span>
+        <button class="zi blue" style="animation-delay:.3s" data-say="再，再一次的再"><b>再</b><small>ㄗㄞˋ</small></button>
+      </div>
+      <div class="btns" style="align-items:center;gap:12px">
+        <button class="zi" style="animation-delay:.6s" data-say="做，做蛋糕的做"><b>做</b><small>ㄗㄨㄛˋ</small></button>
+        <span class="eq">≈</span>
+        <button class="zi blue" style="animation-delay:.9s" data-say="作，作文的作"><b>作</b><small>ㄗㄨㄛˋ</small></button>
+      </div>
+    </div>
+    <p class="big">聲音一樣，<span style="color:#c0573b">意思不一樣</span>！</p>
+    <p class="small">點點看每一個字，聽它的名字。</p>
+  </section>
+
+  <section class="step" data-auto="在，是說在哪裡。點下面的按鈕，看看小貓在哪裡！">
+    <h1>📍「在」＝在哪裡</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="room">
+        <span class="thing" style="left:10px;top:110px">🛏️</span>
+        <span class="thing" style="left:120px;top:96px">🪑</span>
+        <span class="thing" style="left:215px;top:105px;z-index:2">📦</span>
+        <span id="cat">🐱</span>
+      </div>
+      <div class="sent" id="catSent">小貓<em>在</em>哪裡？</div>
+      <div class="btns">
+        <button class="pill" data-place="0">床上</button>
+        <button class="pill" data-place="1">椅子下面</button>
+        <button class="pill" data-place="2">箱子裡</button>
+      </div>
+    </div>
+    <p class="big">說「地方」，用 <span style="color:#c0573b">在</span>。</p>
+    <p class="small">「正在做什麼」也用「在」：我<b style="color:#c0573b">在</b>吃飯。</p>
+  </section>
+
+  <section class="step" data-auto="再，是又一次的意思。按再一次，讓球再跳一次！">
+    <h1>🔁「再」＝又一次</h1>
+    <div class="stage" style="flex-direction:column">
+      <span class="ball" id="ball">⚽</span>
+      <div class="count" id="cnt">跳了 0 次</div>
+      <button class="pill blue" id="again" style="font-size:22px">🔁 再跳一次！</button>
+    </div>
+    <p class="big">做過了，<span style="color:#2f5fb8">又要</span>做一次，<br>用 <span style="color:#2f5fb8">再</span>。</p>
+    <div class="btns">
+      <button class="say" data-say="請再說一次">🔊 請<b style="color:#2f5fb8">再</b>說一次</button>
+      <button class="say" data-say="明天見，再見">🔊 <b style="color:#2f5fb8">再</b>見</button>
+      <button class="say" data-say="再吃一口">🔊 <b style="color:#2f5fb8">再</b>吃一口</button>
+    </div>
+  </section>
+
+  <section class="step" data-auto="做，是動手去做事情，像做蛋糕、做家事。作，常常出現在固定的詞裡，像作文、作業、工作。">
+    <h1>✋「做」和「作」</h1>
+    <div class="two">
+      <div style="background:#fff3ee">
+        <h3 style="color:#c0573b">做 🍰</h3>
+        <p class="small" style="margin:0 0 8px">動手做事情</p>
+        <div class="cards" style="grid-template-columns:1fr">
+          <button class="wc" data-say="做蛋糕"><b>做</b>蛋糕</button>
+          <button class="wc" data-say="做家事"><b>做</b>家事</button>
+          <button class="wc" data-say="做朋友"><b>做</b>朋友</button>
+        </div>
+      </div>
+      <div style="background:#eaf2ff">
+        <h3 style="color:#2f5fb8">作 📝</h3>
+        <p class="small" style="margin:0 0 8px">固定的詞</p>
+        <div class="cards" style="grid-template-columns:1fr">
+          <button class="wc z" data-say="作文"><b>作</b>文</button>
+          <button class="wc z" data-say="作業"><b>作</b>業</button>
+          <button class="wc z" data-say="工作">工<b>作</b></button>
+        </div>
+      </div>
+    </div>
+    <p class="big" style="margin-top:14px">偷偷告訴你：<br>我在家<span style="color:#c0573b">做</span><span style="color:#2f5fb8">作</span>業！</p>
+    <p class="center"><button class="say" data-say="我在家做作業。做，是動手去做；作業，是固定的詞，用作。">🔊 聽一聽</button></p>
+  </section>
+
+  <section class="step" data-auto="填字小遊戲！看句子，選出正確的字，填進空格裡。">
+    <h1>🧩 填字小遊戲</h1>
+    <div class="stage" style="flex-direction:column;min-height:280px">
+      <div class="score" id="gScore">第 1 題／共 6 題</div>
+      <div class="sent" id="gSent"></div>
+      <div class="btns" id="gBtns"></div>
+      <div class="tip" id="gTip"></div>
+      <button class="pill" id="gNext" style="display:none">下一題 ▶</button>
+    </div>
+    <p class="small">想一想：是「在哪裡」？還是「又一次」？</p>
+  </section>
+
+  <section class="step" data-auto="小測驗！仔細想一想，選出正確的字。">
+    <h1>✏️ 小測驗</h1>
+    <div class="qwrap">
+      <p class="big">下課了，我們（　）玩一次！</p>
+      <div class="quiz" data-why="又玩一次，是又一次的意思，所以用再。">
+        <button>在</button>
+        <button data-right>再</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+    <div class="qwrap">
+      <p class="big">爸爸（　）客廳看報紙。</p>
+      <div class="quiz" data-why="客廳是一個地方，說在哪裡要用在。">
+        <button data-right>在</button>
+        <button>再</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+    <div class="qwrap">
+      <p class="big">哥哥長大想當一位（　）家，<br>寫很多故事書。</p>
+      <div class="quiz" data-why="作家是固定的詞，和作文一樣用作。">
+        <button>做</button>
+        <button data-right>作</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+// 小貓在哪裡
+var PLACES = [
+  { x: 18, y: 78, s: '小貓在床上。', t: '床上' },
+  { x: 136, y: 134, s: '小貓在椅子下面。', t: '椅子下面' },
+  { x: 223, y: 80, s: '小貓在箱子裡。', t: '箱子裡' }
+];
+function catTo(i) {
+  var c = document.getElementById('cat'), p = PLACES[i];
+  if (!p) { c.style.left = '130px'; c.style.top = '10px'; document.getElementById('catSent').innerHTML = '小貓<em>在</em>哪裡？'; return; }
+  c.style.left = p.x + 'px'; c.style.top = p.y + 'px';
+  document.getElementById('catSent').innerHTML = '小貓<em>在</em>' + p.t + '。';
+  say(p.s);
+}
+[].forEach.call(document.querySelectorAll('[data-place]'), function (b) { b.onclick = function () { catTo(+b.dataset.place); }; });
+
+// 再跳一次
+var jumps = 0;
+document.getElementById('again').onclick = function () {
+  var b = document.getElementById('ball');
+  b.classList.remove('go'); void b.offsetWidth; b.classList.add('go');
+  jumps++;
+  document.getElementById('cnt').textContent = jumps === 1 ? '跳了 1 次' : '再跳一次！一共跳了 ' + jumps + ' 次';
+  say(jumps === 1 ? '跳一次！' : '再跳一次！');
+};
+
+// 填字小遊戲
+var G = [
+  { a: '我', b: '學校上課。', ok: '在', opts: ['在', '再'], why: '學校是地方，用「在」。' },
+  { a: '這首歌真好聽，我想', b: '聽一遍。', ok: '再', opts: ['在', '再'], why: '又聽一遍，是又一次，用「再」。' },
+  { a: '奶奶', b: '包水餃。', ok: '做', opts: ['做', '作'], why: '動手做出水餃，用「做」。' },
+  { a: '我寫完數學', b: '業了！', ok: '作', opts: ['做', '作'], why: '「作業」是固定的詞，用「作」。' },
+  { a: '小狗躺', b: '門口睡覺。', ok: '在', opts: ['在', '再'], why: '門口是地方，用「在」。' },
+  { a: '謝謝老師，', b: '見！', ok: '再', opts: ['在', '再'], why: '「再見」是下次又見面，用「再」。' }
+];
+var gi = 0, gDone = false;
+function gDraw() {
+  var q = G[gi]; gDone = false;
+  document.getElementById('gScore').textContent = '第 ' + (gi + 1) + ' 題／共 ' + G.length + ' 題';
+  document.getElementById('gSent').innerHTML = q.a + '<span class="slot" id="gSlot">　</span>' + q.b;
+  document.getElementById('gTip').textContent = '';
+  document.getElementById('gNext').style.display = 'none';
+  var h = '';
+  q.opts.forEach(function (o, i) { h += '<button class="pill' + (i ? ' blue' : '') + '" style="min-width:90px;font-size:30px" data-g="' + o + '">' + o + '</button>'; });
+  document.getElementById('gBtns').innerHTML = h;
+}
+document.getElementById('gBtns').addEventListener('click', function (e) {
+  var b = e.target.closest('[data-g]'); if (!b || gDone) return;
+  var q = G[gi], tip = document.getElementById('gTip');
+  if (b.dataset.g === q.ok) {
+    gDone = true;
+    var s = document.getElementById('gSlot'); s.textContent = q.ok; s.classList.add('fill');
+    tip.style.color = '#0e6b2e'; tip.textContent = '⭕ 對了！' + q.why;
+    say('對了！' + q.a + q.ok + q.b + q.why);
+    var n = document.getElementById('gNext'); n.style.display = ''; n.textContent = gi === G.length - 1 ? '🔁 再玩一次' : '下一題 ▶';
+  } else {
+    tip.style.color = '#a0161b'; tip.textContent = '再想想看！';
+    say('再想想看');
+  }
+});
+document.getElementById('gNext').onclick = function () { gi = (gi + 1) % G.length; gDraw(); };
+
+window.onStep = function (i) {
+  if (i === 1) catTo(-1);
+  if (i === 2) { jumps = 0; document.getElementById('cnt').textContent = '跳了 0 次'; }
+  if (i === 4) { gi = 0; gDraw(); }
+};
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>
