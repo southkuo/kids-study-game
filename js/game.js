@@ -222,6 +222,10 @@
       const pickDate = date || (DAY_LIST.includes(today) ? today : DAY_LIST.find((x) => x <= today) || DAY_LIST[0]);
       if (!pickDate) return;
       const data = await (await fetch(`daily/${pickDate}/day.json`, { cache: 'no-cache' })).json();
+      try { // 家長指定的戰鬥（daily/requests.json）優先於老師的設定
+        const req = ((await (await fetch('daily/requests.json', { cache: 'no-cache' })).json()).days || {})[pickDate] || {};
+        Object.keys(req).forEach((k) => { if (data.homework && data.homework[k] && req[k].battle) data.homework[k].battle = req[k].battle; });
+      } catch (e) { /* 沒有指定就用老師的 */ }
       DAY = { date: pickDate, data };
       const en = data.homework && data.homework.english;
       window.HOMEWORK = en ? Object.assign({ title: '英文口說作業', note: '請用完整句子回答唷！' }, en, { date: pickDate }) : null;
@@ -319,6 +323,34 @@
       + '<ellipse cx="38" cy="20" rx="4.5" ry="4" fill="#fff"/><circle cx="37" cy="20.5" r="2.4" fill="#d32f2f"/><path d="M33 15 L43 17" stroke="#004d40" stroke-width="2.2" stroke-linecap="round"/>'
       + '<circle cx="18" cy="22" r="1.4" fill="#004d40"/>'
       + '<path class="waves" d="M40 96 Q50 88 60 96 Q70 88 80 96 Q90 88 100 96 L100 100 L40 100 Z" fill="#4fc3f7" opacity=".85"/></svg>',
+    'fire-dragon': '<svg class="foe-svg big" viewBox="0 0 100 100" aria-hidden="true">'
+      + '<g class="wing w1"><path d="M60 44 Q70 12 96 6 Q88 18 94 22 Q82 24 86 32 Q74 32 74 44 Z" fill="#c62828" stroke="#7f0000" stroke-width="2" stroke-linejoin="round"/></g>'
+      + '<path d="M80 74 Q98 76 96 92 Q90 82 82 84" fill="#e53935" stroke="#7f0000" stroke-width="2" stroke-linejoin="round"/><path d="M92 86 L99 92 L91 93 Z" fill="#ffb300"/>'
+      + '<ellipse cx="64" cy="68" rx="22" ry="16" fill="#e53935" stroke="#7f0000" stroke-width="2"/>'
+      + '<path d="M50 74 Q62 84 76 78" stroke="#ffcc80" stroke-width="7" fill="none" stroke-linecap="round"/>'
+      + '<g fill="#e53935" stroke="#7f0000" stroke-width="2"><rect x="52" y="78" width="9" height="14" rx="4"/><rect x="70" y="78" width="9" height="14" rx="4"/></g>'
+      + '<path d="M50 62 Q40 50 38 38" stroke="#e53935" stroke-width="14" fill="none" stroke-linecap="round"/>'
+      + '<g fill="#ffb300" stroke="#e65100" stroke-width="1.2" stroke-linejoin="round"><path d="M46 46 L52 42 L50 50 Z"/><path d="M62 52 L68 48 L68 56 Z"/><path d="M74 54 L80 52 L78 60 Z"/></g>'
+      + '<g class="wing w2"><path d="M56 48 Q44 18 18 14 Q28 26 22 30 Q34 32 30 40 Q42 40 46 52 Z" fill="#e53935" stroke="#7f0000" stroke-width="2" stroke-linejoin="round"/></g>'
+      + '<path d="M44 30 Q34 18 18 24 Q10 28 12 36 Q20 42 32 42 Q44 42 46 34 Z" fill="#e53935" stroke="#7f0000" stroke-width="2" stroke-linejoin="round"/>'
+      + '<path d="M36 22 L40 10 L42 24 Z M28 22 L28 12 L33 22 Z" fill="#fff3e0" stroke="#8d6e63" stroke-width="1.2" stroke-linejoin="round"/>'
+      + '<path d="M12 36 Q18 40 26 38" stroke="#7f0000" stroke-width="1.8" fill="none"/><circle cx="15" cy="31" r="1.3" fill="#7f0000"/>'
+      + '<ellipse cx="30" cy="29" rx="4" ry="3.6" fill="#ffeb3b"/><ellipse cx="29.5" cy="29.5" rx="1.4" ry="2.8" fill="#212121"/><path d="M25 24 L35 26" stroke="#7f0000" stroke-width="2.2" stroke-linecap="round"/>'
+      + '<g class="breath"><path d="M11 37 Q2 34 -4 40 Q2 42 -2 48 Q6 44 10 42 Z" fill="#ff9800"/><path d="M11 38 Q5 38 1 41 Q6 42 10 41 Z" fill="#ffeb3b"/></g></svg>',
+    'trex': '<svg class="foe-svg big" viewBox="0 0 100 100" aria-hidden="true">'
+      + '<path d="M66 58 Q88 54 99 72 Q86 66 74 72 Z" fill="#43a047" stroke="#1b5e20" stroke-width="2" stroke-linejoin="round"/>'
+      + '<ellipse cx="58" cy="62" rx="20" ry="18" fill="#4caf50" stroke="#1b5e20" stroke-width="2"/>'
+      + '<ellipse cx="52" cy="68" rx="11" ry="10" fill="#c5e1a5"/>'
+      + '<g fill="#4caf50" stroke="#1b5e20" stroke-width="2" stroke-linejoin="round"><path d="M52 76 L48 94 L58 94 L60 78 Z"/><path d="M64 76 L66 94 L76 94 L72 74 Z"/></g>'
+      + '<path d="M44 94 L48 90 M50 94 L52 90 M62 94 L66 90 M68 94 L70 90" stroke="#fff" stroke-width="1.6"/>'
+      + '<path d="M42 58 L34 62 L36 66 M34 62 L33 58" stroke="#2e7d32" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'
+      + '<g fill="#66bb6a" stroke="#1b5e20" stroke-width="1.4" stroke-linejoin="round"><path d="M64 44 L70 38 L72 46 Z"/><path d="M74 50 L80 46 L80 54 Z"/><path d="M82 58 L88 56 L86 62 Z"/></g>'
+      + '<path d="M62 46 Q52 14 30 16 Q8 18 6 32 Q6 40 14 42 L40 44 Q52 52 62 46 Z" fill="#4caf50" stroke="#1b5e20" stroke-width="2" stroke-linejoin="round"/>'
+      + '<path d="M8 36 Q24 40 44 38 Q40 48 24 48 Q10 48 8 36 Z" fill="#388e3c" stroke="#1b5e20" stroke-width="2" stroke-linejoin="round"/>'
+      + '<path d="M10 37 L12 41 L14 37.5 L16 41.5 L18 38 L20 42 L22 38.5 L24 42 L26 38.5 L28 41.5 L30 38.5 L32 41 L34 38.5" fill="#fff" stroke="#9e9e9e" stroke-width=".8" stroke-linejoin="round"/>'
+      + '<ellipse cx="36" cy="26" rx="5" ry="5.5" fill="#fff" stroke="#1b5e20" stroke-width="1.4"/><circle cx="35" cy="27" r="3" fill="#212121"/><circle cx="34" cy="25.8" r="1.1" fill="#fff"/>'
+      + '<path d="M29 19 L42 21" stroke="#1b5e20" stroke-width="2.6" stroke-linecap="round"/><circle cx="12" cy="29" r="1.4" fill="#1b5e20"/>'
+      + '<g fill="#2e7d32" opacity=".55"><circle cx="50" cy="28" r="2.5"/><circle cx="56" cy="36" r="2"/><circle cx="68" cy="64" r="2.5"/><circle cx="62" cy="54" r="2"/></g></svg>',
   };
   const artHTML = (icon) => (String(icon).startsWith('svg:') ? (BATTLE_ART[icon.slice(4)] || '❓') : esc(icon));
   // 太空主題：主角坐在太空飛行船裡
@@ -365,6 +397,8 @@
     underworld: {},
     jungle: {},
     sky: {},
+    volcano: { moves: [['冰霜劍氣', '❄️'], ['水龍捲', '💧'], ['寒冰箭', '🧊']], special: ['冰封千里', '❄️'], foeMoves: [['火焰吐息', '🔥'], ['龍爪撕裂', '💢'], ['熔岩炸彈', '🌋']] },
+    prehistoric: { moves: [['飛石彈弓', '🪨'], ['巨木衝撞', '🪵'], ['藤蔓纏繞', '🌿']], special: ['遠古大隕石', '☄️'], foeMoves: [['恐龍大咬', '🦷'], ['甩尾重擊', '💢'], ['震地大吼', '📢']] },
     river: { moves: [['激流水砲', '💦'], ['漩渦旋轉', '🌀'], ['浪花飛刀', '🌊']], special: ['大河奔流', '🌊'], foeMoves: [['蛟龍吐水', '💧'], ['龍尾掃浪', '🌊'], ['龍捲水柱', '🌪️']], boat: true },
     deepsea: { moves: [['魚雷發射', '🚀'], ['泡泡砲', '🫧'], ['聲納衝擊波', '🌀']], special: ['深海巨浪砲', '🌊'], foeMoves: [['大嘴咬咬', '🦷'], ['尾巴大浪', '🌊'], ['鯊魚衝撞', '💢']], sub: true },
   };

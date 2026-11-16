@@ -25,6 +25,8 @@ daily/
     lessons/chinese.html  ← 教材（english、math、science 同樣）
 ```
 
+`daily/requests.json` 是**家長指定**的每日戰鬥（哪天國文、數學打什麼敵人），出題老師一定要照做，遊戲也會自動套用。
+
 `day.json` 的完整格式看 `daily/2026-11-09/day.json`。兩位老師寫同一個檔案：出題老師寫 `homework`，教學老師寫 `lessons`。檔案已經存在時，**只改自己負責的欄位，不要刪掉別人的內容**。
 
 ## 共同規則

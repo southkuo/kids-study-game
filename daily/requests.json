@@ -1,0 +1,25 @@
+{
+  "_說明": "家長指定的每日戰鬥。遊戲載入那一天時，會用這裡的 battle 取代老師寫的 battle；出題老師開工前也要讀這裡，把指定寫進當天的 day.json。",
+  "days": {
+    "2026-11-17": {
+      "chinese": {
+        "battle": {
+          "theme": "volcano",
+          "foe": {
+            "name": "火龍",
+            "icon": "svg:fire-dragon"
+          }
+        }
+      },
+      "math": {
+        "battle": {
+          "theme": "prehistoric",
+          "foe": {
+            "name": "暴龍",
+            "icon": "svg:trex"
+          }
+        }
+      }
+    }
+  }
+}

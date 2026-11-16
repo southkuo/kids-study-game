@@ -23,8 +23,13 @@ function unsafeHtml(html) {
 
 function checkQuestions(where, hw) {
   if (!isStr(hw.title)) err(where, '缺少 title');
-  if (hw.battle != null) {
-    const b = hw.battle, THEMES = ['space', 'garden', 'underworld', 'jungle', 'deepsea', 'sky', 'river'], ART = ['mantis-king', 'skeleton-general', 'steel-tiger', 'big-shark', 'eagle', 'water-dragon'];
+  if (hw.battle != null) checkBattle(where, hw.battle);
+  if (!Array.isArray(hw.questions)) return err(where, 'questions 必須是陣列');
+  CHECK_REST(where, hw);
+}
+function checkBattle(where, b) {
+  {
+    const THEMES = ['space', 'garden', 'underworld', 'jungle', 'deepsea', 'sky', 'river', 'volcano', 'prehistoric'], ART = ['mantis-king', 'skeleton-general', 'steel-tiger', 'big-shark', 'eagle', 'water-dragon', 'fire-dragon', 'trex'];
     if (b.theme != null && !THEMES.includes(b.theme)) err(where, `battle.theme 只能是 ${THEMES.join('／')}（或不寫）`);
     if (b.foe != null) {
       if (!isStr(b.foe.name)) err(where, 'battle.foe 需要 name');
@@ -36,7 +41,8 @@ function checkQuestions(where, hw) {
     if (b.fx != null && !['punch', 'arrow'].includes(b.fx)) err(where, 'battle.fx 只能是 "punch"（拳頭）、"arrow"（射箭）或不寫');
     if (b.special != null && (!Array.isArray(b.special) || !isStr(b.special[0]) || !isStr(b.special[1]))) err(where, 'battle.special 要是 ["必殺技名稱", "emoji"]');
   }
-  if (!Array.isArray(hw.questions)) return err(where, 'questions 必須是陣列');
+}
+function CHECK_REST(where, hw) {
   if (hw.questions.length < 5 || hw.questions.length > 15) err(where, `題數 ${hw.questions.length}，應該在 5～15 題之間`);
   const seen = new Set();
   hw.questions.forEach((q, i) => {
@@ -129,6 +135,20 @@ const days = Array.isArray(idx.days) ? idx.days : (err('daily/index.json', 'days
 days.forEach((d) => { if (!DATE_RE.test(d)) err('daily/index.json', `日期格式錯誤：${d}`); });
 if (new Set(days).size !== days.length) err('daily/index.json', '日期重複');
 fs.readdirSync(path.join(ROOT, 'daily')).filter((d) => DATE_RE.test(d)).forEach((d) => { if (!days.includes(d)) err('daily/index.json', `資料夾 ${d} 沒有列在 days 裡（遊戲會看不到）`); });
+
+const reqPath = path.join(ROOT, 'daily', 'requests.json');
+if (fs.existsSync(reqPath)) {
+  try {
+    const req = JSON.parse(fs.readFileSync(reqPath, 'utf8'));
+    Object.entries(req.days || {}).forEach(([d, subj]) => {
+      if (!DATE_RE.test(d)) err('daily/requests.json', `日期格式錯誤：${d}`);
+      Object.entries(subj).forEach(([k, v]) => {
+        if (!['chinese', 'math'].includes(k)) err('daily/requests.json', `${d} 不認得的科目「${k}」`);
+        else if (v.battle) checkBattle(`daily/requests.json ${d} ${k}`, v.battle);
+      });
+    });
+  } catch (e) { err('daily/requests.json', `不是正確的 JSON：${e.message}`); }
+}
 
 const only = process.argv[2];
 (only ? [only] : days).forEach(checkDay);
