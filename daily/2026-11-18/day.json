@@ -384,5 +384,31 @@
         }
       ]
     }
-  }
+  },
+  "lessons": [
+    {
+      "subject": "chinese",
+      "title": "讀短文小偵探",
+      "summary": "學會讀短文時找出誰、什麼時候、在哪裡、做什麼、為什麼，還有「先……再……」「因為」這些線索字。",
+      "file": "daily/2026-11-18/lessons/chinese.html"
+    },
+    {
+      "subject": "english",
+      "title": "Let's Go! Transportation",
+      "summary": "認識 car、bus、scooter、bike 等交通工具，練習 I go to school by bus. 和 A car is faster than a bike.",
+      "file": "daily/2026-11-18/lessons/english.html"
+    },
+    {
+      "subject": "math",
+      "title": "乘法填空和比大小",
+      "summary": "一句一句念口訣找出 □ 裡的數，再學會先算兩邊、用 >、<、= 比大小。",
+      "file": "daily/2026-11-18/lessons/math.html"
+    },
+    {
+      "subject": "science",
+      "title": "空氣的力量",
+      "summary": "用倒扣杯子、吹風車和放氣球的小實驗，發現空氣會佔位置、流動就是風、還能推動東西。",
+      "file": "daily/2026-11-18/lessons/science.html"
+    }
+  ]
 }

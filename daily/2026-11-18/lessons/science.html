@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>空氣的力量</title>
+<!--
+  教學老師的教材範本（每天複製這個檔案到 daily/日期/lessons/科目.html 再改內容）
+  規則：
+  - 一個檔案就是一個完整教材，CSS、JS、圖都寫在裡面，不能載入任何外部網址。
+  - 每一個 <section class="step"> 是一頁，下方會自動出現「上一步／下一步」和進度點。
+  - data-auto="要念的話"：進到這一頁時自動朗讀（data-lang="en-US" 用英文念）。
+  - 任何元素加上 data-say="要念的話"（可加 data-lang="en-US"），點了就會念。
+  - 小測驗：<div class="quiz" data-why="答對時的補充說明"> 裡面放按鈕，正確的按鈕加 data-right，後面放 <div class="fb"></div>。
+  - 需要每頁自己的動畫：寫 window.onStep = function (index, section) { … }，換頁時會呼叫。
+  - 只改「教材內容」區塊和自訂樣式；下面的共用程式不要改壞。
+-->
+<style>
+:root { --c: #2e9d5b; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式（這一份教材自己的動畫）寫在這裡 ===== */
+.balloon { font-size: 40px; animation: grow 3s ease-in-out infinite; display: inline-block; }
+@keyframes grow { 0%,100% { transform: scale(.6); } 50% { transform: scale(1.6); } }
+.puff { font-size: 40px; animation: puff 3s ease-in-out infinite; }
+@keyframes puff { 0%,50% { opacity: 1; transform: translateX(0); } 100% { opacity: 0; transform: translateX(60px); } }
+.tank { position: relative; width: 240px; height: 240px; margin: 0 auto; }
+.water { position: absolute; left: 0; right: 0; bottom: 0; height: 140px; background: linear-gradient(#8fd3ff, #4aa8e8); border-radius: 0 0 20px 20px; opacity: .85; }
+.tankwall { position: absolute; inset: 40px 0 0 0; border: 5px solid #9bb3c4; border-top: 0; border-radius: 0 0 24px 24px; }
+.cup { position: absolute; left: 70px; top: 0; width: 100px; height: 110px; transition: top 1.6s ease-in-out; }
+.cup.down { top: 118px; }
+.cup .glass { position: absolute; inset: 0; border: 5px solid #5b7a8c; border-top: 0; border-bottom-width: 0; background: rgba(255,255,255,.35); clip-path: none; }
+.cup .glass::before { content: ""; position: absolute; left: -5px; right: -5px; top: -5px; height: 6px; background: #5b7a8c; }
+.cup .tissue { position: absolute; left: 6px; right: 6px; top: 4px; height: 34px; background: #fff; border-radius: 6px; box-shadow: inset 0 0 0 2px #ddd; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 900; color: #2e9d5b; }
+.cup .air { position: absolute; left: 6px; right: 6px; top: 40px; bottom: 16px; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 900; color: #2e9d5b; opacity: 0; transition: opacity .6s .9s; }
+.cup.down .air { opacity: 1; }
+.cup .inwater { position: absolute; left: 0; right: 0; bottom: 0; height: 0; background: rgba(74,168,232,.85); transition: height 1s .8s; }
+.cup.down .inwater { height: 12px; }
+.ctrl { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 6px 0; }
+.ctrl button { min-height: 56px; padding: 6px 18px; border: 0; border-radius: 999px; background: #dff3e6; box-shadow: 0 3px 0 #86c99f; font: inherit; font-size: 21px; font-weight: 900; color: #1e6b3d; cursor: pointer; }
+.ctrl button:disabled { opacity: .4; }
+.result { min-height: 1.6em; text-align: center; font-size: 21px; font-weight: 900; color: #2e9d5b; }
+.pin { font-size: 110px; display: inline-block; }
+.pin.spin { animation: spin var(--sp, 1s) linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.windline { position: absolute; left: 10px; font-size: 34px; opacity: 0; }
+.windline.blow { animation: blow 1s ease-out; }
+@keyframes blow { 0% { opacity: 1; transform: translateX(0); } 100% { opacity: 0; transform: translateX(160px); } }
+.sky { position: relative; width: 100%; height: 200px; }
+#bal { position: absolute; left: 50%; top: 50%; font-size: 40px; transform: translate(-50%, -50%) scale(var(--s, 1)); transition: transform .4s; }
+#bal.fly { animation: fly 1.6s ease-in forwards; }
+@keyframes fly { 0% { transform: translate(-50%, -50%) scale(var(--s, 1)); } 30% { transform: translate(-80%, -90%) scale(var(--s, 1)) rotate(-30deg); } 60% { transform: translate(-20%, -140%) scale(calc(var(--s, 1) * .8)) rotate(20deg); } 100% { transform: translate(180%, -260%) scale(.5) rotate(60deg); opacity: 0; } }
+.bub { position: absolute; font-size: 22px; animation: rise 1.5s ease-out forwards; }
+@keyframes rise { to { transform: translateY(-120px); opacity: 0; } }
+
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容 ===== -->
+  <section class="step" data-auto="空氣看不見，也摸不到，可是它就在我們身邊。今天來發現空氣的力量！">
+    <h1>🎈 看不見的空氣</h1>
+    <div class="stage">
+      <span style="font-size:60px">😗</span><span class="puff">💨</span><span class="balloon">🎈</span>
+    </div>
+    <p class="big">空氣看不見、摸不到，<br>可是到處都有！</p>
+    <p class="center"><button class="say" data-say="空氣看不見，也摸不到，可是它就在我們身邊。">🔊 聽一聽</button></p>
+  </section>
+
+  <section class="step" data-auto="做個實驗：杯底塞一團紙巾，杯口朝下，直直壓進水裡。紙巾會不會濕？按壓下去看看。">
+    <h1>🥛 紙巾會濕嗎？</h1>
+    <div class="stage" style="min-height:0;padding:10px">
+      <div class="tank" id="tank">
+        <div class="water"></div><div class="tankwall"></div>
+        <div class="cup" id="cup"><div class="glass"></div><div class="tissue">紙巾</div><div class="air">空氣</div><div class="inwater"></div></div>
+      </div>
+    </div>
+    <div class="ctrl"><button id="push">⬇️ 壓下去</button><button id="lift">⬆️ 拿起來</button></div>
+    <p class="result" id="cupRes"></p>
+    <p class="small">💡 杯子看起來是空的，其實裝滿了<b>空氣</b>。空氣會<b>佔位置</b>！</p>
+  </section>
+
+  <section class="step" data-auto="空氣流動，就是風。按吹一口氣，讓風車轉起來。吹越多下，轉得越快！">
+    <h1>🌬️ 空氣動起來就是風</h1>
+    <div class="stage" style="flex-direction:column">
+      <div style="position:relative;width:100%;text-align:center">
+        <span class="windline" id="w1" style="top:20px">💨</span>
+        <span class="windline" id="w2" style="top:80px">💨</span>
+        <span class="pin" id="pin">🌀</span>
+      </div>
+    </div>
+    <div class="ctrl"><button id="blowBtn">😗 吹一口氣</button></div>
+    <p class="result" id="windRes">空氣流動，就是<b>風</b>。</p>
+  </section>
+
+  <section class="step" data-auto="空氣還有力量。按打氣，把氣球吹大。再按放手，空氣從氣球口衝出去，氣球就飛走了！">
+    <h1>🎈 空氣有力量</h1>
+    <div class="stage" style="padding:8px"><div class="sky" id="sky"><span id="bal">🎈</span></div></div>
+    <div class="ctrl"><button id="pump">💨 打氣</button><button id="letgo" disabled>✋ 放手</button></div>
+    <p class="result" id="balRes">空氣可以把氣球撐大。</p>
+  </section>
+
+  <section class="step" data-auto="小測驗！杯底塞紙巾，杯口朝下，直直壓進水裡，紙巾會怎麼樣？">
+    <h1>✏️ 小測驗 1</h1>
+    <div class="stage" style="min-height:0"><span style="font-size:60px">🥛⬇️🌊</span></div>
+    <p class="big">杯底塞紙巾，杯口朝下直直壓進水裡，紙巾會？</p>
+    <div class="quiz" data-why="杯子裡有空氣，空氣佔住位置，水進不去，所以紙巾不會濕。">
+      <button>濕透了</button><button data-right>不會濕</button><button>會不見</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗！風是什麼？">
+    <h1>✏️ 小測驗 2</h1>
+    <div class="stage" style="min-height:0"><span style="font-size:60px">🌬️🍃🪁</span></div>
+    <p class="big">風是什麼？</p>
+    <div class="quiz" data-why="空氣在流動，就是風。風吹過來，樹葉才會搖、風箏才會飛。">
+      <button>樹葉搖出來的</button><button data-right>流動的空氣</button><button>雲吐出來的</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+// 杯子實驗
+var cup = document.getElementById('cup'), tank = document.getElementById('tank');
+document.getElementById('push').onclick = function () {
+  cup.classList.add('down');
+  document.getElementById('cupRes').textContent = '';
+  setTimeout(function () { document.getElementById('cupRes').textContent = '水只進來一點點，碰不到紙巾！'; say('水進不去，紙巾沒有濕！'); }, 1700);
+};
+document.getElementById('lift').onclick = function () {
+  if (!cup.classList.contains('down')) return;
+  cup.classList.remove('down');
+  setTimeout(function () { document.getElementById('cupRes').textContent = '紙巾是乾的 ✅ 空氣佔住位置，水進不去！'; say('拿出來摸摸看，紙巾是乾的。因為杯子裡的空氣佔住位置，水就進不去。'); }, 1600);
+};
+
+// 風車
+var power = 0, decay = null;
+function setSpin() {
+  var p = document.getElementById('pin');
+  if (power <= 0) { p.classList.remove('spin'); return; }
+  p.style.setProperty('--sp', (2.4 / power).toFixed(2) + 's');
+  p.classList.add('spin');
+}
+document.getElementById('blowBtn').onclick = function () {
+  power = Math.min(power + 1, 6); setSpin();
+  ['w1', 'w2'].forEach(function (id) { var w = document.getElementById(id); w.classList.remove('blow'); void w.offsetWidth; w.classList.add('blow'); });
+  document.getElementById('windRes').innerHTML = power >= 4 ? '風好大，轉得好快！🌬️' : '有風了，風車轉起來了！';
+  say(power >= 4 ? '風好大，轉得好快！' : '呼！有風了！');
+  clearInterval(decay);
+  decay = setInterval(function () { power--; setSpin(); if (power <= 0) { clearInterval(decay); document.getElementById('windRes').innerHTML = '沒有風，風車就停了。'; } }, 1500);
+};
+
+// 氣球
+var size = 1, bal = document.getElementById('bal');
+function resetBal() { size = 1; bal.className = ''; bal.style.setProperty('--s', 1); document.getElementById('letgo').disabled = true; document.getElementById('pump').disabled = false; document.getElementById('balRes').textContent = '空氣可以把氣球撐大。'; }
+document.getElementById('pump').onclick = function () {
+  if (size >= 3.4) return;
+  size += 0.6; bal.style.setProperty('--s', size);
+  document.getElementById('letgo').disabled = false;
+  if (size >= 3.4) { document.getElementById('pump').disabled = true; document.getElementById('balRes').textContent = '氣球被空氣撐得好大！'; say('氣球被空氣撐得好大！'); }
+  else say('打氣');
+};
+document.getElementById('letgo').onclick = function () {
+  bal.classList.add('fly');
+  document.getElementById('letgo').disabled = true; document.getElementById('pump').disabled = true;
+  document.getElementById('balRes').textContent = '空氣往後衝出去，把氣球往前推，咻！';
+  say('空氣從氣球口衝出去，把氣球推著飛走了！');
+  setTimeout(resetBal, 2600);
+};
+
+window.onStep = function (i) {
+  if (i === 1) { cup.classList.remove('down'); document.getElementById('cupRes').textContent = ''; }
+  if (i === 3) resetBal();
+  if (i !== 2) { clearInterval(decay); power = 0; setSpin(); }
+};
+
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>
