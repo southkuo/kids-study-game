@@ -361,5 +361,31 @@
         }
       ]
     }
-  }
+  },
+  "lessons": [
+    {
+      "subject": "chinese",
+      "title": "身體的部首：口、目、足",
+      "summary": "從嘴巴、眼睛、腳變成口、目、足，認識吃、喝、眼、睡、跑、踢等字，再玩「送字回家」分部首。",
+      "file": "daily/2026-11-19/lessons/chinese.html"
+    },
+    {
+      "subject": "english",
+      "title": "My Body",
+      "summary": "點卡片學 head、eyes、ears、hands、feet 等身體部位，練習 I see with my eyes. 和 foot → feet 的特別變化。",
+      "file": "daily/2026-11-19/lessons/english.html"
+    },
+    {
+      "subject": "math",
+      "title": "先乘再加減",
+      "summary": "用糖果和雞蛋一步一步看：先用乘法算全部，再看「又買了」還是「用掉了」決定加或減，還能在應用題工廠自己出題。",
+      "file": "daily/2026-11-19/lessons/math.html"
+    },
+    {
+      "subject": "science",
+      "title": "動物的身體和家",
+      "summary": "認識翅膀、鰭和鰓、蹼、殼等身體本領，知道鳥巢、蜂巢、蟻窩在哪裡，再幫動物送回家。",
+      "file": "daily/2026-11-19/lessons/science.html"
+    }
+  ]
 }

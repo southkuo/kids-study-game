@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>先乘再加減</title>
+<!--
+  教學老師的教材範本（每天複製這個檔案到 daily/日期/lessons/科目.html 再改內容）
+  規則：
+  - 一個檔案就是一個完整教材，CSS、JS、圖都寫在裡面，不能載入任何外部網址。
+  - 每一個 <section class="step"> 是一頁，下方會自動出現「上一步／下一步」和進度點。
+  - data-auto="要念的話"：進到這一頁時自動朗讀（data-lang="en-US" 用英文念）。
+  - 任何元素加上 data-say="要念的話"（可加 data-lang="en-US"），點了就會念。
+  - 小測驗：<div class="quiz" data-why="答對時的補充說明"> 裡面放按鈕，正確的按鈕加 data-right，後面放 <div class="fb"></div>。
+  - 需要每頁自己的動畫：寫 window.onStep = function (index, section) { … }，換頁時會呼叫。
+  - 只改「教材內容」區塊和自訂樣式；下面的共用程式不要改壞。
+-->
+<style>
+:root { --c: #2f8fd8; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式（這一份教材自己的動畫）寫在這裡 ===== */
+.bags { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; width: 100%; }
+.bag { padding: 6px 8px; border-radius: 14px; background: #e6f3fc; font-size: 24px; line-height: 1.25; text-align: center; animation: drop .5s ease-out backwards; }
+.bag.plain { background: #fff3d6; }
+.bag .x { opacity: .25; }
+.bag .cut { display: inline-block; position: relative; animation: fade .6s ease-out forwards; }
+@keyframes fade { to { opacity: .2; transform: scale(.7); } }
+@keyframes drop { from { transform: translateY(-30px); opacity: 0; } }
+.plus { font-size: 34px; font-weight: 900; color: #e5484d; animation: drop .5s ease-out backwards; }
+.q { font-size: clamp(20px, 5vw, 25px); font-weight: 900; line-height: 1.5; text-align: center; margin: 6px 0; }
+.q .hl { padding: 0 6px; border-radius: 8px; background: #ffe38a; }
+.ctrl { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 6px 0; }
+.ctrl button { min-height: 56px; padding: 6px 16px; border: 0; border-radius: 999px; background: #e6f3fc; box-shadow: 0 3px 0 #8cc4ec; font: inherit; font-size: 20px; font-weight: 900; color: #1b5d93; cursor: pointer; }
+.ctrl button.sel { background: #2f8fd8; color: #fff; }
+.ctrl button:disabled { opacity: .4; }
+.work { display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 100px; }
+.work div { font-size: clamp(22px, 6vw, 30px); font-weight: 900; padding: 4px 14px; border-radius: 12px; background: #f2f8fd; animation: drop .4s ease-out; }
+.work div.ans { background: #d8f7e1; color: #0e6b2e; }
+.fac { display: grid; gap: 8px; width: 100%; }
+.row { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.row .lab { min-width: 110px; font-size: 19px; font-weight: 900; text-align: right; }
+.row .val { min-width: 54px; font-size: 30px; font-weight: 900; text-align: center; color: #2f8fd8; }
+.row button { width: 56px; height: 56px; border: 0; border-radius: 50%; background: #e6f3fc; box-shadow: 0 3px 0 #8cc4ec; font: inherit; font-size: 28px; font-weight: 900; color: #1b5d93; cursor: pointer; }
+.story { font-size: clamp(19px, 5vw, 23px); font-weight: 900; text-align: center; line-height: 1.5; padding: 8px; border-radius: 14px; background: #fff7ec; }
+.clues { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; width: 100%; }
+.clues button { min-width: 130px; min-height: 64px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #b9dcf5; font: inherit; font-size: 22px; font-weight: 900; color: var(--ink); cursor: pointer; }
+.clues button.add { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; }
+.clues button.sub { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; }
+.clues button i { font-style: normal; display: block; font-size: 17px; }
+.steps3 { display: grid; gap: 8px; width: 100%; }
+.steps3 div { padding: 10px 14px; border-radius: 16px; background: #e6f3fc; font-size: 21px; font-weight: 900; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容 ===== -->
+<section class="step" data-auto="一包糖果有六顆，小樂買了三包，又多拿到兩顆。一共有幾顆？先想一想，今天學先乘再加減！">
+    <h1>🍬 一共有幾顆？</h1>
+    <div class="stage">
+      <div class="bags" id="open"></div>
+    </div>
+    <p class="q">一包糖果有 6 顆，小樂買了 3 包，<br>又多拿到 2 顆，一共有幾顆？</p>
+    <p class="center"><button class="say" data-say="一包糖果有六顆，小樂買了三包，又多拿到兩顆。一共有幾顆？">🔊 聽一聽</button></p>
+  </section>
+
+  <section class="step" data-auto="先乘：三包糖果，每包六顆，是三個六，六乘以三等於十八。再加：又多拿到兩顆，十八加二等於二十。按按鈕一步一步算。">
+    <h1>➕ 先乘，再加</h1>
+    <div class="stage" style="min-height:150px"><div class="bags" id="addBags"></div></div>
+    <div class="ctrl"><button id="add1">① 先乘</button><button id="add2" disabled>② 再加</button><button id="addR">🔄</button></div>
+    <div class="work" id="addWork"></div>
+  </section>
+
+  <section class="step" data-auto="一盒雞蛋有八顆，媽媽買了兩盒，煮飯用掉五顆，還剩幾顆？先乘：八乘以二等於十六。再減：十六減五等於十一。">
+    <h1>➖ 先乘，再減</h1>
+    <p class="q">一盒雞蛋有 8 顆，買了 2 盒，<br>煮飯<span class="hl">用掉</span> 5 顆，還剩幾顆？</p>
+    <div class="stage" style="min-height:120px"><div class="bags" id="subBags"></div></div>
+    <div class="ctrl"><button id="sub1">① 先乘</button><button id="sub2" disabled>② 再減</button><button id="subR">🔄</button></div>
+    <div class="work" id="subWork"></div>
+  </section>
+
+  <section class="step" data-auto="線索字！又買了、又來了、多拿到，東西變多，用加。吃掉、用掉、送給別人，東西變少，用減。點點看。">
+    <h1>🔍 加還是減？看線索字</h1>
+    <div class="stage">
+      <div class="clues" id="clues">
+        <button data-k="add">又買了</button>
+        <button data-k="sub">吃掉了</button>
+        <button data-k="add">又來了</button>
+        <button data-k="sub">用掉了</button>
+        <button data-k="add">多拿到</button>
+        <button data-k="sub">送給別人</button>
+      </div>
+    </div>
+    <div class="steps3">
+      <div>① 每一份有幾個？有幾份？→ <b>先乘</b></div>
+      <div>② 變多還是變少？→ <b>再加</b> 或 <b>再減</b></div>
+    </div>
+  </section>
+
+  <section class="step" data-auto="應用題工廠！按加號減號，改變每盒有幾個、有幾盒、多了還是少了，看看算式怎麼變。">
+    <h1>🏭 應用題工廠</h1>
+    <div class="stage" style="flex-direction:column;min-height:160px"><div class="bags" id="facBags"></div></div>
+    <div class="fac">
+      <div class="row"><span class="lab">每盒幾個</span><button data-f="per" data-d="-1">−</button><span class="val" id="vPer"></span><button data-f="per" data-d="1">＋</button></div>
+      <div class="row"><span class="lab">有幾盒</span><button data-f="n" data-d="-1">−</button><span class="val" id="vN"></span><button data-f="n" data-d="1">＋</button></div>
+      <div class="row"><span class="lab">多了／少了</span><button data-f="ex" data-d="-1">−</button><span class="val" id="vEx"></span><button data-f="ex" data-d="1">＋</button></div>
+    </div>
+    <p class="story" id="facStory"></p>
+    <p class="center"><button class="say" id="facCalc">🧮 算給我看</button></p>
+    <div class="work" id="facWork"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗！一盒鉛筆有五枝，小安買了四盒，又買了三枝，一共有幾枝？">
+    <h1>✏️ 小測驗 1</h1>
+    <p class="q">一盒鉛筆有 5 枝，小安買了 4 盒，<br>又買了 3 枝，一共有幾枝？</p>
+    <div class="quiz" data-why="先乘：5 × 4 = 20，五四二十。又買了，變多，再加：20 + 3 = 23。">
+      <button>20 枝</button><button data-right>23 枝</button><button>17 枝</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗！一排有七張椅子，一共三排。坐了十五個人，還有幾張空椅子？">
+    <h1>✏️ 小測驗 2</h1>
+    <p class="q">一排有 7 張椅子，一共 3 排。<br>坐了 15 個人，還有幾張空椅子？</p>
+    <div class="quiz" data-why="先乘：7 × 3 = 21，七三二十一。坐了人的椅子要減掉：21 − 15 = 6。">
+      <button data-right>6 張</button><button>21 張</button><button>36 張</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+var D = '零一二三四五六七八九';
+function zhNum(p) { if (p < 0) return '負' + zhNum(-p); if (p < 10) return D[p]; if (p === 10) return '十'; if (p < 20) return '十' + D[p - 10]; var t = Math.floor(p / 10), o = p % 10; return D[t] + '十' + (o ? D[o] : ''); }
+// 口訣：每一份的數在前（6 個一包、買 3 包 → 六三十八）
+function chant(a, b) { var p = a * b; return D[a] + D[b] + (p < 10 ? '得' + D[p] : p === 10 ? '一十' : zhNum(p)); }
+function rep(em, n) { var s = ''; for (var i = 0; i < n; i++) s += em; return s; }
+function bags(id, em, per, n, extra, cut) {
+  var g = document.getElementById(id); g.innerHTML = '';
+  for (var i = 0; i < n; i++) {
+    var b = document.createElement('div'); b.className = 'bag'; b.style.animationDelay = (i * 0.3) + 's';
+    var h = '';
+    for (var j = 0; j < per; j++) { var k = i * per + j; h += (cut && k >= n * per - cut ? '<span class="cut">' + em + '</span>' : em) + ((j + 1) % 4 === 0 && j < per - 1 ? '<br>' : ''); }
+    b.innerHTML = h; g.appendChild(b);
+  }
+  if (extra > 0) {
+    var p = document.createElement('span'); p.className = 'plus'; p.textContent = '＋'; p.style.animationDelay = (n * 0.3 + 0.2) + 's'; g.appendChild(p);
+    var x = document.createElement('div'); x.className = 'bag plain'; x.textContent = rep(em, extra); x.style.animationDelay = (n * 0.3 + 0.4) + 's'; g.appendChild(x);
+  }
+}
+function addLine(id, text, ans) { var d = document.createElement('div'); d.textContent = text; if (ans) d.className = 'ans'; document.getElementById(id).appendChild(d); }
+
+// 第 2 頁：先乘再加
+function resetAdd() { bags('addBags', '🍬', 6, 3, 0); document.getElementById('addWork').innerHTML = ''; document.getElementById('add1').disabled = false; document.getElementById('add2').disabled = true; }
+document.getElementById('add1').onclick = function () {
+  addLine('addWork', '6 × 3 = ' + 6 * 3 + '（' + chant(6, 3) + '）');
+  say('三包，每包六顆，是三個六。' + chant(6, 3) + '，六乘以三等於十八。');
+  this.disabled = true; document.getElementById('add2').disabled = false;
+};
+document.getElementById('add2').onclick = function () {
+  bags('addBags', '🍬', 6, 3, 2);
+  addLine('addWork', '18 + 2 = ' + (18 + 2), false);
+  addLine('addWork', '一共有 20 顆 🎉', true);
+  say('又多拿到兩顆，十八加二等於二十。一共有二十顆！');
+  this.disabled = true;
+};
+document.getElementById('addR').onclick = resetAdd;
+
+// 第 3 頁：先乘再減
+function resetSub() { bags('subBags', '🥚', 8, 2, 0); document.getElementById('subWork').innerHTML = ''; document.getElementById('sub1').disabled = false; document.getElementById('sub2').disabled = true; }
+document.getElementById('sub1').onclick = function () {
+  addLine('subWork', '8 × 2 = ' + 8 * 2 + '（' + chant(8, 2) + '）');
+  say('兩盒，每盒八顆，是兩個八。' + chant(8, 2) + '，八乘以二等於十六。');
+  this.disabled = true; document.getElementById('sub2').disabled = false;
+};
+document.getElementById('sub2').onclick = function () {
+  bags('subBags', '🥚', 8, 2, 0, 5);
+  addLine('subWork', '16 − 5 = ' + (16 - 5));
+  addLine('subWork', '還剩 11 顆 🎉', true);
+  say('用掉五顆，變少了，十六減五等於十一。還剩十一顆！');
+  this.disabled = true;
+};
+document.getElementById('subR').onclick = resetSub;
+
+// 第 4 頁：線索字
+document.getElementById('clues').addEventListener('click', function (e) {
+  var b = e.target.closest('button'); if (!b) return;
+  var add = b.dataset.k === 'add';
+  b.classList.add(add ? 'add' : 'sub');
+  if (!b.querySelector('i')) { var i = document.createElement('i'); i.textContent = add ? '變多 → 加 ＋' : '變少 → 減 −'; b.appendChild(i); }
+  say(b.firstChild.textContent + '，' + (add ? '東西變多，用加。' : '東西變少，用減。'));
+});
+
+// 第 5 頁：應用題工廠
+var F = { per: 4, n: 3, ex: 2 };
+var LIM = { per: [3, 9], n: [2, 5], ex: [-5, 5] };
+function facText() {
+  var t = '一盒餅乾有 ' + F.per + ' 片，買了 ' + F.n + ' 盒，';
+  if (F.ex > 0) t += '又多拿到 ' + F.ex + ' 片，一共有幾片？';
+  else if (F.ex < 0) t += '吃掉 ' + (-F.ex) + ' 片，還剩幾片？';
+  else t += '一共有幾片？';
+  return t;
+}
+function drawFac() {
+  document.getElementById('vPer').textContent = F.per;
+  document.getElementById('vN').textContent = F.n;
+  document.getElementById('vEx').textContent = F.ex > 0 ? '＋' + F.ex : F.ex < 0 ? '−' + (-F.ex) : '0';
+  bags('facBags', '🍪', F.per, F.n, Math.max(F.ex, 0), Math.max(-F.ex, 0));
+  document.getElementById('facStory').textContent = facText();
+  document.getElementById('facWork').innerHTML = '';
+}
+document.querySelector('.fac').addEventListener('click', function (e) {
+  var b = e.target.closest('button'); if (!b) return;
+  var k = b.dataset.f, v = F[k] + Number(b.dataset.d);
+  if (v < LIM[k][0] || v > LIM[k][1]) return;
+  F[k] = v; drawFac();
+});
+document.getElementById('facCalc').onclick = function () {
+  var m = F.per * F.n, w = 'facWork';
+  document.getElementById(w).innerHTML = '';
+  addLine(w, F.per + ' × ' + F.n + ' = ' + m + '（' + chant(F.per, F.n) + '）');
+  var s = facText() + '先乘，' + chant(F.per, F.n) + '，' + zhNum(F.per) + '乘以' + zhNum(F.n) + '等於' + zhNum(m) + '。';
+  if (F.ex > 0) { addLine(w, m + ' + ' + F.ex + ' = ' + (m + F.ex)); addLine(w, '一共有 ' + (m + F.ex) + ' 片', true); s += '再加' + zhNum(F.ex) + '，等於' + zhNum(m + F.ex) + '。'; }
+  else if (F.ex < 0) { addLine(w, m + ' − ' + (-F.ex) + ' = ' + (m + F.ex)); addLine(w, '還剩 ' + (m + F.ex) + ' 片', true); s += '再減' + zhNum(-F.ex) + '，等於' + zhNum(m + F.ex) + '。'; }
+  else { addLine(w, '一共有 ' + m + ' 片', true); }
+  say(s);
+};
+
+window.onStep = function (i) {
+  if (i === 0) bags('open', '🍬', 6, 3, 2);
+  if (i === 1) resetAdd();
+  if (i === 2) resetSub();
+  if (i === 4) drawFac();
+};
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>
