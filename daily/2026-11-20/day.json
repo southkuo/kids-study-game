@@ -410,5 +410,31 @@
         }
       ]
     }
-  }
+  },
+  "lessons": [
+    {
+      "subject": "chinese",
+      "title": "相似詞：高興—快樂、立刻—馬上",
+      "summary": "認識意思差不多的相似詞，把句子裡的詞換一換看意思有沒有變，再玩相似詞配對，分清楚相似詞和相反詞。",
+      "file": "daily/2026-11-20/lessons/chinese.html"
+    },
+    {
+      "subject": "english",
+      "title": "My Hobbies",
+      "summary": "點卡片學 reading、drawing、singing、swimming 等興趣，練習 My hobby is ... 和 I like to ...，認識 dance → dancing、swim → swimming 的 -ing 變化。",
+      "file": "daily/2026-11-20/lessons/english.html"
+    },
+    {
+      "subject": "math",
+      "title": "1 和 0 的乘法",
+      "summary": "用一盤一顆的蘋果、只有一盒的鉛筆和空盤子，看懂「任何數乘以 1 是自己、乘以 0 是 0」，再玩快算挑戰。",
+      "file": "daily/2026-11-20/lessons/math.html"
+    },
+    {
+      "subject": "science",
+      "title": "雲和雨",
+      "summary": "知道雲是很多小水滴聚在一起，跟著水的旅行看水蒸氣變成雲、雲變成雨，自己做一朵雨雲，還會看雲猜天氣。",
+      "file": "daily/2026-11-20/lessons/science.html"
+    }
+  ]
 }

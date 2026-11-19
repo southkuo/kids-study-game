@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Hobbies</title>
+<!--
+  教學老師的教材範本（每天複製這個檔案到 daily/日期/lessons/科目.html 再改內容）
+  規則：
+  - 一個檔案就是一個完整教材，CSS、JS、圖都寫在裡面，不能載入任何外部網址。
+  - 每一個 <section class="step"> 是一頁，下方會自動出現「上一步／下一步」和進度點。
+  - data-auto="要念的話"：進到這一頁時自動朗讀（data-lang="en-US" 用英文念）。
+  - 任何元素加上 data-say="要念的話"（可加 data-lang="en-US"），點了就會念。
+  - 小測驗：<div class="quiz" data-why="答對時的補充說明"> 裡面放按鈕，正確的按鈕加 data-right，後面放 <div class="fb"></div>。
+  - 需要每頁自己的動畫：寫 window.onStep = function (index, section) { … }，換頁時會呼叫。
+  - 只改「教材內容」區塊和自訂樣式；下面的共用程式不要改壞。
+-->
+<style>
+:root { --c: #3f6fe0; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式（這一份教材自己的動畫）寫在這裡 ===== */
+.fun { position: relative; width: 100%; height: 230px; }
+.fun span { position: absolute; font-size: 50px; animation: float 3s ease-in-out infinite; cursor: pointer; }
+.fun span:nth-child(2) { animation-delay: -.5s; } .fun span:nth-child(3) { animation-delay: -1s; } .fun span:nth-child(4) { animation-delay: -1.5s; }
+.fun span:nth-child(5) { animation-delay: -2s; } .fun span:nth-child(6) { animation-delay: -2.5s; }
+@keyframes float { 50% { transform: translateY(-18px) rotate(8deg); } }
+.fun .q { left: 50%; top: 50%; transform: translate(-50%, -50%); position: absolute; font-size: clamp(24px, 6vw, 32px); font-weight: 900; color: #3f6fe0; background: #eef3ff; padding: 10px 18px; border-radius: 20px; white-space: nowrap; }
+.hb { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; width: 100%; }
+.hb .card { min-height: 112px; }
+.hb .card b { font-size: 46px; }
+.hb .card span { font-size: 20px; font-weight: 900; color: #3f6fe0; text-align: center; }
+.hb .card small { font-size: 17px; font-weight: 700; color: #6a5536; }
+.hb .card.lit { background: #e3ebff; box-shadow: 0 4px 0 #3f6fe0; }
+.hb .card.lit b { animation: pop .4s ease-out; }
+@keyframes pop { 50% { transform: scale(1.3); } }
+.ctrl { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 6px 0; }
+.ctrl button { min-height: 56px; min-width: 64px; padding: 6px 14px; border: 0; border-radius: 999px; background: #e3ebff; box-shadow: 0 3px 0 #9db5f2; font: inherit; font-size: 28px; cursor: pointer; }
+.ctrl button.sel { background: #3f6fe0; }
+.lines { width: 100%; display: grid; gap: 10px; }
+.ln { padding: 12px; border-radius: 18px; background: #eef3ff; text-align: center; font-size: clamp(22px, 5.8vw, 30px); font-weight: 900; cursor: pointer; }
+.ln .k { color: #3f6fe0; display: inline-block; }
+.ln .k.pop { animation: pop .45s ease-out; }
+.ln small { display: block; font-size: 17px; color: #6a5536; }
+.ing { display: grid; gap: 10px; width: 100%; }
+.ing button { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 64px; border: 0; border-radius: 18px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; font-size: clamp(21px, 5.6vw, 28px); font-weight: 900; color: #2b2112; cursor: pointer; }
+.ing .ar { color: #3f6fe0; }
+.ing em { font-style: normal; color: #e5484d; text-decoration: underline; }
+.chat { width: 100%; display: grid; gap: 10px; }
+.bub { max-width: 88%; padding: 12px 16px; border-radius: 20px; font-size: clamp(20px, 5.4vw, 26px); font-weight: 900; cursor: pointer; }
+.bub.a { justify-self: start; background: #eef3ff; color: #23439c; }
+.bub.b { justify-self: end; background: #e8f8ee; color: #0e6b2e; }
+.bub small { display: block; font-size: 17px; color: #6a5536; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容 ===== -->
+  <section class="step" data-lang="en-US" data-auto="What is your hobby? A hobby is something you like to do for fun.">
+    <h1>🎨 My Hobbies</h1>
+    <div class="stage" style="padding:8px">
+      <div class="fun">
+        <span style="left:6%;top:10%" data-lang="en-US" data-say="reading">📚</span>
+        <span style="right:8%;top:8%" data-lang="en-US" data-say="drawing">🎨</span>
+        <span style="left:10%;bottom:8%" data-lang="en-US" data-say="singing">🎤</span>
+        <span style="right:10%;bottom:6%" data-lang="en-US" data-say="playing soccer">⚽</span>
+        <span style="left:42%;top:0" data-lang="en-US" data-say="playing the piano">🎹</span>
+        <span style="left:44%;bottom:0" data-lang="en-US" data-say="swimming">🏊</span>
+        <div class="q" data-lang="en-US" data-say="What is your hobby?">What is your hobby?</div>
+      </div>
+    </div>
+    <p class="big">hobby ＝ 興趣<br><span class="small">有空時最喜歡做的事</span></p>
+    <p class="center"><button class="say" data-say="hobby 就是興趣，是你有空的時候，最喜歡做的事。">🔊 中文說明</button></p>
+  </section>
+
+  <section class="step" data-lang="en-US" data-auto="Tap a card and say it with me.">
+    <h1>👆 Tap and Say</h1>
+    <div class="stage">
+      <div class="hb" id="hb">
+        <button class="card" data-lang="en-US" data-say="reading books"><b>📚</b><span>reading books</span><small>看書</small></button>
+        <button class="card" data-lang="en-US" data-say="drawing"><b>🎨</b><span>drawing</span><small>畫畫</small></button>
+        <button class="card" data-lang="en-US" data-say="singing"><b>🎤</b><span>singing</span><small>唱歌</small></button>
+        <button class="card" data-lang="en-US" data-say="dancing"><b>🕺</b><span>dancing</span><small>跳舞</small></button>
+        <button class="card" data-lang="en-US" data-say="swimming"><b>🏊</b><span>swimming</span><small>游泳</small></button>
+        <button class="card" data-lang="en-US" data-say="playing soccer"><b>⚽</b><span>playing soccer</span><small>踢足球</small></button>
+        <button class="card" data-lang="en-US" data-say="playing the piano"><b>🎹</b><span>playing the piano</span><small>彈鋼琴</small></button>
+        <button class="card" data-lang="en-US" data-say="building with blocks"><b>🧱</b><span>building with blocks</span><small>堆積木</small></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="step" data-lang="en-US" data-auto="Pick your hobby. Then say the sentences.">
+    <h1>🗣️ Say Your Hobby</h1>
+    <div class="stage">
+      <div class="ctrl" id="pick">
+        <button class="sel" data-a="reading books" data-b="read books" data-z="看書">📚</button>
+        <button data-a="drawing" data-b="draw" data-z="畫畫">🎨</button>
+        <button data-a="singing" data-b="sing" data-z="唱歌">🎤</button>
+        <button data-a="dancing" data-b="dance" data-z="跳舞">🕺</button>
+        <button data-a="swimming" data-b="swim" data-z="游泳">🏊</button>
+        <button data-a="playing soccer" data-b="play soccer" data-z="踢足球">⚽</button>
+      </div>
+      <div class="lines">
+        <div class="ln" id="l1" data-lang="en-US">My hobby is <span class="k">reading books</span>.<small>我的興趣是看書。</small></div>
+        <div class="ln" id="l2" data-lang="en-US">I like to <span class="k">read books</span>.<small>我喜歡看書。</small></div>
+      </div>
+    </div>
+    <p class="small">點上面的圖選興趣，再點句子聽一聽</p>
+  </section>
+
+  <section class="step" data-lang="en-US" data-auto="Sing, singing. Dance, dancing. Swim, swimming. Look at the ing!">
+    <h1>✨ 加上 -ing</h1>
+    <p class="small">「My hobby is ___.」後面要用 -ing 的樣子</p>
+    <div class="stage">
+      <div class="ing">
+        <button data-lang="en-US" data-say="sing, singing"><span>sing</span><span class="ar">➜</span><span>sing<em>ing</em></span></button>
+        <button data-lang="en-US" data-say="read, reading"><span>read</span><span class="ar">➜</span><span>read<em>ing</em></span></button>
+        <button data-lang="en-US" data-say="dance, dancing"><span>danc<em>e</em></span><span class="ar">➜</span><span>danc<em>ing</em></span></button>
+        <button data-lang="en-US" data-say="swim, swimming"><span>swim</span><span class="ar">➜</span><span>swim<em>ming</em></span></button>
+      </div>
+    </div>
+    <p class="small">dance 要先拿掉 e；swim 要多一個 m 喔！</p>
+    <p class="center"><button class="say" data-say="dance 要先把最後的 e 拿掉，再加 ing。swim 要多寫一個 m，再加 ing。">🔊 中文說明</button></p>
+  </section>
+
+  <section class="step" data-lang="en-US" data-auto="Let's talk! Tap each bubble.">
+    <h1>💬 Let's Talk</h1>
+    <div class="stage">
+      <div class="chat">
+        <div class="bub a" data-lang="en-US" data-say="Do you like to sing or dance?">Do you like to sing or dance?<small>你喜歡唱歌還是跳舞？</small></div>
+        <div class="bub b" data-lang="en-US" data-say="I like to dance.">I like to dance. 🕺<small>我喜歡跳舞。</small></div>
+        <div class="bub a" data-lang="en-US" data-say="What kind of books do you like?">What kind of books do you like?<small>你喜歡哪一種書？</small></div>
+        <div class="bub b" data-lang="en-US" data-say="I like books about dinosaurs.">I like books about dinosaurs. 🦖<small>我喜歡跟恐龍有關的書。</small></div>
+        <div class="bub a" data-lang="en-US" data-say="What is your favorite toy?">What is your favorite toy?<small>你最喜歡的玩具是什麼？</small></div>
+        <div class="bub b" data-lang="en-US" data-say="My favorite toy is my robot.">My favorite toy is my robot. 🤖<small>我最喜歡的玩具是我的機器人。</small></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="step" data-lang="en-US" data-auto="Quiz! My hobby is blank.">
+    <h1>✏️ Quiz 1</h1>
+    <p class="big"><span style="font-size:60px">🎨</span><br>My hobby is ______.</p>
+    <div class="quiz" data-why="🎨 是畫畫，drawing。My hobby is drawing. 我的興趣是畫畫。">
+      <button>singing</button><button data-right>drawing</button><button>swimming</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-lang="en-US" data-auto="Quiz! What is your hobby? Which answer is right?">
+    <h1>✏️ Quiz 2</h1>
+    <p class="big">What is your hobby?<br><span class="small">哪一個是正確的回答？</span></p>
+    <div class="quiz" data-why="問興趣，要用 My hobby is ... 回答。I am seven 是說年紀，It is sunny 是說天氣。">
+      <button>I am seven.</button><button data-right>My hobby is swimming.</button><button>It is sunny.</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+// 第 2 頁：點亮卡片
+document.getElementById('hb').addEventListener('click', function (e) {
+  var b = e.target.closest('.card'); if (!b) return;
+  b.classList.remove('lit'); void b.offsetWidth; b.classList.add('lit');
+});
+// 第 3 頁：選興趣換句子
+var pick = { a: 'reading books', b: 'read books', z: '看書' };
+function setLine(id, en, word, zh) {
+  var l = document.getElementById(id);
+  l.innerHTML = en.replace('#', '<span class="k pop">' + word + '</span>') + '<small>' + zh + '</small>';
+  l.dataset.say = en.replace('#', word);
+}
+function render() {
+  setLine('l1', 'My hobby is #.', pick.a, '我的興趣是' + pick.z + '。');
+  setLine('l2', 'I like to #.', pick.b, '我喜歡' + pick.z + '。');
+}
+document.getElementById('pick').addEventListener('click', function (e) {
+  var b = e.target.closest('button'); if (!b) return;
+  [].forEach.call(b.parentNode.children, function (x) { x.classList.toggle('sel', x === b); });
+  pick = { a: b.dataset.a, b: b.dataset.b, z: b.dataset.z };
+  render();
+  say('My hobby is ' + pick.a + '.', 'en-US');
+});
+render();
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

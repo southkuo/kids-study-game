@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>雲和雨</title>
+<!--
+  教學老師的教材範本（每天複製這個檔案到 daily/日期/lessons/科目.html 再改內容）
+  規則：
+  - 一個檔案就是一個完整教材，CSS、JS、圖都寫在裡面，不能載入任何外部網址。
+  - 每一個 <section class="step"> 是一頁，下方會自動出現「上一步／下一步」和進度點。
+  - data-auto="要念的話"：進到這一頁時自動朗讀（data-lang="en-US" 用英文念）。
+  - 任何元素加上 data-say="要念的話"（可加 data-lang="en-US"），點了就會念。
+  - 小測驗：<div class="quiz" data-why="答對時的補充說明"> 裡面放按鈕，正確的按鈕加 data-right，後面放 <div class="fb"></div>。
+  - 需要每頁自己的動畫：寫 window.onStep = function (index, section) { … }，換頁時會呼叫。
+  - 只改「教材內容」區塊和自訂樣式；下面的共用程式不要改壞。
+-->
+<style>
+:root { --c: #2e9d5b; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式（這一份教材自己的動畫）寫在這裡 ===== */
+.sky { position: relative; width: 100%; height: 240px; border-radius: 18px; background: linear-gradient(#bfe6ff, #e9f6ff 70%, #8fd18b 70%); overflow: hidden; }
+.sky .c { position: absolute; font-size: 64px; animation: drift 12s linear infinite; }
+.sky .c2 { top: 60px; font-size: 48px; animation-duration: 16s; animation-delay: -6s; }
+@keyframes drift { from { left: -90px; } to { left: 100%; } }
+.sky .sun { position: absolute; right: 16px; top: 10px; font-size: 54px; animation: spin 10s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.sky .rain { position: absolute; left: 30%; top: 120px; width: 120px; height: 70px; }
+.drop { position: absolute; width: 8px; height: 14px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: #3d9be9; animation: fall 1s linear infinite; }
+@keyframes fall { from { transform: translateY(-10px); opacity: 1; } to { transform: translateY(60px); opacity: 0; } }
+.tiny { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; width: 100%; max-width: 360px; }
+.tiny i { width: 14px; height: 14px; margin: auto; border-radius: 50%; background: #9fd0f5; animation: twinkle 1.8s ease-in-out infinite; }
+@keyframes twinkle { 50% { transform: scale(.6); opacity: .5; } }
+.zoom { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; flex-wrap: wrap; }
+.zoom .lens { font-size: 70px; }
+.cycle { position: relative; width: 100%; max-width: 520px; height: 300px; margin: 0 auto; border-radius: 18px; background: linear-gradient(#cdeeff 0 65%, #8fd18b 65% 78%, #4ea6dc 78%); overflow: hidden; }
+.cycle .sun { position: absolute; left: 12px; top: 10px; font-size: 50px; }
+.cycle .cloud { position: absolute; left: 50%; top: 18px; font-size: 20px; transform: translateX(-50%); transition: font-size .8s, filter .8s; }
+.cycle .cloud.show { font-size: 76px; }
+.cycle .cloud.dark { font-size: 90px; filter: grayscale(1) brightness(.6); }
+.vap { position: absolute; bottom: 56px; width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,.9); box-shadow: 0 0 6px #fff; opacity: 0; }
+.cycle.s1 .vap { animation: rise 2.2s ease-in infinite; }
+@keyframes rise { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(-190px); opacity: 0; } }
+.cycle .rainbox { position: absolute; left: 50%; top: 110px; width: 140px; height: 90px; transform: translateX(-50%); display: none; }
+.cycle.s3 .rainbox { display: block; }
+.cycle .lbl { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); padding: 4px 14px; border-radius: 999px; background: rgba(255,255,255,.9); font-size: 19px; font-weight: 900; color: #1f6e3f; white-space: nowrap; }
+.stations { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; width: 100%; max-width: 520px; margin: 8px auto 0; }
+.stations button { min-height: 56px; border: 0; border-radius: 16px; background: #f0faf3; box-shadow: 0 3px 0 #9fd6b3; font: inherit; font-size: 17px; font-weight: 900; color: #1f6e3f; cursor: pointer; }
+.stations button.on { background: #2e9d5b; color: #fff; }
+.explain { min-height: 3.2em; margin-top: 8px; text-align: center; font-size: clamp(19px, 5vw, 23px); font-weight: 900; line-height: 1.5; }
+.maker { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
+.bigcloud { position: relative; font-size: 80px; line-height: 1; transition: transform .5s, filter .5s; }
+.raining { position: relative; width: 160px; height: 70px; }
+.meter { font-size: 26px; letter-spacing: 2px; min-height: 1.3em; }
+.btn { min-height: 56px; padding: 6px 22px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 20px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+.two .card { min-height: 150px; justify-content: center; }
+.two .card b { font-size: 60px; }
+.two .card span { font-size: 20px; font-weight: 900; color: #1f6e3f; text-align: center; }
+.two .card small { font-size: 17px; font-weight: 700; color: #6a5536; text-align: center; }
+.grey { filter: grayscale(1) brightness(.6); }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容 ===== -->
+  <section class="step" data-auto="抬頭看看天空，白白的雲飄來飄去。有時候，雲還會下雨。雲是什麼做的？雨又是從哪裡來的呢？">
+    <h1>☁️ 雲和雨</h1>
+    <div class="stage" style="padding:8px">
+      <div class="sky">
+        <span class="sun" data-say="太陽">☀️</span>
+        <span class="c" style="top:16px" data-say="白白的雲，飄來飄去。">☁️</span>
+        <span class="c c2" data-say="雲在天上慢慢飄。">☁️</span>
+        <div class="rain" id="introRain"></div>
+      </div>
+    </div>
+    <p class="big">雲是什麼做的？<br>雨從哪裡來？</p>
+    <p class="center"><button class="say" data-say="雲是什麼做的？雨又是從哪裡來的呢？">🔊 聽一聽</button></p>
+  </section>
+
+  <section class="step" data-auto="雲看起來像棉花，其實是很多很多非常小的小水滴，聚在一起飄在天上。小水滴太小了，一顆一顆看不出來，聚在一起就看到白白的雲。">
+    <h1>🔍 雲是什麼做的？</h1>
+    <div class="stage">
+      <div class="zoom">
+        <span class="lens" data-say="雲">☁️</span><span style="font-size:40px">➜</span><span class="lens">🔍</span>
+      </div>
+      <div class="tiny" id="tiny"></div>
+    </div>
+    <p class="big">雲 ＝ 很多很多<b style="color:#2e9d5b">小水滴</b><br>聚在一起</p>
+    <p class="small">雲不是棉花，也不是煙喔！</p>
+  </section>
+
+  <section class="step" data-auto="水的旅行！點下面的按鈕，一站一站看水怎麼變成雲，又變成雨。">
+    <h1>🔄 水的旅行</h1>
+    <div class="stage" style="display:block">
+      <div class="cycle" id="cyc">
+        <span class="sun">☀️</span>
+        <span class="cloud" id="cyCloud">☁️</span>
+        <div class="rainbox" id="cyRain"></div>
+        <div class="lbl" id="cyLbl">🌊 河流和大海</div>
+      </div>
+      <div class="stations" id="stations">
+        <button data-s="1">① 曬太陽</button><button data-s="2">② 變成雲</button><button data-s="3">③ 下雨</button><button data-s="4">④ 流回去</button>
+      </div>
+      <div class="explain" id="cyTxt">點 ① 開始！</div>
+    </div>
+  </section>
+
+  <section class="step" data-auto="來做一朵雨雲！按按鈕，把小水滴加進雲裡。小水滴越聚越多，雲會變得又厚又暗。太重了，就會掉下來，變成雨。">
+    <h1>🌧️ 做一朵雨雲</h1>
+    <div class="stage">
+      <div class="maker">
+        <div class="bigcloud" id="bc">☁️</div>
+        <div class="raining" id="bcRain"></div>
+        <div class="meter" id="meter"></div>
+        <div class="explain" id="bcTxt">按「加水滴」試試看</div>
+        <div><button class="btn" id="addDrop">💧 加水滴</button> <button class="btn" id="resetCloud">🔄 重來</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="step" data-auto="看雲猜天氣！白白的雲，通常是好天氣。又厚又黑的烏雲，常常快要下雨了，出門記得帶雨傘。點點看。">
+    <h1>👀 看雲猜天氣</h1>
+    <div class="stage">
+      <div class="two">
+        <button class="card" data-say="白白的、薄薄的雲，通常是好天氣，可以出去玩。"><b>☁️</b><span>白白的雲</span><small>通常是好天氣 ☀️</small></button>
+        <button class="card" data-say="又厚又黑的烏雲，常常快要下雨了。出門記得帶雨傘！"><b class="grey">☁️</b><span>又厚又黑的烏雲</span><small>可能快下雨了 ☂️</small></button>
+      </div>
+    </div>
+    <p class="small">烏雲很厚，陽光透不過來，看起來就灰灰暗暗的。</p>
+  </section>
+
+  <section class="step" data-auto="小測驗！天上的雲，是什麼做的？">
+    <h1>✏️ 小測驗 1</h1>
+    <p class="big">☁️ 天上的雲，是什麼做的？</p>
+    <div class="quiz" data-why="雲是很多很多小水滴聚在一起。雲看起來像棉花，可是不是棉花喔！">
+      <button>棉花</button><button data-right>很多小水滴</button><button>煙</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗！早上看到天空有很多又厚又黑的烏雲，出門最好帶什麼？">
+    <h1>✏️ 小測驗 2</h1>
+    <p class="big">天空有很多又厚又黑的<b style="color:#2e9d5b">烏雲</b>，<br>出門最好帶什麼？</p>
+    <div class="quiz" data-why="烏雲裡的小水滴很多，常常快要下雨了，帶雨傘就不怕淋濕。">
+      <button>風箏</button><button data-right>☂️ 雨傘</button><button>太陽眼鏡</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+function rainIn(box, n) {
+  box.innerHTML = '';
+  for (var i = 0; i < n; i++) {
+    var d = document.createElement('i'); d.className = 'drop';
+    d.style.left = Math.round(Math.random() * 90) + '%'; d.style.top = Math.round(Math.random() * 20) + 'px';
+    d.style.animationDelay = (-Math.random()).toFixed(2) + 's'; box.appendChild(d);
+  }
+}
+// 第 1 頁：小雨
+rainIn(document.getElementById('introRain'), 8);
+// 第 2 頁：小水滴
+(function () { var t = document.getElementById('tiny'); for (var i = 0; i < 30; i++) { var d = document.createElement('i'); d.style.animationDelay = (-Math.random() * 1.8).toFixed(2) + 's'; t.appendChild(d); } })();
+// 第 3 頁：水的旅行
+var cyc = document.getElementById('cyc');
+(function () { for (var i = 0; i < 8; i++) { var v = document.createElement('i'); v.className = 'vap'; v.style.left = (20 + i * 8) + '%'; v.style.animationDelay = (i * 0.27).toFixed(2) + 's'; cyc.appendChild(v); } })();
+var ST = {
+  1: ['☀️ 太陽曬熱了水，水變成看不見的水蒸氣，往天上飄。', '🌊 河流和大海'],
+  2: ['☁️ 水蒸氣飄到高高的天上，遇冷變成很多小水滴，聚在一起就是雲。', '☁️ 天上變冷了'],
+  3: ['🌧️ 雲裡的小水滴越聚越大、越來越重，掉下來就是雨。', '🌧️ 下雨了'],
+  4: ['🌊 雨水流進小河，再流到大海。太陽一曬，又開始新的旅行！', '🔄 又回到河流和大海']
+};
+function station(s) {
+  cyc.className = 'cycle' + (s === 1 ? ' s1' : '') + (s === 3 ? ' s3' : '');
+  var cl = document.getElementById('cyCloud');
+  cl.className = 'cloud' + (s === 2 ? ' show' : s === 3 ? ' dark' : '');
+  if (s === 3) rainIn(document.getElementById('cyRain'), 14);
+  document.getElementById('cyTxt').textContent = ST[s][0];
+  document.getElementById('cyLbl').textContent = ST[s][1];
+  [].forEach.call(document.querySelectorAll('#stations button'), function (b) { b.classList.toggle('on', +b.dataset.s === s); });
+  say(ST[s][0].replace(/^\S+\s/, ''));
+}
+document.getElementById('stations').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) station(+b.dataset.s); });
+function resetCycle() {
+  cyc.className = 'cycle'; document.getElementById('cyCloud').className = 'cloud';
+  document.getElementById('cyTxt').textContent = '點 ① 開始！'; document.getElementById('cyLbl').textContent = '🌊 河流和大海';
+  [].forEach.call(document.querySelectorAll('#stations button'), function (b) { b.classList.remove('on'); });
+}
+// 第 4 頁：做雨雲
+var drops = 0, FULL = 6;
+function drawCloud() {
+  var bc = document.getElementById('bc'), t = document.getElementById('bcTxt');
+  bc.style.transform = 'scale(' + (1 + drops * 0.12) + ')';
+  bc.style.filter = 'grayscale(' + Math.min(1, drops / FULL) + ') brightness(' + (1 - drops * 0.07) + ')';
+  document.getElementById('meter').textContent = '💧'.repeat(drops);
+  if (drops >= FULL) { rainIn(document.getElementById('bcRain'), 16); t.textContent = '🌧️ 雲太重了，小水滴掉下來，下雨了！'; say('雲太重了，小水滴掉下來，下雨了！'); }
+  else { document.getElementById('bcRain').innerHTML = ''; t.textContent = drops ? '小水滴越來越多，雲變得又厚又暗了……' : '按「加水滴」試試看'; }
+}
+document.getElementById('addDrop').onclick = function () { if (drops < FULL) { drops++; drawCloud(); if (drops < FULL) say('加一滴'); } };
+document.getElementById('resetCloud').onclick = function () { drops = 0; drawCloud(); };
+window.onStep = function (i) { if (i === 2) resetCycle(); if (i === 3) { drops = 0; drawCloud(); } };
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>
