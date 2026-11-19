@@ -524,3 +524,23 @@ body:has(.hw) { background: #fffaf0; }
 .arena.th-prehistoric { background: radial-gradient(ellipse at 50% 106%, #8d6e63 0 32%, transparent 33%), linear-gradient(#ffcc80, #ffe0b2 45%, #c5e1a5 75%); }
 .arena.th-prehistoric::before { content: "🌋　　　　　　　🌴🌿"; position: absolute; left: 0; right: 0; top: 42px; font-size: 28px; text-align: center; opacity: .7; pointer-events: none; }
 .arena.th-prehistoric::after { content: "🌿　🦴　　　　🥚　🌿"; position: absolute; left: 0; right: 0; bottom: 3px; font-size: 22px; text-align: center; opacity: .85; pointer-events: none; }
+
+/* 森林、暴風雨 */
+.arena.th-forest { background: radial-gradient(ellipse at 50% 106%, #33691e 0 33%, transparent 34%), linear-gradient(#0d2a14, #1b4d2a 55%, #2e7d32); box-shadow: inset 0 0 0 4px rgba(139,195,74,.5), 0 6px 14px rgba(0,0,0,.2); }
+.arena.th-forest::before { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image: radial-gradient(3px 3px at 12% 30%, #f4ff81, transparent), radial-gradient(3px 3px at 35% 55%, #ccff90, transparent), radial-gradient(2.5px 2.5px at 62% 25%, #f4ff81, transparent), radial-gradient(3px 3px at 85% 50%, #ccff90, transparent), radial-gradient(2.5px 2.5px at 50% 75%, #f4ff81, transparent);
+  animation: fireflies 3s ease-in-out infinite alternate; }
+@keyframes fireflies { from { opacity: .3; transform: translateY(4px); } to { opacity: 1; transform: translateY(-6px); } }
+.arena.th-forest::after { content: "🌲　🍄　　　　　🍄　🌲"; position: absolute; left: 0; right: 0; bottom: 2px; font-size: 24px; text-align: center; opacity: .85; pointer-events: none; }
+.foe-svg .arm { animation: armwave 1.4s ease-in-out infinite alternate; }
+.foe-svg .a1 { transform-origin: 34px 52px; } .foe-svg .a2 { transform-origin: 68px 52px; animation-delay: .4s; }
+@keyframes armwave { to { transform: rotate(-12deg); } }
+.arena.th-storm { background: radial-gradient(ellipse at 50% 106%, #455a64 0 33%, transparent 34%), linear-gradient(#1a2333, #37474f 60%, #546e7a); }
+.arena.th-storm::before { content: "🌩️　☁️　　　☁️　🌩️"; position: absolute; left: 0; right: 0; top: 40px; font-size: 28px; text-align: center; opacity: .85; pointer-events: none; }
+.arena.th-storm::after { content: ""; position: absolute; inset: 0; background: #e3f2fd; opacity: 0; pointer-events: none; animation: lightning 4s linear infinite; }
+@keyframes lightning { 0%, 88%, 92%, 100% { opacity: 0; } 89%, 91% { opacity: .35; } 90% { opacity: .1; } }
+.foe-svg .spark { animation: glow .35s steps(2) infinite; }
+.arena.th-forest .foe .body, .arena.th-storm .foe .body { animation: swim 2.4s ease-in-out infinite; }
+.arena.th-forest .foe.hit .body, .arena.th-storm .foe.hit .body { animation: hitR .5s; }
+.arena.th-forest .foe.ko .body, .arena.th-storm .foe.ko .body { animation: koFall 1.1s ease-in forwards; }
+.arena .fighter { z-index: 2; }

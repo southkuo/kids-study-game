@@ -20,6 +20,26 @@
           }
         }
       }
+    },
+    "2026-11-19": {
+      "chinese": {
+        "battle": {
+          "theme": "forest",
+          "foe": {
+            "name": "千年樹妖",
+            "icon": "svg:tree-demon"
+          }
+        }
+      },
+      "math": {
+        "battle": {
+          "theme": "storm",
+          "foe": {
+            "name": "雷電豹",
+            "icon": "svg:thunder-leopard"
+          }
+        }
+      }
     }
   }
 }

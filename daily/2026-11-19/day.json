@@ -102,40 +102,11 @@
       "title": "國文作業",
       "topic": "身體的部首：口、目、足",
       "battle": {
-        "theme": "sky",
-        "fx": "arrow",
+        "theme": "forest",
         "foe": {
-          "name": "老鷹",
-          "icon": "svg:eagle"
-        },
-        "foeMoves": [
-          [
-            "俯衝爪擊",
-            "🦅"
-          ],
-          [
-            "羽毛旋風",
-            "🪶"
-          ],
-          [
-            "大翅膀狂風",
-            "💨"
-          ]
-        ],
-        "moves": [
-          [
-            "部首神箭",
-            "🏹"
-          ],
-          [
-            "連珠箭",
-            "🎯"
-          ]
-        ],
-        "special": [
-          "三箭齊發",
-          "🏹"
-        ]
+          "name": "千年樹妖",
+          "icon": "svg:tree-demon"
+        }
       },
       "questions": [
         {
@@ -234,39 +205,11 @@
       "title": "數學作業",
       "topic": "乘法應用題：先乘再加減",
       "battle": {
-        "theme": "space",
+        "theme": "storm",
         "foe": {
-          "name": "乘加外星人",
-          "icon": "👽"
-        },
-        "foeMoves": [
-          [
-            "算式光線",
-            "🟢"
-          ],
-          [
-            "數字流星雨",
-            "☄️"
-          ],
-          [
-            "迷糊黏液",
-            "🦠"
-          ]
-        ],
-        "moves": [
-          [
-            "雷射砲",
-            "🔫"
-          ],
-          [
-            "口訣飛彈",
-            "🚀"
-          ]
-        ],
-        "special": [
-          "乘加超級光束",
-          "🌟"
-        ]
+          "name": "雷電豹",
+          "icon": "svg:thunder-leopard"
+        }
       },
       "questions": [
         {

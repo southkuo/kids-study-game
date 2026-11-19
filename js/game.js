@@ -351,6 +351,34 @@
       + '<ellipse cx="36" cy="26" rx="5" ry="5.5" fill="#fff" stroke="#1b5e20" stroke-width="1.4"/><circle cx="35" cy="27" r="3" fill="#212121"/><circle cx="34" cy="25.8" r="1.1" fill="#fff"/>'
       + '<path d="M29 19 L42 21" stroke="#1b5e20" stroke-width="2.6" stroke-linecap="round"/><circle cx="12" cy="29" r="1.4" fill="#1b5e20"/>'
       + '<g fill="#2e7d32" opacity=".55"><circle cx="50" cy="28" r="2.5"/><circle cx="56" cy="36" r="2"/><circle cx="68" cy="64" r="2.5"/><circle cx="62" cy="54" r="2"/></g></svg>',
+    'tree-demon': '<svg class="foe-svg big" viewBox="0 0 100 100" aria-hidden="true">'
+      + '<g fill="#2e7d32" stroke="#1b5e20" stroke-width="1.6"><circle cx="30" cy="18" r="14"/><circle cx="52" cy="10" r="14"/><circle cx="74" cy="18" r="14"/><circle cx="20" cy="32" r="11"/><circle cx="84" cy="32" r="11"/></g>'
+      + '<g fill="#43a047"><circle cx="46" cy="8" r="5"/><circle cx="70" cy="14" r="4"/><circle cx="26" cy="16" r="4"/></g>'
+      + '<g fill="none" stroke="#5d4037" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><path class="arm a1" d="M34 52 Q18 50 10 40 M14 44 L6 46"/><path class="arm a2" d="M68 52 Q84 48 92 36 M88 40 L96 38"/></g>'
+      + '<path d="M32 30 Q30 60 26 84 L74 84 Q70 60 68 30 Z" fill="#795548" stroke="#3e2723" stroke-width="2.2" stroke-linejoin="round"/>'
+      + '<path d="M40 34 Q38 50 40 64 M60 34 Q62 48 60 62 M48 66 Q50 74 48 82" stroke="#5d4037" stroke-width="1.8" fill="none" stroke-linecap="round"/>'
+      + '<g fill="#6d4c41" stroke="#3e2723" stroke-width="1.8" stroke-linejoin="round"><path d="M26 84 Q14 88 6 96 L22 94 L30 86 Z"/><path d="M74 84 Q86 88 96 96 L80 94 L70 86 Z"/><path d="M44 84 L40 98 L50 92 L58 98 L56 84 Z"/></g>'
+      + '<path d="M36 42 L46 46 M64 42 L54 46" stroke="#3e2723" stroke-width="3" stroke-linecap="round"/>'
+      + '<ellipse cx="42" cy="50" rx="5" ry="4.5" fill="#1b1b1b"/><ellipse cx="58" cy="50" rx="5" ry="4.5" fill="#1b1b1b"/>'
+      + '<circle class="glow" cx="42" cy="50" r="2.4" fill="#b2ff59"/><circle class="glow" cx="58" cy="50" r="2.4" fill="#b2ff59"/>'
+      + '<path d="M40 64 Q50 58 60 64 Q50 72 40 64 Z" fill="#3e2723"/><path d="M44 63 L46 66 L48 62.5 L50 66 L52 62.5 L54 66 L56 63" stroke="#d7ccc8" stroke-width="1.2" fill="none"/>'
+      + '<path d="M58 30 Q62 24 66 28" stroke="#8d6e63" stroke-width="2" fill="none"/><circle cx="66" cy="72" r="2.5" fill="#e53935"/><circle cx="34" cy="74" r="2.2" fill="#fdd835"/></svg>',
+    'thunder-leopard': '<svg class="foe-svg big" viewBox="0 0 100 100" aria-hidden="true">'
+      + '<path d="M84 62 Q98 52 94 36 Q92 30 96 26" stroke="#fbc02d" stroke-width="6" fill="none" stroke-linecap="round"/>'
+      + '<ellipse cx="62" cy="64" rx="26" ry="14" fill="#fdd835" stroke="#f57f17" stroke-width="2"/>'
+      + '<g fill="#fdd835" stroke="#f57f17" stroke-width="2"><rect x="40" y="70" width="9" height="20" rx="4"/><rect x="52" y="72" width="9" height="18" rx="4"/><rect x="70" y="70" width="9" height="20" rx="4"/><rect x="80" y="68" width="9" height="20" rx="4"/></g>'
+      + '<g fill="#5d4037"><circle cx="56" cy="58" r="2.6"/><circle cx="64" cy="66" r="2.4"/><circle cx="74" cy="58" r="2.6"/><circle cx="80" cy="68" r="2.2"/><circle cx="46" cy="66" r="2.2"/></g>'
+      + '<path d="M62 52 L58 62 L64 62 L60 74" stroke="#29b6f6" stroke-width="3" fill="none" stroke-linejoin="round" stroke-linecap="round"/>'
+      + '<circle cx="30" cy="46" r="18" fill="#fdd835" stroke="#f57f17" stroke-width="2"/>'
+      + '<path d="M18 32 L16 20 L26 29 Z M38 30 L44 18 L44 32 Z" fill="#fdd835" stroke="#f57f17" stroke-width="2" stroke-linejoin="round"/>'
+      + '<ellipse cx="25" cy="54" rx="10" ry="7" fill="#fff8e1"/>'
+      + '<ellipse cx="23" cy="43" rx="4" ry="4.4" fill="#fff"/><ellipse cx="36" cy="43" rx="4" ry="4.4" fill="#fff"/>'
+      + '<ellipse cx="22.5" cy="43.5" rx="1.6" ry="3" fill="#0277bd"/><ellipse cx="35.5" cy="43.5" rx="1.6" ry="3" fill="#0277bd"/>'
+      + '<path d="M18 38 L27 40 M41 38 L32 40" stroke="#5d4037" stroke-width="2.4" stroke-linecap="round"/>'
+      + '<path d="M22 51 L28 51 L25 54 Z" fill="#5d4037"/><path d="M25 54 L25 56 M20 57 Q25 60 30 57" stroke="#5d4037" stroke-width="1.6" fill="none" stroke-linecap="round"/>'
+      + '<path d="M21 57 L22 61 L24 57.5 Z M29 57 L28 61 L26 57.5 Z" fill="#fff" stroke="#9e9e9e" stroke-width=".6"/>'
+      + '<g class="spark" stroke="#4fc3f7" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M8 30 L4 36 L9 36 L5 42"/><path d="M50 24 L46 30 L51 30 L47 36"/><path d="M90 46 L86 52 L91 52 L87 58"/><path d="M36 80 L32 86 L37 86 L33 92"/></g>'
+      + '<path d="M30 30 L28 36 L32 36 L30 42" stroke="#29b6f6" stroke-width="2.2" fill="none" stroke-linejoin="round"/></svg>',
   };
   const artHTML = (icon) => (String(icon).startsWith('svg:') ? (BATTLE_ART[icon.slice(4)] || '❓') : esc(icon));
   // 太空主題：主角坐在太空飛行船裡
@@ -398,6 +426,8 @@
     jungle: {},
     sky: {},
     volcano: { moves: [['冰霜劍氣', '❄️'], ['水龍捲', '💧'], ['寒冰箭', '🧊']], special: ['冰封千里', '❄️'], foeMoves: [['火焰吐息', '🔥'], ['龍爪撕裂', '💢'], ['熔岩炸彈', '🌋']] },
+    forest: { moves: [['烈焰劍', '🔥'], ['斧頭劈砍', '🪓'], ['陽光之劍', '☀️']], special: ['火鳳凰大爆發', '🔥'], foeMoves: [['樹根纏繞', '🌿'], ['落葉飛刀', '🍂'], ['巨木重擊', '🪵']] },
+    storm: { moves: [['大地之錘', '🔨'], ['旋風斬', '🌪️'], ['避雷神劍', '🗡️']], special: ['雷霆萬鈞斬', '⚡'], foeMoves: [['閃電爪', '⚡'], ['雷光衝刺', '💨'], ['雷電吼', '🌩️']] },
     prehistoric: { moves: [['飛石彈弓', '🪨'], ['巨木衝撞', '🪵'], ['藤蔓纏繞', '🌿']], special: ['遠古大隕石', '☄️'], foeMoves: [['恐龍大咬', '🦷'], ['甩尾重擊', '💢'], ['震地大吼', '📢']] },
     river: { moves: [['激流水砲', '💦'], ['漩渦旋轉', '🌀'], ['浪花飛刀', '🌊']], special: ['大河奔流', '🌊'], foeMoves: [['蛟龍吐水', '💧'], ['龍尾掃浪', '🌊'], ['龍捲水柱', '🌪️']], boat: true },
     deepsea: { moves: [['魚雷發射', '🚀'], ['泡泡砲', '🫧'], ['聲納衝擊波', '🌀']], special: ['深海巨浪砲', '🌊'], foeMoves: [['大嘴咬咬', '🦷'], ['尾巴大浪', '🌊'], ['鯊魚衝撞', '💢']], sub: true },
