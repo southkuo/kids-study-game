@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>At the Park</title>
+<!--
+  教學老師的教材範本（每天複製這個檔案到 daily/日期/lessons/科目.html 再改內容）
+  規則：
+  - 一個檔案就是一個完整教材，CSS、JS、圖都寫在裡面，不能載入任何外部網址。
+  - 每一個 <section class="step"> 是一頁，下方會自動出現「上一步／下一步」和進度點。
+  - data-auto="要念的話"：進到這一頁時自動朗讀（data-lang="en-US" 用英文念）。
+  - 任何元素加上 data-say="要念的話"（可加 data-lang="en-US"），點了就會念。
+  - 小測驗：<div class="quiz" data-why="答對時的補充說明"> 裡面放按鈕，正確的按鈕加 data-right，後面放 <div class="fb"></div>。
+  - 需要每頁自己的動畫：寫 window.onStep = function (index, section) { … }，換頁時會呼叫。
+  - 只改「教材內容」區塊和自訂樣式；下面的共用程式不要改壞。
+-->
+<style>
+:root { --c: #3f6fe0; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式（這一份教材自己的動畫）寫在這裡 ===== */
+.park { position: relative; width: 100%; height: 260px; border-radius: 18px; background: linear-gradient(180deg, #cfe8ff 0%, #eef7ff 55%, #a5dd84 55%, #7cc95a 100%); overflow: hidden; }
+.park .it { position: absolute; border: 0; background: transparent; padding: 4px; font-size: 46px; line-height: 1; cursor: pointer; border-radius: 16px; }
+.park .it.on { background: rgba(255,255,255,.8); box-shadow: 0 0 0 4px #3f6fe0; animation: bounce .5s; }
+@keyframes bounce { 40% { transform: scale(1.3); } }
+.park .kite { animation: kite 3s ease-in-out infinite alternate; }
+@keyframes kite { from { transform: translate(0, 10px) rotate(-10deg); } to { transform: translate(30px, -6px) rotate(10deg); } }
+.park .bird { animation: fly 6s linear infinite; }
+@keyframes fly { from { transform: translateX(-30px); } 50% { transform: translateX(60px) translateY(-10px); } to { transform: translateX(-30px); } }
+.park .sw svg { width: 64px; height: 64px; display: block; }
+.park .sw .rope { transform-origin: 32px 6px; animation: rock 1.5s ease-in-out infinite alternate; }
+@keyframes rock { from { transform: rotate(-18deg); } to { transform: rotate(18deg); } }
+.wordbox { width: 100%; min-height: 64px; text-align: center; font-size: clamp(34px, 9vw, 52px); font-weight: 900; color: #3f6fe0; }
+.wordbox small { display: block; font-size: 20px; color: #6a5536; }
+.sent { width: 100%; text-align: center; font-size: clamp(24px, 6.4vw, 34px); font-weight: 900; line-height: 1.5; color: #1d3f91; min-height: 1.5em; }
+.sent .fill { color: #e5484d; display: inline-block; animation: pop .4s ease-out; }
+@keyframes pop { from { transform: scale(.3); opacity: 0; } }
+.sent small { display: block; font-size: 19px; color: #6a5536; }
+.acts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+.acts button { min-height: 84px; border: 0; border-radius: 18px; background: #eef3ff; box-shadow: 0 4px 0 #a9bff2; font: inherit; font-size: 20px; font-weight: 900; color: #1d3f91; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.acts button .e { font-size: 36px; }
+.acts button.on { background: #3f6fe0; color: #fff; }
+.acts.three { grid-template-columns: repeat(3, 1fr); }
+.acts.four { grid-template-columns: repeat(2, 1fr); }
+.who { animation: wave 1s ease-in-out infinite alternate; display: inline-block; }
+@keyframes wave { to { transform: rotate(10deg); } }
+.find { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 460px; }
+.find button { min-height: 92px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #c9d6f3; font-size: 50px; cursor: pointer; }
+.find button.ok { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; }
+.find button.no { background: #ffe1e1; animation: shake .4s; }
+@keyframes shake { 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+.listen { min-height: 64px; padding: 10px 26px; border: 0; border-radius: 999px; background: #3f6fe0; box-shadow: 0 4px 0 #24459a; color: #fff; font: inherit; font-size: 24px; font-weight: 900; cursor: pointer; }
+.stars { font-size: 30px; min-height: 1.3em; letter-spacing: 4px; }
+.msg { width: 100%; min-height: 1.5em; text-align: center; font-size: 21px; font-weight: 900; color: #0e6b2e; }
+.qbox { margin: 12px 0 18px; padding: 12px; border-radius: 20px; background: #fff; box-shadow: 0 4px 0 #eadfc8; }
+.qbox .big { margin-top: 0; }
+.en { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容 ===== -->
+  <section class="step" data-auto="Let's go to the park! The park is fun." data-lang="en-US">
+    <h1>🌳 At the Park</h1>
+    <div class="stage">
+      <div class="park" id="introPark"></div>
+      <div class="sent en" id="introSent"></div>
+    </div>
+    <p class="center"><button class="say" data-say="Let's go to the park! The park is fun." data-lang="en-US">🔊 Let's go to the park!</button>
+    <button class="say" id="introAgain">🔄 再看一次</button></p>
+  </section>
+
+  <section class="step" data-auto="What can you see at the park? Tap and find out." data-lang="en-US">
+    <h1>👀 What can you see?</h1>
+    <p class="small">點公園裡的東西，聽英文怎麼說</p>
+    <div class="stage">
+      <div class="park" id="tapPark"></div>
+      <div class="wordbox en" id="word">Tap something!<small>點一點</small></div>
+      <div class="sent en" id="seeSent"></div>
+    </div>
+  </section>
+
+  <section class="step" data-auto="What do you like to do at the park? I like to ride my bike." data-lang="en-US">
+    <h1>🚲 What do you like to do?</h1>
+    <div class="stage">
+      <div class="sent en" id="likeSent">I like to <span class="fill">…</span></div>
+      <div class="acts" id="likeActs"></div>
+    </div>
+    <p class="small">I like to ＋ 做的事（ride my bike、fly a kite…）</p>
+  </section>
+
+  <section class="step" data-auto="Do you like the slide or the swing better? I like the slide better. Who do you go to the park with? I go to the park with my mom." data-lang="en-US">
+    <h1>🛝 Slide or swing? 和誰去？</h1>
+    <div class="stage">
+      <div class="sent en" id="betterSent">I like the <span class="fill">…</span> better.</div>
+      <div class="acts three" id="betterActs"></div>
+    </div>
+    <div class="stage">
+      <div class="sent en" id="withSent">I go to the park with <span class="fill">…</span>.</div>
+      <div class="acts four" id="withActs"></div>
+    </div>
+  </section>
+
+  <section class="step" data-auto="Listen and find! 按大按鈕聽英文，再點對的圖。">
+    <h1>👂 Listen and Find</h1>
+    <div class="stage">
+      <button class="listen" id="listenBtn">🔊 Listen</button>
+      <div class="find" id="find"></div>
+      <div class="stars" id="stars"></div>
+      <div class="msg" id="fmsg"></div>
+    </div>
+    <p class="center"><button class="say" id="findAgain">🔄 再玩一次</button></p>
+  </section>
+
+  <section class="step" data-auto="小測驗！一共三題。">
+    <h1>✏️ 小測驗</h1>
+    <div class="qbox">
+      <p class="big en">1. I like to <u>　　</u> a kite. 🪁</p>
+      <div class="quiz en" data-why="風箏是用「放」的，英文說 fly a kite。ride 是騎，play 是玩。">
+        <button>ride</button><button data-right>fly</button><button>play</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+    <div class="qbox">
+      <p class="big en">2. 🔊 <button class="say en" data-say="Who do you go to the park with?" data-lang="en-US">Who do you go to the park with?</button></p>
+      <div class="quiz en" data-why="Who 問的是「誰」，所以要回答和誰一起去：I go to the park with my dad.">
+        <button>I can see a bird.</button><button data-right>I go to the park with my dad.</button><button>I like the swing better.</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+    <div class="qbox">
+      <p class="big en">3. 🌳🌷 What can you see?</p>
+      <div class="quiz en" data-why="What can you see 問看到什麼，要用 I can see 開頭：I can see trees and flowers.">
+        <button data-right>I can see trees and flowers.</button><button>I like trees.</button><button>Yes, I can.</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+function sayEn(t) { say(t, 'en-US'); }
+var SWING = '<svg viewBox="0 0 64 64"><rect x="4" y="2" width="56" height="5" rx="2" fill="#8d6e63"/><rect x="6" y="2" width="4" height="60" fill="#8d6e63"/><rect x="54" y="2" width="4" height="60" fill="#8d6e63"/><g class="rope"><line x1="24" y1="6" x2="24" y2="44" stroke="#5d4037" stroke-width="2.5"/><line x1="40" y1="6" x2="40" y2="44" stroke="#5d4037" stroke-width="2.5"/><rect x="20" y="43" width="24" height="6" rx="2" fill="#e5484d"/></g></svg>';
+var ITEMS = [
+  { k: 'tree', e: '🌳', x: 3, y: 46, zh: '樹', pl: 'a tree' },
+  { k: 'slide', e: '🛝', x: 26, y: 62, zh: '溜滑梯', pl: 'a slide' },
+  { k: 'swing', e: SWING, x: 48, y: 52, zh: '鞦韆', pl: 'a swing', svg: 1 },
+  { k: 'kite', e: '🪁', x: 30, y: 4, zh: '風箏', pl: 'a kite', cls: 'kite' },
+  { k: 'bird', e: '🐦', x: 62, y: 8, zh: '小鳥', pl: 'a bird', cls: 'bird' },
+  { k: 'flower', e: '🌷', x: 76, y: 72, zh: '花', pl: 'a flower' },
+  { k: 'dog', e: '🐕', x: 4, y: 76, zh: '狗', pl: 'a dog' },
+  { k: 'bike', e: '🚲', x: 72, y: 50, zh: '腳踏車', pl: 'a bike' },
+  { k: 'ball', e: '⚽', x: 50, y: 80, zh: '球', pl: 'a ball' }
+];
+function drawPark(id, tappable) {
+  var p = document.getElementById(id); p.innerHTML = '';
+  ITEMS.forEach(function (it) {
+    var b = document.createElement('button');
+    b.className = 'it' + (it.cls ? ' ' + it.cls : '') + (it.svg ? ' sw' : '');
+    b.innerHTML = it.e; b.style.left = it.x + '%'; b.style.top = it.y + '%';
+    if (it.y > 40) b.style.top = 'calc(' + it.y + '% - 40px)';
+    if (tappable) b.onclick = function () {
+      [].forEach.call(p.children, function (c) { c.classList.remove('on'); });
+      b.classList.add('on');
+      document.getElementById('word').innerHTML = it.k + '<small>' + it.zh + '</small>';
+      document.getElementById('seeSent').innerHTML = 'I can see <span class="fill">' + it.pl + '</span>.';
+      sayEn(it.k + '. I can see ' + it.pl + '.');
+    };
+    else b.tabIndex = -1;
+    p.appendChild(b);
+  });
+}
+// 第 1 頁：東西一個一個出現
+var iT = [];
+function intro() {
+  iT.forEach(clearTimeout); iT = [];
+  var p = document.getElementById('introPark'); drawPark('introPark', false);
+  [].forEach.call(p.children, function (c, i) {
+    c.style.opacity = 0;
+    iT.push(setTimeout(function () { if (!document.body.contains(c)) return; c.style.opacity = 1; c.classList.add('on'); setTimeout(function () { c.classList.remove('on'); }, 500); }, 400 + i * 350));
+  });
+  document.getElementById('introSent').textContent = '';
+  iT.push(setTimeout(function () { if (!document.getElementById('introSent')) return; document.getElementById('introSent').innerHTML = 'The park is <span class="fill">fun</span>! 🎉'; }, 400 + ITEMS.length * 350));
+}
+document.getElementById('introAgain').onclick = function () { intro(); sayEn("Let's go to the park! The park is fun."); };
+drawPark('tapPark', true);
+// 共用：點按鈕把字填進句子
+function builder(boxId, sentId, list, make) {
+  var box = document.getElementById(boxId);
+  list.forEach(function (o) {
+    var b = document.createElement('button');
+    b.innerHTML = '<span class="e">' + o.e + '</span><span class="en">' + o.t + '</span>';
+    b.onclick = function () {
+      [].forEach.call(box.children, function (c) { c.classList.toggle('on', c === b); });
+      var s = make(o);
+      document.getElementById(sentId).innerHTML = s.html + '<small>' + o.zh + '</small>';
+      sayEn(s.text);
+    };
+    box.appendChild(b);
+  });
+}
+builder('likeActs', 'likeSent', [
+  { e: '🚲', t: 'ride my bike', zh: '我喜歡騎腳踏車。' },
+  { e: '🪁', t: 'fly a kite', zh: '我喜歡放風箏。' },
+  { e: '🏃', t: 'run on the grass', zh: '我喜歡在草地上跑步。' },
+  { e: '⚽', t: 'play ball', zh: '我喜歡玩球。' }
+], function (o) { return { html: 'I like to <span class="fill">' + o.t + '</span>.', text: 'I like to ' + o.t + '.' }; });
+builder('betterActs', 'betterSent', [
+  { e: '🛝', t: 'slide', zh: '我比較喜歡溜滑梯。' },
+  { e: '<span style="display:inline-block;width:44px;height:44px">' + SWING + '</span>', t: 'swing', zh: '我比較喜歡盪鞦韆。' },
+  { e: '😄', t: 'both', zh: '兩個我都喜歡。' }
+], function (o) {
+  if (o.t === 'both') return { html: 'I like <span class="fill">them both</span>.', text: 'I like them both.' };
+  return { html: 'I like the <span class="fill">' + o.t + '</span> better.', text: 'I like the ' + o.t + ' better.' };
+});
+builder('withActs', 'withSent', [
+  { e: '<span class="who">👩</span>', t: 'my mom', zh: '我和媽媽一起去公園。' },
+  { e: '<span class="who">👨</span>', t: 'my dad', zh: '我和爸爸一起去公園。' },
+  { e: '<span class="who">👴👵</span>', t: 'my grandparents', zh: '我和爺爺奶奶一起去公園。' },
+  { e: '<span class="who">👨‍👩‍👦</span>', t: 'my family', zh: '我和家人一起去公園。' }
+], function (o) { return { html: 'I go to the park with <span class="fill">' + o.t + '</span>.', text: 'I go to the park with ' + o.t + '.' }; });
+// 第 5 頁：聽音找圖
+var F = [], fi = 0, fs = 0, fbusy = false;
+function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function newFind() {
+  F = shuffle(ITEMS).slice(0, 5); fi = 0; fs = 0; fbusy = false;
+  document.getElementById('stars').textContent = ''; document.getElementById('fmsg').textContent = '';
+  roundFind();
+}
+function roundFind() {
+  var target = F[fi], others = shuffle(ITEMS.filter(function (x) { return x !== target; })).slice(0, 5);
+  var opts = shuffle(others.concat([target])), box = document.getElementById('find'); box.innerHTML = '';
+  opts.forEach(function (o) {
+    var b = document.createElement('button'); b.innerHTML = o.svg ? '<span style="display:inline-block;width:56px;height:56px">' + o.e + '</span>' : o.e;
+    b.setAttribute('aria-label', o.k);
+    b.onclick = function () {
+      if (fbusy) return;
+      if (o === target) {
+        fbusy = true; b.classList.add('ok'); fs++;
+        document.getElementById('stars').textContent = '⭐'.repeat(fs);
+        document.getElementById('fmsg').textContent = '✅ ' + o.k + '（' + o.zh + '）';
+        sayEn('Yes! ' + o.k + '!');
+        setTimeout(function () {
+          if (!document.getElementById('find')) return;
+          fi++; fbusy = false;
+          if (fi < F.length) { roundFind(); sayEn(F[fi].k); }
+          else { document.getElementById('find').innerHTML = ''; document.getElementById('fmsg').textContent = '🎉 全部找到了！Great job!'; say('全部找到了！Great job!'); }
+        }, 1300);
+      } else { b.classList.remove('no'); void b.offsetWidth; b.classList.add('no'); sayEn('Try again. ' + target.k); }
+    };
+    box.appendChild(b);
+  });
+}
+document.getElementById('listenBtn').onclick = function () { if (F[fi]) sayEn(F[fi].k); };
+document.getElementById('findAgain').onclick = function () { newFind(); sayEn(F[0].k); };
+newFind();
+window.onStep = function (i) { if (i === 0) intro(); };
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

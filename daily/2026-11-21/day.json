@@ -433,5 +433,31 @@
         }
       ]
     }
-  }
+  },
+  "lessons": [
+    {
+      "subject": "chinese",
+      "title": "週末複習：公園裡的國語",
+      "summary": "在公園裡複習量詞翻牌、在／再和做／作填空、一邊……一邊……等句型，再當讀短文小偵探找出誰、哪裡、為什麼。",
+      "file": "daily/2026-11-21/lessons/chinese.html"
+    },
+    {
+      "subject": "english",
+      "title": "At the Park",
+      "summary": "點公園裡的東西學 slide、swing、kite 等單字，練習 I like to…、I like the … better、I go to the park with… 句型，再玩聽音找圖。",
+      "file": "daily/2026-11-21/lessons/english.html"
+    },
+    {
+      "subject": "math",
+      "title": "週末複習：公園小商店",
+      "summary": "在小商店買東西，一步一步看進位加法和退位減法的直式，玩乘法比大小，再用花盆學先乘再減。",
+      "file": "daily/2026-11-21/lessons/math.html"
+    },
+    {
+      "subject": "science",
+      "title": "公園裡的四季",
+      "summary": "看公園大樹在春夏秋冬的變化，認識四季的順序、天氣和穿著，找出 11 月是秋天，再玩四季分一分。",
+      "file": "daily/2026-11-21/lessons/science.html"
+    }
+  ]
 }

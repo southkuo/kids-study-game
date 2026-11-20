@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>公園裡的四季</title>
+<!--
+  教學老師的教材範本（每天複製這個檔案到 daily/日期/lessons/科目.html 再改內容）
+  規則：
+  - 一個檔案就是一個完整教材，CSS、JS、圖都寫在裡面，不能載入任何外部網址。
+  - 每一個 <section class="step"> 是一頁，下方會自動出現「上一步／下一步」和進度點。
+  - data-auto="要念的話"：進到這一頁時自動朗讀（data-lang="en-US" 用英文念）。
+  - 任何元素加上 data-say="要念的話"（可加 data-lang="en-US"），點了就會念。
+  - 小測驗：<div class="quiz" data-why="答對時的補充說明"> 裡面放按鈕，正確的按鈕加 data-right，後面放 <div class="fb"></div>。
+  - 需要每頁自己的動畫：寫 window.onStep = function (index, section) { … }，換頁時會呼叫。
+  - 只改「教材內容」區塊和自訂樣式；下面的共用程式不要改壞。
+-->
+<style>
+:root { --c: #2e9d5b; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式（這一份教材自己的動畫）寫在這裡 ===== */
+.scene { position: relative; width: 100%; height: 250px; border-radius: 18px; overflow: hidden; transition: background 1s; }
+.scene.s0 { background: linear-gradient(180deg, #d9f1ff 0%, #f2fbff 60%, #b6e59a 60%, #8fd46e 100%); }
+.scene.s1 { background: linear-gradient(180deg, #8fd3ff 0%, #c9ecff 60%, #7ccf55 60%, #5bb53a 100%); }
+.scene.s2 { background: linear-gradient(180deg, #ffe9c7 0%, #fff6e6 60%, #e4c779 60%, #cfae5a 100%); }
+.scene.s3 { background: linear-gradient(180deg, #cfd8e3 0%, #eef2f7 60%, #c9d3c0 60%, #b3bfa8 100%); }
+.tree { position: absolute; left: 50%; bottom: 20px; width: 160px; margin-left: -80px; }
+.tree svg { width: 160px; height: 190px; display: block; }
+.tree .crown { transition: fill 1s, opacity 1s; }
+.scene .sky { position: absolute; top: 12px; right: 18px; font-size: 46px; transition: opacity .6s; }
+.scene .fx { position: absolute; font-size: 26px; pointer-events: none; animation: fall 3s linear forwards; }
+@keyframes fall { from { transform: translateY(-20px) rotate(0); opacity: 1; } to { transform: translateY(240px) rotate(260deg); opacity: .2; } }
+.scene .bloom { position: absolute; font-size: 24px; animation: pop .5s ease-out both; }
+@keyframes pop { from { transform: scale(.2); opacity: 0; } }
+.sname { position: absolute; left: 12px; top: 10px; padding: 4px 14px; border-radius: 14px; background: #fff; font-size: 24px; font-weight: 900; color: #2e9d5b; box-shadow: 0 3px 0 #b9dcc5; }
+.ring { position: relative; width: 290px; height: 290px; margin: 0 auto; }
+.ring button { position: absolute; width: 110px; height: 96px; border: 0; border-radius: 22px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 0 rgba(0,0,0,.15); transition: transform .3s; }
+.ring button .e { font-size: 38px; }
+.ring button.on { transform: scale(1.12); box-shadow: 0 0 0 5px #2e9d5b; }
+.ring .b0 { left: 90px; top: 0; background: #ffe0ec; }
+.ring .b1 { right: 0; top: 97px; background: #ffe8a3; }
+.ring .b2 { left: 90px; bottom: 0; background: #ffd5b0; }
+.ring .b3 { left: 0; top: 97px; background: #dcebff; }
+.ring .arrow { position: absolute; left: 50%; top: 50%; width: 60px; height: 60px; margin: -30px; font-size: 44px; text-align: center; line-height: 60px; animation: spin 4s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; width: 100%; }
+.tabs button { min-height: 58px; border: 0; border-radius: 16px; background: #eef8f1; box-shadow: 0 3px 0 #a9d8b9; font: inherit; font-size: 20px; font-weight: 900; color: #1f6e3f; cursor: pointer; }
+.tabs button.on { background: #2e9d5b; color: #fff; }
+.facts { width: 100%; display: grid; grid-template-columns: 70px 1fr; gap: 8px 10px; align-items: center; font-size: 20px; font-weight: 800; }
+.facts .ic { font-size: 36px; text-align: center; }
+.therm { position: relative; width: 22px; height: 120px; margin: 0 auto; border-radius: 11px; background: #fff; box-shadow: 0 0 0 3px #9aa7b4 inset; }
+.therm i { position: absolute; left: 5px; right: 5px; bottom: 5px; border-radius: 6px; background: #e5484d; transition: height 1s; }
+.months { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; width: 100%; }
+.months button { min-height: 54px; border: 0; border-radius: 14px; font: inherit; font-size: 19px; font-weight: 900; color: #2b2112; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,.12); }
+.months button.now { outline: 4px solid #e5484d; }
+.months button.on { transform: scale(1.08); }
+.m0 { background: #ffe0ec; } .m1 { background: #ffe8a3; } .m2 { background: #ffd5b0; } .m3 { background: #dcebff; }
+.mres { width: 100%; min-height: 1.6em; text-align: center; font-size: 22px; font-weight: 900; color: #2e9d5b; }
+.sortq { font-size: 64px; min-height: 80px; text-align: center; animation: pop .4s ease-out; }
+.sortt { width: 100%; text-align: center; font-size: 22px; font-weight: 900; }
+.sortb { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; width: 100%; }
+.sortb button { min-height: 72px; border: 0; border-radius: 16px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,.15); }
+.sortb button.no { animation: shake .4s; }
+@keyframes shake { 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+.score { font-size: 28px; letter-spacing: 4px; min-height: 1.3em; }
+.msg { width: 100%; min-height: 1.5em; font-size: 20px; font-weight: 900; text-align: center; color: #0e6b2e; }
+.qbox { margin: 12px 0 18px; padding: 12px; border-radius: 20px; background: #fff; box-shadow: 0 4px 0 #eadfc8; }
+.qbox .big { margin-top: 0; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容 ===== -->
+  <section class="step" data-auto="公園裡的大樹，一年裡會換好幾種樣子。一年有四個季節：春天、夏天、秋天、冬天。">
+    <h1>🌳 公園裡的四季</h1>
+    <div class="stage">
+      <div class="scene s0" id="introScene"></div>
+    </div>
+    <p class="big">一年有 <b style="color:#2e9d5b">四個季節</b>：<br>春、夏、秋、冬</p>
+    <p class="center"><button class="say" id="introAgain">🔄 再看一次</button></p>
+  </section>
+
+  <section class="step" data-auto="四季會輪流來。春天過了是夏天，夏天過了是秋天，秋天過了是冬天，冬天過了，又是春天。點點看每一個季節。">
+    <h1>🔄 四季輪流來</h1>
+    <div class="stage">
+      <div class="ring" id="ring">
+        <button class="b0" data-say="春天"><span class="e">🌸</span>春天</button>
+        <button class="b1" data-say="夏天"><span class="e">☀️</span>夏天</button>
+        <button class="b2" data-say="秋天"><span class="e">🍂</span>秋天</button>
+        <button class="b3" data-say="冬天"><span class="e">🧣</span>冬天</button>
+        <div class="arrow">🔃</div>
+      </div>
+    </div>
+    <p class="big">春 → 夏 → 秋 → 冬 → 又是春</p>
+    <p class="center"><button class="say" id="ringPlay">▶ 跟著轉一圈</button></p>
+  </section>
+
+  <section class="step" data-auto="點上面的季節，看看大樹、天氣和穿的衣服會怎麼變。">
+    <h1>🌡️ 每個季節的樣子</h1>
+    <div class="tabs" id="tabs"><button>🌸 春</button><button>☀️ 夏</button><button>🍂 秋</button><button>🧣 冬</button></div>
+    <div class="stage">
+      <div class="scene s0" id="sScene"></div>
+      <div style="display:flex;gap:14px;align-items:center;width:100%">
+        <div><div class="therm"><i id="thermI"></i></div><div class="small">溫度</div></div>
+        <div class="facts" id="facts" style="flex:1"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="step" data-auto="在台灣，三月、四月、五月是春天；六、七、八月是夏天；九、十、十一月是秋天；十二月、一月、二月是冬天。現在是十一月，是秋天，天氣慢慢變涼了。點點看每一個月份。">
+    <h1>📅 現在是什麼季節？</h1>
+    <div class="stage">
+      <div class="months" id="months"></div>
+      <div class="mres" id="mres">點一個月份</div>
+    </div>
+    <p class="big">現在 <b style="color:#e5484d">11 月</b>是秋天，<br>天氣慢慢變涼，冬天快來了！</p>
+  </section>
+
+  <section class="step" data-auto="四季分一分！看到圖，選它是哪一個季節。">
+    <h1>🧺 四季分一分</h1>
+    <div class="stage">
+      <div class="sortq" id="sortq"></div>
+      <div class="sortt" id="sortt"></div>
+      <div class="sortb" id="sortb"></div>
+      <div class="score" id="sScore"></div>
+      <div class="msg" id="sMsg"></div>
+    </div>
+    <p class="center"><button class="say" id="sortAgain">🔄 再玩一次</button></p>
+  </section>
+
+  <section class="step" data-auto="小測驗！一共三題。">
+    <h1>✏️ 小測驗</h1>
+    <div class="qbox">
+      <p class="big">1. 一年裡，哪個季節最熱？</p>
+      <div class="quiz" data-why="夏天最熱，大家穿短袖、吃冰、去游泳。冬天最冷。">
+        <button>冬天</button><button data-right>夏天</button><button>秋天</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+    <div class="qbox">
+      <p class="big">2. 秋天過完了，接下來是哪個季節？</p>
+      <div class="quiz" data-why="四季照順序輪流：春、夏、秋、冬。秋天後面是冬天，冬天過完又是春天。">
+        <button>春天</button><button>夏天</button><button data-right>冬天</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+    <div class="qbox">
+      <p class="big">3. 冬天很冷，去公園要穿什麼？</p>
+      <div class="quiz" data-why="冬天天氣冷，要穿厚外套、圍圍巾，身體才會暖暖的，不容易感冒。">
+        <button data-right>🧥 厚外套</button><button>🩳 短褲</button><button>👙 泳衣</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+var S = [
+  { n: '春天', crown: '#7fd36b', sky: '🌤️', fx: '🌸', t: 55,
+    f: [['🌸', '花開了，樹長出新的嫩葉'], ['🌤️', '天氣慢慢變溫暖'], ['🧥', '穿薄外套']] },
+  { n: '夏天', crown: '#2f9e44', sky: '☀️', fx: '', t: 95,
+    f: [['☀️', '一年裡最熱的季節'], ['🌳', '樹葉長得又多又綠'], ['👕', '穿短袖，記得多喝水']] },
+  { n: '秋天', crown: '#f0a33a', sky: '🌥️', fx: '🍂', t: 55,
+    f: [['🍂', '有些樹的葉子變黃、變紅，掉下來'], ['🌬️', '天氣慢慢變涼'], ['👔', '穿長袖']] },
+  { n: '冬天', crown: '#a7b39a', sky: '☁️', fx: '', t: 20,
+    f: [['🥶', '一年裡最冷的季節'], ['🍃', '有些樹的葉子掉光了'], ['🧣', '穿厚外套、圍圍巾']] }
+];
+function treeSVG(c, bare) {
+  return '<svg viewBox="0 0 160 190"><rect x="70" y="110" width="20" height="78" rx="6" fill="#8d6e63"/>' +
+    '<path d="M80 130 L52 96 M80 120 L110 88" stroke="#8d6e63" stroke-width="8" stroke-linecap="round"/>' +
+    '<g class="crown" style="opacity:' + (bare ? 0.35 : 1) + '"><circle cx="80" cy="64" r="52" fill="' + c + '"/><circle cx="40" cy="92" r="32" fill="' + c + '"/><circle cx="120" cy="92" r="32" fill="' + c + '"/></g></svg>';
+}
+var fxT = {};
+function drawScene(id, k, label) {
+  var sc = document.getElementById(id), s = S[k];
+  if (!sc) return;
+  sc.className = 'scene s' + k;
+  sc.innerHTML = '<span class="sky">' + s.sky + '</span><div class="tree">' + treeSVG(s.crown, k === 3) + '</div>' + (label ? '<span class="sname">' + s.n + '</span>' : '');
+  clearInterval(fxT[id]);
+  if (k === 0) for (var i = 0; i < 6; i++) { var b = document.createElement('span'); b.className = 'bloom'; b.textContent = '🌸'; b.style.left = (34 + Math.random() * 30) + '%'; b.style.top = (14 + Math.random() * 40) + '%'; b.style.animationDelay = (i * 0.15) + 's'; sc.appendChild(b); }
+  if (k === 2) fxT[id] = setInterval(function () {
+    if (!document.body.contains(sc)) return clearInterval(fxT[id]);
+    if (!sc.offsetParent) return;
+    var l = document.createElement('span'); l.className = 'fx'; l.textContent = Math.random() < 0.5 ? '🍂' : '🍁';
+    l.style.left = (30 + Math.random() * 40) + '%'; l.style.top = '30%'; sc.appendChild(l);
+    setTimeout(function () { l.remove(); }, 3000);
+  }, 500);
+}
+// 第 1 頁：大樹換四季
+var iT = [];
+function intro() {
+  iT.forEach(clearTimeout); iT = [];
+  [0, 1, 2, 3, 0].forEach(function (k, i) { iT.push(setTimeout(function () { drawScene('introScene', k, true); }, i * 1800)); });
+}
+document.getElementById('introAgain').onclick = function () { intro(); say('春天、夏天、秋天、冬天，又回到春天。'); };
+// 第 2 頁：四季輪流
+var rT = [];
+function ringOn(k) { [].forEach.call(document.querySelectorAll('#ring button'), function (b, i) { b.classList.toggle('on', i === k); }); }
+[].forEach.call(document.querySelectorAll('#ring button'), function (b, i) { b.addEventListener('click', function () { ringOn(i); }); });
+document.getElementById('ringPlay').onclick = function () {
+  rT.forEach(clearTimeout); rT = [];
+  var words = ['春天', '夏天', '秋天', '冬天', '又是春天'];
+  say('春天，夏天，秋天，冬天，又是春天。');
+  words.forEach(function (w, i) { rT.push(setTimeout(function () { ringOn(i % 4); }, i * 1000)); });
+};
+// 第 3 頁：季節切換
+function showSeason(k, quiet) {
+  [].forEach.call(document.querySelectorAll('#tabs button'), function (b, i) { b.classList.toggle('on', i === k); });
+  drawScene('sScene', k, true);
+  document.getElementById('thermI').style.height = S[k].t + 'px';
+  document.getElementById('facts').innerHTML = S[k].f.map(function (x) { return '<span class="ic">' + x[0] + '</span><span>' + x[1] + '</span>'; }).join('');
+  if (!quiet) say(S[k].n + '。' + S[k].f.map(function (x) { return x[1]; }).join('，') + '。');
+}
+[].forEach.call(document.querySelectorAll('#tabs button'), function (b, i) { b.onclick = function () { showSeason(i); }; });
+// 第 4 頁：月份
+(function () {
+  var box = document.getElementById('months'), MN = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二'];
+  for (var m = 1; m <= 12; m++) (function (m) {
+    var k = m >= 3 && m <= 5 ? 0 : m >= 6 && m <= 8 ? 1 : m >= 9 && m <= 11 ? 2 : 3;
+    var b = document.createElement('button'); b.className = 'm' + k + (m === 11 ? ' now' : '');
+    b.textContent = m + ' 月';
+    b.onclick = function () {
+      [].forEach.call(box.children, function (x) { x.classList.toggle('on', x === b); });
+      document.getElementById('mres').textContent = m + ' 月是' + S[k].n + (m === 11 ? '（就是現在！）' : '');
+      say(MN[m - 1] + '月是' + S[k].n);
+    };
+    box.appendChild(b);
+  })(m);
+})();
+// 第 5 頁：四季分一分
+var ITEMS = [['🌸', '花開了，到處都是新葉子', 0], ['🍉', '天氣好熱，吃西瓜消暑', 1], ['🏊', '天氣好熱，去游泳池玩水', 1], ['🍂', '葉子變黃，一片一片掉下來', 2], ['🧣', '好冷喔，要圍圍巾', 3], ['🧤', '手好冰，戴上手套', 3]];
+var Q = [], qi = 0, qs = 0, qbusy = false;
+function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+(function () {
+  var box = document.getElementById('sortb'), C = ['#ffe0ec', '#ffe8a3', '#ffd5b0', '#dcebff'];
+  S.forEach(function (s, k) {
+    var b = document.createElement('button'); b.textContent = s.n; b.style.background = C[k];
+    b.onclick = function () {
+      if (qbusy || qi >= Q.length) return;
+      var it = Q[qi], M = document.getElementById('sMsg');
+      if (k === it[2]) {
+        qbusy = true; qs++; document.getElementById('sScore').textContent = '⭐'.repeat(qs);
+        M.style.color = '#0e6b2e'; M.textContent = '✅ 對！這是' + s.n + '。';
+        say('對！' + it[1] + '，是' + s.n + '。');
+        setTimeout(function () { qi++; qbusy = false; nextQ(); }, 1800);
+      } else { b.classList.remove('no'); void b.offsetWidth; b.classList.add('no'); M.style.color = '#a0161b'; M.textContent = '再想想看！'; say('再想想看'); }
+    };
+    box.appendChild(b);
+  });
+})();
+function nextQ() {
+  if (!document.getElementById('sortq')) return;
+  var M = document.getElementById('sMsg');
+  if (qi >= Q.length) { document.getElementById('sortq').textContent = '🏆'; document.getElementById('sortt').textContent = ''; M.textContent = '🎉 全部分對了！'; say('全部分對了！'); return; }
+  var it = Q[qi], el = document.getElementById('sortq');
+  el.textContent = it[0]; el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
+  document.getElementById('sortt').textContent = it[1]; M.textContent = '';
+}
+function newSort() { Q = shuffle(ITEMS); qi = 0; qs = 0; qbusy = false; document.getElementById('sScore').textContent = ''; nextQ(); }
+document.getElementById('sortAgain').onclick = function () { newSort(); say('再玩一次'); };
+newSort();
+window.onStep = function (i) {
+  if (i === 0) intro();
+  if (i === 2) { var k = document.querySelector('#tabs button.on'); if (!k) showSeason(2, true); }
+};
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>
