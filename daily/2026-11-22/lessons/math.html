@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>公分和公尺</title>
+<style>
+:root { --c: #2f8fd8; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式 ===== */
+.rbox { position: relative; width: 100%; height: 150px; }
+.ruler { position: absolute; left: 0; right: 0; bottom: 0; height: 64px; border-radius: 10px; background: linear-gradient(#ffe7a3, #ffd76a); box-shadow: 0 3px 0 #d9a93a; }
+.tick { position: absolute; top: 0; width: 2px; height: 22px; background: #5a4520; transform: translateX(-1px); }
+.tick.mm { height: 10px; width: 1px; }
+.tick b { position: absolute; top: 26px; left: 50%; transform: translateX(-50%); font-size: 17px; font-weight: 900; color: #3a2a10; }
+.obj { position: absolute; bottom: 74px; height: 34px; border-radius: 8px; transition: width .4s, left .4s; }
+.pencil { background: linear-gradient(90deg, #ffcc80 0, #ffcc80 calc(100% - 26px), #f4a261 calc(100% - 26px)); box-shadow: inset 0 -6px 0 rgba(0,0,0,.08); }
+.pencil::after { content: ""; position: absolute; right: -16px; top: 0; border-left: 16px solid #5d4037; border-top: 17px solid transparent; border-bottom: 17px solid transparent; }
+.eraser { background: #f48fb1; box-shadow: inset 0 -6px 0 rgba(0,0,0,.1); }
+.cell { position: absolute; bottom: 64px; height: 8px; background: #2f8fd8; border-radius: 4px; opacity: 0; transition: opacity .2s; }
+.cell.on { opacity: 1; }
+.cell i { position: absolute; top: -26px; left: 50%; transform: translateX(-50%); font-style: normal; font-size: 18px; font-weight: 900; color: #2f8fd8; }
+.read { font-size: clamp(22px, 5.6vw, 30px); font-weight: 900; text-align: center; color: #1b5e94; min-height: 1.5em; }
+.len { width: min(460px, 100%); height: 36px; accent-color: #2f8fd8; }
+.cm1 { display: inline-block; width: 38px; height: 38px; border: 3px solid #2f8fd8; border-radius: 4px; background: #e3f2fd; animation: grow 1s ease-out; }
+@keyframes grow { from { transform: scale(0); } }
+.sticks { display: flex; width: 100%; height: 40px; gap: 0; }
+.stick { flex: 1; height: 40px; border-right: 2px solid #fff; background: #2f8fd8; color: #fff; font-size: 14px; font-weight: 900; display: flex; align-items: center; justify-content: center; opacity: 0; transform: translateY(-40px); transition: opacity .35s, transform .35s; }
+.stick:nth-child(odd) { background: #64b0ea; }
+.stick.on { opacity: 1; transform: none; }
+.total { font-size: clamp(26px, 7vw, 40px); font-weight: 900; color: #2f8fd8; text-align: center; }
+.things { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; width: 100%; }
+.things .card { min-width: 0; }
+.things span { font-size: 44px; }
+.things b { font-size: 18px; }
+.things em { font-style: normal; font-size: 20px; font-weight: 900; color: #fff; background: #2f8fd8; border-radius: 999px; padding: 2px 12px; visibility: hidden; }
+.things .card.open em { visibility: visible; animation: grow .4s ease-out; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+  <section class="step" data-auto="東西有多長呢？我們用尺來量一量！長度的單位有公分和公尺。">
+    <h1>📏 量一量有多長</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="rbox" id="r0"></div>
+    </div>
+    <p class="big">長度的單位：<br><span style="color:#2f8fd8">公分</span> 和 <span style="color:#2f8fd8">公尺</span></p>
+  </section>
+
+  <section class="step" data-auto="尺上面一大格就是 1 公分，大約是你手指頭那麼寬。量東西的時候，要從 0 開始對齊。">
+    <h1>🟦 1 公分有多長？</h1>
+    <div class="stage" style="flex-direction:column">
+      <span class="cm1"></span>
+      <div class="read">尺上一大格 = 1 公分</div>
+      <p class="small">大約是手指頭那麼寬 ☝️<br>公分也可以寫成 cm</p>
+    </div>
+    <p class="big">量東西時，一端要對齊 <span style="color:#c62828">0</span>！</p>
+    <p class="center"><button class="say" data-say="尺上一大格是 1 公分。量東西的時候，東西的一端要對齊尺的 0。">🔊 聽一聽</button></p>
+  </section>
+
+  <section class="step" data-auto="拉拉看下面的條子，讓鉛筆變長變短。從 0 開始量，另一端對到幾，就是幾公分。">
+    <h1>✏️ 拉拉看：鉛筆多長？</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="rbox" id="r1"></div>
+      <input class="len" id="len" type="range" min="1" max="12" value="8" aria-label="鉛筆長度">
+      <div class="read" id="r1t"></div>
+    </div>
+  </section>
+
+  <section class="step" data-auto="如果沒有從 0 開始量呢？橡皮擦從 2 量到 6，按按鈕數一數中間有幾格。">
+    <h1>🧽 不是從 0 開始呢？</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="rbox" id="r2"></div>
+      <button class="say" id="count">👆 數一數有幾格</button>
+      <div class="read" id="r2t">從 2 到 6，是幾公分？</div>
+    </div>
+    <p class="small">不能直接看 6！要數中間有幾格，或是算 6 − 2 = 4。</p>
+  </section>
+
+  <section class="step" data-auto="10 公分接 10 次，就是 100 公分。100 公分就是 1 公尺！按按鈕接起來看看。">
+    <h1>🪵 1 公尺 = 100 公分</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="sticks" id="sticks"></div>
+      <div class="total" id="tot">0 公分</div>
+      <button class="say" id="join">➕ 接起來</button>
+      <p class="small">1 公尺大約是你張開雙手那麼長 🙆　公尺也可以寫成 m</p>
+    </div>
+  </section>
+
+  <section class="step" data-auto="短短的東西用公分，長長的東西用公尺。點卡片看看答案。">
+    <h1>🤔 用公分還是公尺？</h1>
+    <div class="stage">
+      <div class="things">
+        <button class="card" data-say="一枝新鉛筆，大約長 17 公分。"><span>✏️</span><b>新鉛筆</b><em>約 17 公分</em></button>
+        <button class="card" data-say="橡皮擦大約長 4 公分。"><span>🧽</span><b>橡皮擦</b><em>約 4 公分</em></button>
+        <button class="card" data-say="教室的門大約高 2 公尺。"><span>🚪</span><b>教室的門</b><em>約高 2 公尺</em></button>
+        <button class="card" data-say="一輛公車大約長 12 公尺。"><span>🚌</span><b>公車</b><em>約長 12 公尺</em></button>
+      </div>
+    </div>
+    <p class="small">短短的、用尺量得到 → 公分；長長的 → 公尺</p>
+  </section>
+
+  <section class="step" data-auto="小測驗！橡皮擦的一端對齊 3，另一端對齊 8，橡皮擦長幾公分？">
+    <h1>✏️ 小測驗 1</h1>
+    <p class="big">🧽 一端對齊 3，另一端對齊 8。<br>橡皮擦長幾公分？</p>
+    <div class="quiz" data-why="沒有從 0 開始，要算中間有幾格：8 − 3 = 5，所以是 5 公分。">
+      <button>8 公分</button>
+      <button data-right>5 公分</button>
+      <button>11 公分</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗！1 公尺和 120 公分，哪一個比較長？">
+    <h1>✏️ 小測驗 2</h1>
+    <p class="big">哪一個比較長？</p>
+    <div class="quiz" data-why="1 公尺 = 100 公分，120 公分比 100 公分多了 20 公分，所以 120 公分比較長。">
+      <button>1 公尺</button>
+      <button data-right>120 公分</button>
+      <button>一樣長</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+</main>
+<script>
+var N = 12;
+function pos(x) { return (4 + x * 92 / N) + '%'; }
+function makeRuler(box) {
+  var r = document.createElement('div'); r.className = 'ruler';
+  for (var i = 0; i <= N * 2; i++) {
+    var t = document.createElement('div'); t.className = 'tick' + (i % 2 ? ' mm' : ''); t.style.left = pos(i / 2);
+    if (i % 2 === 0) t.innerHTML = '<b>' + (i / 2) + '</b>';
+    r.appendChild(t);
+  }
+  box.appendChild(r);
+}
+function obj(box, cls, a, b) {
+  var o = document.createElement('div'); o.className = 'obj ' + cls; box.appendChild(o); place(o, a, b); return o;
+}
+function place(o, a, b) { o.style.left = pos(a); o.style.width = 'calc(' + ((b - a) * 92 / N) + '%' + (o.classList.contains('pencil') ? ' - 16px' : '') + ')'; }
+['r0', 'r1', 'r2'].forEach(function (id) { makeRuler(document.getElementById(id)); });
+var p0 = obj(document.getElementById('r0'), 'pencil', 0, 1);
+var p1 = obj(document.getElementById('r1'), 'pencil', 0, 8);
+var er = obj(document.getElementById('r2'), 'eraser', 2, 6);
+var cells = [];
+for (var c = 0; c < 4; c++) {
+  var d = document.createElement('div'); d.className = 'cell'; d.style.left = pos(2 + c); d.style.width = (92 / N) + '%';
+  d.innerHTML = '<i>' + (c + 1) + '</i>'; document.getElementById('r2').appendChild(d); cells.push(d);
+}
+var lenIn = document.getElementById('len'), lastLen = 0;
+function setLen(speak) {
+  var v = +lenIn.value; place(p1, 0, v);
+  document.getElementById('r1t').textContent = '從 0 到 ' + v + '，鉛筆長 ' + v + ' 公分';
+  if (speak && v !== lastLen) say(v + ' 公分');
+  lastLen = v;
+}
+lenIn.oninput = function () { setLen(false); };
+lenIn.onchange = function () { setLen(true); };
+var timers = [];
+function clearT() { timers.forEach(clearTimeout); timers = []; }
+document.getElementById('count').onclick = function () {
+  clearT(); cells.forEach(function (x) { x.classList.remove('on'); });
+  document.getElementById('r2t').textContent = '從 2 到 6，是幾公分？';
+  cells.forEach(function (x, k) { timers.push(setTimeout(function () { x.classList.add('on'); say(String(k + 1)); }, 300 + k * 900)); });
+  timers.push(setTimeout(function () { document.getElementById('r2t').textContent = '一共 4 格：橡皮擦長 4 公分！'; say('一共 4 格，橡皮擦長 4 公分。6 減 2 等於 4。'); }, 300 + 4 * 900));
+};
+var sticks = document.getElementById('sticks');
+for (var s = 0; s < 10; s++) { var st = document.createElement('div'); st.className = 'stick'; st.textContent = '10'; sticks.appendChild(st); }
+document.getElementById('join').onclick = function () {
+  clearT(); var all = [].slice.call(sticks.children), tot = document.getElementById('tot');
+  all.forEach(function (x) { x.classList.remove('on'); }); tot.textContent = '0 公分';
+  all.forEach(function (x, k) { timers.push(setTimeout(function () { x.classList.add('on'); tot.textContent = ((k + 1) * 10) + ' 公分'; }, 200 + k * 450)); });
+  timers.push(setTimeout(function () { tot.textContent = '100 公分 = 1 公尺 🎉'; say('100 公分，就是 1 公尺！'); }, 200 + 10 * 450));
+};
+[].forEach.call(document.querySelectorAll('.things .card'), function (c) { c.addEventListener('click', function () { c.classList.add('open'); }); });
+var growT = null;
+window.onStep = function (i) {
+  clearT(); clearInterval(growT);
+  if (i === 0) { var v = 1; place(p0, 0, 1); growT = setInterval(function () { v = v >= 10 ? 1 : v + 1; place(p0, 0, v); }, 700); }
+  if (i === 2) { lastLen = +lenIn.value; setLen(false); }
+  if (i === 3) { cells.forEach(function (x) { x.classList.remove('on'); }); document.getElementById('r2t').textContent = '從 2 到 6，是幾公分？'; }
+};
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

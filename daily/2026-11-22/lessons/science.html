@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>太陽、月亮和地球</title>
+<style>
+:root { --c: #2e9d5b; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式 ===== */
+.space { background: radial-gradient(circle at 50% 50%, #1d2a5c, #0b1030); box-shadow: 0 5px 0 #0b1030; }
+.space .small, .space .read { color: #fff; }
+.orbit { position: relative; width: 280px; height: 280px; }
+.sunB { position: absolute; left: 50%; top: 50%; width: 80px; height: 80px; margin: -40px 0 0 -40px; border-radius: 50%; background: radial-gradient(circle, #fff59d, #ffb300 60%, #ff8f00); box-shadow: 0 0 40px #ffca28; animation: glow 2s ease-in-out infinite; }
+@keyframes glow { 50% { box-shadow: 0 0 70px #ffe082; } }
+.eRing { position: absolute; inset: 0; border: 2px dashed rgba(255,255,255,.25); border-radius: 50%; animation: turn 12s linear infinite; }
+.eRing .earth { position: absolute; left: 50%; top: -18px; margin-left: -18px; width: 36px; height: 36px; }
+.mRing { position: absolute; left: -16px; top: -16px; width: 68px; height: 68px; border-radius: 50%; animation: turn 2.5s linear infinite; }
+.mRing::after { content: ""; position: absolute; left: 50%; top: -6px; margin-left: -6px; width: 12px; height: 12px; border-radius: 50%; background: #e0e0e0; }
+@keyframes turn { to { transform: rotate(-360deg); } }
+.globe { width: 36px; height: 36px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #81d4fa, #1e88e5); box-shadow: inset -6px -4px 0 #43a047; }
+.read { font-size: clamp(20px, 5.4vw, 28px); font-weight: 900; text-align: center; min-height: 1.5em; color: #1b5e20; }
+.facts { display: grid; gap: 10px; width: 100%; }
+.facts .card { flex-direction: row; gap: 12px; text-align: left; }
+.facts .card span { font-size: 42px; flex: none; }
+.facts .card b { font-size: 19px; }
+.dn { position: relative; width: 300px; height: 200px; }
+.dn .bigsun { position: absolute; left: -10px; top: 50px; font-size: 90px; line-height: 1; }
+.rays { position: absolute; left: 80px; top: 70px; width: 70px; height: 60px; background: repeating-linear-gradient(#ffe08255 0 8px, transparent 8px 16px); }
+.world { position: absolute; left: 160px; top: 30px; width: 140px; height: 140px; border-radius: 50%; background: radial-gradient(circle at 40% 40%, #81d4fa, #1e88e5); overflow: hidden; }
+.world .land { position: absolute; inset: 0; }
+.world .night { position: absolute; top: 0; right: 0; width: 50%; height: 100%; background: rgba(5,10,40,.62); }
+.spinner { position: absolute; left: 160px; top: 30px; width: 140px; height: 140px; transition: transform 1s ease-in-out; }
+.kid { position: absolute; left: -22px; top: 50%; margin-top: -18px; font-size: 32px; line-height: 1; }
+.moonLab { position: relative; width: 280px; height: 170px; }
+.torch { position: absolute; left: 0; top: 50px; font-size: 64px; transition: filter .4s; filter: grayscale(1) brightness(.6); }
+.torch.on { filter: none; }
+.beam { position: absolute; left: 70px; top: 60px; width: 120px; height: 50px; background: linear-gradient(90deg, #ffe082cc, #ffe08200); clip-path: polygon(0 35%, 100% 0, 100% 100%, 0 65%); opacity: 0; transition: opacity .4s; }
+.beam.on { opacity: 1; }
+.mball { position: absolute; left: 190px; top: 40px; width: 80px; height: 80px; border-radius: 50%; background: #3a3f55; transition: background .5s, box-shadow .5s; }
+.mball.on { background: radial-gradient(circle at 30% 40%, #ffffff, #e0e0e0 60%, #9e9e9e); box-shadow: 0 0 30px #fff8; }
+.phases { display: flex; justify-content: center; gap: 2px; font-size: clamp(26px, 8vw, 40px); }
+.phases span { animation: fadeIn .5s ease-out backwards; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } }
+.warn { margin-top: 8px; padding: 10px; border-radius: 14px; background: #fff3e0; color: #a14d00; font-size: 18px; font-weight: 900; text-align: center; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+  <section class="step" data-auto="太陽、地球、月亮，一直在天空裡轉呀轉。地球繞著太陽轉，月亮繞著地球轉。">
+    <h1>🌞🌍🌙 天空的好朋友</h1>
+    <div class="stage space" style="flex-direction:column">
+      <div class="orbit"><div class="sunB"></div><div class="eRing"><div class="earth"><div class="globe"></div><div class="mRing"></div></div></div></div>
+      <div class="small">地球繞著太陽轉，月亮繞著地球轉</div>
+    </div>
+  </section>
+
+  <section class="step" data-auto="太陽會自己發光、發熱，所以我們有白天的亮光和溫暖。太陽比地球大很多很多。">
+    <h1>🌞 太陽</h1>
+    <div class="stage">
+      <div class="facts">
+        <button class="card" data-say="太陽會自己發光、發熱。白天的光和溫暖，都是太陽給我們的。"><span>☀️</span><b>會自己發光、發熱</b></button>
+        <button class="card" data-say="太陽是一個很大很大的火球，比地球大很多很多，只是離我們很遠，所以看起來小小的。"><span>🔥</span><b>比地球大很多很多，<br>因為很遠才看起來小</b></button>
+        <button class="card" data-say="植物要曬太陽才能長大。"><span>🌱</span><b>植物要曬太陽才長得大</b></button>
+      </div>
+    </div>
+    <div class="warn" data-say="注意！不可以直接看太陽，會傷害眼睛。">⚠️ 不可以直接看太陽，會傷眼睛！</div>
+  </section>
+
+  <section class="step" data-auto="為什麼有白天和晚上？因為地球自己會轉。按按鈕，轉轉地球看看。">
+    <h1>🔄 白天和晚上</h1>
+    <div class="stage space" style="flex-direction:column">
+      <div class="dn">
+        <span class="bigsun">🌞</span><div class="rays"></div>
+        <div class="world"><svg class="land" viewBox="0 0 140 140"><path d="M30 40 q20 -15 40 0 q10 15 -5 25 q-25 10 -35 -25z M80 85 q25 -10 35 10 q-5 20 -30 15 q-15 -10 -5 -25z" fill="#43a047"/></svg><div class="night"></div></div>
+        <div class="spinner" id="spin"><span class="kid">🧒</span></div>
+      </div>
+      <div class="read" id="dnT" style="color:#fff">🧒 面對太陽：白天</div>
+      <button class="say" id="turnBtn">🔄 轉一轉地球</button>
+    </div>
+    <p class="small">地球自己轉一圈，大約是一天。<br>面對太陽是白天，背對太陽是晚上。</p>
+  </section>
+
+  <section class="step" data-auto="月亮自己不會發光喔！太陽的光照到月亮，月亮把光反射過來，我們才看得到月亮。按手電筒試試看。">
+    <h1>🌙 月亮會發光嗎？</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="moonLab"><span class="torch" id="torch">🔦</span><div class="beam" id="beam"></div><div class="mball" id="mball"></div></div>
+      <div class="read" id="mT">月亮暗暗的……</div>
+      <button class="say" id="light">🔦 開燈（當作太陽）</button>
+    </div>
+    <p class="small">月亮像一面鏡子，把太陽的光反射給我們。</p>
+  </section>
+
+  <section class="step" data-auto="月亮的形狀好像會變。其實月亮一直都是圓圓的球，只是被太陽照亮、我們看得到的那一部分，每天不一樣。">
+    <h1>🌕 月亮會變形狀？</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="phases" id="ph"></div>
+      <p class="small">大約一個月，會從看不見變成圓圓的，再慢慢變回看不見。</p>
+    </div>
+    <p class="big">月亮一直都是<br>圓圓的球 ⚪</p>
+    <p class="center"><button class="say" data-say="月亮繞著地球轉，大約一個月轉一圈。我們看到月亮被照亮的部分不一樣，所以月亮的形狀看起來會變。">🔊 聽一聽</button></p>
+  </section>
+
+  <section class="step" data-auto="小測驗！晚上看到月亮亮亮的，是為什麼？">
+    <h1>✏️ 小測驗 1</h1>
+    <p class="big">晚上看到月亮亮亮的，<br>是為什麼？</p>
+    <div class="quiz" data-why="月亮自己不會發光，是太陽的光照到月亮，再反射過來，我們才看得到。">
+      <button>月亮自己會發光</button>
+      <button data-right>月亮反射太陽的光</button>
+      <button>月亮上有很多電燈</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗！為什麼會有白天和晚上？">
+    <h1>✏️ 小測驗 2</h1>
+    <p class="big">為什麼會有白天和晚上？</p>
+    <div class="quiz" data-why="地球自己會轉，轉到面對太陽是白天，轉到背對太陽就是晚上。">
+      <button>太陽晚上去睡覺了</button>
+      <button data-right>地球自己會轉</button>
+      <button>月亮把太陽擋住了</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+</main>
+<script>
+var ang = 0;
+var DN = ['🧒 面對太陽：白天（中午）', '🧒 轉到暗的那邊：傍晚，天快黑了', '🧒 背對太陽：晚上', '🧒 轉回亮的那邊：早上，太陽出來了'];
+var DNS = ['面對太陽，是白天。', '轉到暗的那一邊，太陽下山，天快黑了。', '背對太陽，是晚上。', '轉回亮的那一邊，太陽出來了，是早上。'];
+document.getElementById('turnBtn').onclick = function () {
+  ang -= 90;
+  document.getElementById('spin').style.transform = 'rotate(' + ang + 'deg)';
+  var k = ((-ang / 90) % 4 + 4) % 4;
+  document.getElementById('dnT').textContent = DN[k];
+  say(DNS[k]);
+};
+var on = false;
+document.getElementById('light').onclick = function () {
+  on = !on;
+  ['torch', 'beam', 'mball'].forEach(function (id) { document.getElementById(id).classList.toggle('on', on); });
+  document.getElementById('mT').textContent = on ? '光照到月亮，月亮亮起來了！' : '月亮暗暗的……';
+  this.textContent = on ? '🌑 關燈' : '🔦 開燈（當作太陽）';
+  say(on ? '光照到月亮，月亮就亮起來了！' : '沒有光照到，月亮就暗暗的。');
+};
+window.onStep = function (i) {
+  if (i === 4) {
+    var ph = document.getElementById('ph'); ph.innerHTML = '';
+    ['🌑', '🌒', '🌓', '🌔', '🌕', '🌖', '🌗', '🌘'].forEach(function (m, k) { var s = document.createElement('span'); s.textContent = m; s.style.animationDelay = (k * .3) + 's'; ph.appendChild(s); });
+  }
+};
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

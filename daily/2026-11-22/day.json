@@ -395,5 +395,31 @@
         }
       ]
     }
-  }
+  },
+  "lessons": [
+    {
+      "subject": "chinese",
+      "title": "標點符號小幫手",
+      "summary": "認識逗號、句號、問號、驚嘆號、頓號、冒號和引號，再當小幫手幫句子選標點。",
+      "file": "daily/2026-11-22/lessons/chinese.html"
+    },
+    {
+      "subject": "english",
+      "title": "What Time Is It?",
+      "summary": "轉轉時鐘學 o'clock 和 thirty，認識一天的作息和 before、after。",
+      "file": "daily/2026-11-22/lessons/english.html"
+    },
+    {
+      "subject": "math",
+      "title": "公分和公尺",
+      "summary": "用尺量鉛筆和橡皮擦，學會從 0 對齊、數格子，知道 1 公尺 = 100 公分。",
+      "file": "daily/2026-11-22/lessons/math.html"
+    },
+    {
+      "subject": "science",
+      "title": "太陽、月亮和地球",
+      "summary": "轉轉地球看白天和晚上，打開手電筒看月亮為什麼會亮。",
+      "file": "daily/2026-11-22/lessons/science.html"
+    }
+  ]
 }
