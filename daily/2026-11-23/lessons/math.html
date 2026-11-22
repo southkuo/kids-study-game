@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>長度的加減</title>
+<style>
+:root { --c: #2f8fd8; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式 ===== */
+.lane { position: relative; width: 100%; height: 46px; margin: 6px 0; }
+.bar { position: absolute; top: 4px; height: 38px; border-radius: 8px; color: #fff; font-size: 17px; font-weight: 900; display: flex; align-items: center; justify-content: center; white-space: nowrap; transition: left .7s ease, width .7s ease, opacity .5s; }
+.red { background: #e57373; box-shadow: inset 0 -5px 0 rgba(0,0,0,.12); }
+.blue { background: #2f8fd8; box-shadow: inset 0 -5px 0 rgba(0,0,0,.12); }
+.gold { background: #ffb300; color: #4a3000; box-shadow: inset 0 -5px 0 rgba(0,0,0,.12); }
+.cut { background: repeating-linear-gradient(45deg, #ffcdd2 0 8px, #fff 8px 16px); color: #b71c1c; border: 2px dashed #e57373; }
+.ghost { opacity: .25; }
+.eq { font-size: clamp(24px, 6.4vw, 36px); font-weight: 900; text-align: center; color: #1b5e94; min-height: 1.5em; }
+.key { display: inline-block; padding: 2px 12px; border-radius: 999px; background: #e3f2fd; color: #1b5e94; }
+.vert { display: inline-grid; grid-template-columns: repeat(3, 1.1em); font-size: clamp(30px, 8vw, 44px); font-weight: 900; font-family: ui-monospace, Menlo, monospace; text-align: center; line-height: 1.3; }
+.vert .ln { grid-column: 1 / 4; border-top: 4px solid #2b2112; height: 0; margin: 2px 0; }
+.vert .bor { color: #e5484d; font-size: .45em; align-self: end; }
+.ctrl { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+.stp { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 8px; border-radius: 18px; background: #f4f9ff; }
+.stp b { font-size: 22px; min-width: 70px; text-align: center; }
+.stp button { width: 52px; height: 52px; border: 0; border-radius: 50%; background: #fff; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 26px; font-weight: 900; color: #1b5e94; cursor: pointer; }
+.ops { display: flex; gap: 10px; width: 100%; }
+.ops button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 19px; font-weight: 900; cursor: pointer; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; color: #0d47a1; }
+.ops button.on { background: #2f8fd8; color: #fff; box-shadow: 0 3px 0 #1b5e94; }
+.sticks { display: flex; width: 100%; height: 40px; }
+.stick { flex: 1; height: 40px; border-right: 2px solid #fff; background: #2f8fd8; color: #fff; font-size: 14px; font-weight: 900; display: flex; align-items: center; justify-content: center; transition: opacity .4s, transform .4s; }
+.stick:nth-child(odd) { background: #64b0ea; }
+.stick.off { opacity: .15; transform: translateY(24px); }
+.rule { width: 100%; display: grid; gap: 8px; }
+.rule div { padding: 10px 14px; border-radius: 16px; background: #f4f9ff; font-size: 20px; font-weight: 900; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+  <section class="step" data-auto="兩條緞帶接起來，會變多長呢？長度也可以加加減減！">
+    <h1>🎀 長度的加減</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="lane"><div class="bar red" id="a0">5 公分</div></div>
+      <div class="lane"><div class="bar blue" id="b0">3 公分</div></div>
+      <div class="eq" id="e0"></div>
+    </div>
+    <p class="big">接起來 → <span class="key">加</span>　剪掉 → <span class="key">減</span></p>
+  </section>
+
+  <section class="step" data-auto="紅線 12 公分，藍線 5 公分。兩條接起來，就是加法。12 加 5 等於 17，答案是 17 公分。數字相加，單位不變！">
+    <h1>➕ 接起來：用加法</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="lane"><div class="bar red" id="a1">12 公分</div></div>
+      <div class="lane"><div class="bar blue" id="b1">5 公分</div></div>
+      <div class="eq" id="e1">12 公分 + 5 公分 = ？</div>
+      <button class="say" id="join1">🔗 接起來</button>
+    </div>
+    <p class="small">⚠️ 答案後面記得寫「公分」，單位不變！</p>
+  </section>
+
+  <section class="step" data-auto="一條緞帶 46 公分，剪掉 18 公分，就是減法。個位 6 不夠減 8，要向十位借 1。答案是 28 公分。">
+    <h1>✂️ 剪掉：用減法</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="lane"><div class="bar gold" id="r2" style="left:0;width:100%">46 公分</div><div class="bar cut" id="c2" style="opacity:0">剪掉 18</div></div>
+      <button class="say" id="cut2">✂️ 剪一刀</button>
+      <div class="eq" id="e2">46 − 18 = ？</div>
+      <div class="vert" id="v2">
+        <span></span><span class="bor b2">3</span><span class="bor b2">10</span>
+        <span></span><span id="t4">4</span><span>6</span>
+        <span>−</span><span>1</span><span>8</span>
+        <span class="ln"></span>
+        <span></span><span id="ans1"></span><span id="ans0"></span>
+      </div>
+    </div>
+    <p class="small">個位 6 − 8 不夠減 → 向十位借 1（4 變 3）→ 16 − 8 = 8；十位 3 − 1 = 2</p>
+  </section>
+
+  <section class="step" data-auto="藍線 14 公分，紅線 9 公分。藍線比紅線長幾公分？把兩條對齊，看多出來的那一段。長的減短的，14 減 9 等於 5。">
+    <h1>📊 比一比：差幾公分？</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="lane"><div class="bar red" id="a3">9 公分</div></div>
+      <div class="lane"><div class="bar blue" id="b3">14 公分</div><div class="bar gold" id="d3" style="opacity:0">5</div></div>
+      <div class="eq" id="e3">藍線比紅線長幾公分？</div>
+      <button class="say" id="cmp3">👀 對齊比一比</button>
+    </div>
+    <p class="big">「比……長幾公分」→ <span class="key">長的 − 短的</span></p>
+  </section>
+
+  <section class="step" data-auto="自己玩玩看！按加號減號改變長度，再選接起來，或是差多少。">
+    <h1>🛠️ 長度機器</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="ctrl">
+        <div class="stp"><button id="am">−</button><b style="color:#e57373" id="av">7</b><button id="ap">＋</button></div>
+        <div class="stp"><button id="bm">−</button><b style="color:#2f8fd8" id="bv">4</b><button id="bp">＋</button></div>
+      </div>
+      <div class="lane"><div class="bar red" id="a4"></div></div>
+      <div class="lane"><div class="bar blue" id="b4"></div><div class="bar gold" id="d4" style="opacity:0"></div></div>
+      <div class="ops"><button id="opAdd" class="on">🔗 接起來（+）</button><button id="opSub">📊 差多少（−）</button></div>
+      <div class="eq" id="e4"></div>
+    </div>
+  </section>
+
+  <section class="step" data-auto="一條毛巾長 1 公尺，剪下 30 公分，還剩多少？先把 1 公尺換成 100 公分，單位一樣才能減。100 減 30 等於 70，還剩 70 公分。">
+    <h1>🪄 公尺先換成公分</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="sticks" id="sticks"></div>
+      <div class="eq" id="e5">1 公尺 − 30 公分 = ？</div>
+      <button class="say" id="cut5">✂️ 剪下 30 公分</button>
+    </div>
+    <div class="rule">
+      <div>① 1 公尺 = <span style="color:#2f8fd8">100 公分</span></div>
+      <div>② 100 − 30 = <span style="color:#2f8fd8">70</span>，還剩 70 公分</div>
+    </div>
+    <p class="small">⚠️ 不能直接用 1 和 30 相減唷！</p>
+  </section>
+
+  <section class="step" data-auto="小測驗第一題：25 公分加 18 公分，等於幾公分？">
+    <h1>✏️ 小測驗 1</h1>
+    <p class="big">25 公分 + 18 公分 = ？</p>
+    <div class="quiz" data-why="個位 5 加 8 等於 13，寫 3 進 1；十位 2 加 1 再加 1 等於 4。所以是 43 公分。">
+      <button>33 公分</button>
+      <button data-right>43 公分</button>
+      <button>7 公分</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗第二題：紅線長 16 公分，藍線長 9 公分。紅線比藍線長幾公分？">
+    <h1>✏️ 小測驗 2</h1>
+    <p class="big">🟥 紅線 16 公分<br>🟦 藍線 9 公分<br>紅線比藍線長幾公分？</p>
+    <div class="quiz" data-why="比長幾公分，要用長的減短的：16 減 9 等於 7，所以紅線長 7 公分。">
+      <button data-right>7 公分</button>
+      <button>25 公分</button>
+      <button>13 公分</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗第三題：一條繩子長 1 公尺，剪掉 45 公分，還剩幾公分？">
+    <h1>✏️ 小測驗 3</h1>
+    <p class="big">🪢 繩子長 1 公尺，剪掉 45 公分，<br>還剩幾公分？</p>
+    <div class="quiz" data-why="1 公尺是 100 公分，100 減 45 等於 55，所以還剩 55 公分。">
+      <button>44 公分</button>
+      <button>65 公分</button>
+      <button data-right>55 公分</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+</main>
+<script>
+var T = [];
+function clearT() { T.forEach(clearTimeout); T = []; }
+function later(f, ms) { T.push(setTimeout(f, ms)); }
+function setBar(el, left, len, max, txt) { el.style.left = (left / max * 100) + '%'; el.style.width = (len / max * 100) + '%'; if (txt !== undefined) el.textContent = txt; }
+function $(id) { return document.getElementById(id); }
+/* 第 1 頁：5 + 3 */
+function p0() {
+  setBar($('a0'), 0, 5, 10); setBar($('b0'), 0, 3, 10); $('e0').textContent = '';
+  later(function () { setBar($('b0'), 5, 3, 10); }, 900);
+  later(function () { $('e0').textContent = '5 + 3 = 8 公分'; }, 1700);
+  later(p0, 4200);
+}
+/* 第 2 頁：12 + 5 */
+function p1() { setBar($('a1'), 0, 12, 20); setBar($('b1'), 0, 5, 20); $('e1').textContent = '12 公分 + 5 公分 = ？'; }
+$('join1').onclick = function () {
+  clearT(); p1();
+  later(function () { setBar($('b1'), 12, 5, 20); }, 200);
+  later(function () { $('e1').textContent = '12 + 5 = 17 公分'; say('12 加 5 等於 17，一共 17 公分。'); }, 1000);
+};
+/* 第 3 頁：46 − 18 */
+function p2() {
+  setBar($('r2'), 0, 46, 46, '46 公分'); $('c2').style.opacity = 0; setBar($('c2'), 28, 18, 46);
+  $('e2').textContent = '46 − 18 = ？'; $('ans1').textContent = ''; $('ans0').textContent = ''; [].forEach.call(document.querySelectorAll('.b2'), function (x) { x.style.visibility = 'hidden'; }); $('t4').style.textDecoration = 'none';
+}
+$('cut2').onclick = function () {
+  clearT(); p2();
+  later(function () { setBar($('r2'), 0, 28, 46, '28 公分'); $('c2').style.opacity = 1; }, 200);
+  later(function () { [].forEach.call(document.querySelectorAll('.b2'), function (x) { x.style.visibility = 'visible'; }); $('t4').style.textDecoration = 'line-through red'; say('6 減 8 不夠減，向十位借 1。'); }, 1000);
+  later(function () { $('ans0').textContent = '8'; say('16 減 8 等於 8'); }, 3600);
+  later(function () { $('ans1').textContent = '2'; say('十位，3 減 1 等於 2'); }, 5600);
+  later(function () { $('e2').textContent = '46 − 18 = 28 公分'; say('還剩 28 公分。'); }, 7600);
+};
+/* 第 4 頁：14 − 9 */
+function p3() {
+  setBar($('a3'), 0, 9, 16); setBar($('b3'), 0, 14, 16); setBar($('d3'), 9, 5, 16); $('d3').style.opacity = 0;
+  $('a3').style.left = '30%'; $('e3').textContent = '藍線比紅線長幾公分？';
+}
+$('cmp3').onclick = function () {
+  clearT(); p3();
+  later(function () { $('a3').style.left = '0%'; }, 200);
+  later(function () { $('d3').style.opacity = 1; }, 1100);
+  later(function () { $('e3').textContent = '14 − 9 = 5 公分'; say('多出來的一段是 5 公分。14 減 9 等於 5。'); }, 1700);
+};
+/* 第 5 頁：長度機器 */
+var A = 7, B = 4, op = '+';
+function draw(speak) {
+  $('av').textContent = A + ' 公分'; $('bv').textContent = B + ' 公分';
+  var max = op === '+' ? Math.max(A + B, 10) : Math.max(A, B, 10);
+  setBar($('a4'), 0, A, max, A); setBar($('b4'), op === '+' ? A : 0, B, max, B);
+  $('d4').style.opacity = 0;
+  var txt;
+  if (op === '+') txt = A + ' + ' + B + ' = ' + (A + B) + ' 公分';
+  else {
+    var L = Math.max(A, B), S = Math.min(A, B);
+    if (L === S) txt = '一樣長，差 0 公分';
+    else {
+      txt = L + ' − ' + S + ' = ' + (L - S) + ' 公分';
+      var d = $('d4');
+      d.textContent = L - S;
+      if (B > A) { setBar(d, A, B - A, max); $('b4').parentNode.appendChild(d); }
+      else { setBar(d, B, A - B, max); $('a4').parentNode.appendChild(d); }
+      d.style.opacity = 1;
+    }
+  }
+  $('e4').textContent = txt;
+  if (speak) say(txt.replace('−', '減').replace('+', '加').replace('=', '等於'));
+}
+function clamp(v) { return Math.max(1, Math.min(20, v)); }
+$('am').onclick = function () { A = clamp(A - 1); draw(false); };
+$('ap').onclick = function () { A = clamp(A + 1); draw(false); };
+$('bm').onclick = function () { B = clamp(B - 1); draw(false); };
+$('bp').onclick = function () { B = clamp(B + 1); draw(false); };
+$('opAdd').onclick = function () { op = '+'; $('opAdd').classList.add('on'); $('opSub').classList.remove('on'); draw(true); };
+$('opSub').onclick = function () { op = '-'; $('opSub').classList.add('on'); $('opAdd').classList.remove('on'); draw(true); };
+/* 第 6 頁：1 公尺 − 30 公分 */
+var sticks = $('sticks');
+for (var s = 0; s < 10; s++) { var st = document.createElement('div'); st.className = 'stick'; st.textContent = '10'; sticks.appendChild(st); }
+function p5() { [].forEach.call(sticks.children, function (x) { x.classList.remove('off'); }); $('e5').textContent = '1 公尺 = 100 公分'; }
+$('cut5').onclick = function () {
+  clearT(); p5();
+  [7, 8, 9].forEach(function (k, j) { later(function () { sticks.children[k].classList.add('off'); }, 300 + j * 500); });
+  later(function () { $('e5').textContent = '100 − 30 = 70 公分'; say('100 減 30 等於 70，還剩 70 公分。'); }, 1900);
+};
+window.onStep = function (i) {
+  clearT();
+  if (i === 0) p0();
+  if (i === 1) p1();
+  if (i === 2) p2();
+  if (i === 3) p3();
+  if (i === 4) draw(false);
+  if (i === 5) p5();
+};
+
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

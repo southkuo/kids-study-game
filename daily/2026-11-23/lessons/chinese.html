@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>木字旁和草字頭</title>
+<style>
+:root { --c: #c0573b; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式 ===== */
+.morph { position: relative; width: 100%; height: 210px; }
+.morph .pic, .morph .zi { position: absolute; top: 45%; font-size: 96px; transform: translate(-50%, -50%); transition: all .8s ease; }
+.morph .zi { font-weight: 900; color: #c0573b; opacity: 0; }
+.morph .pic.gone { opacity: 0; transform: translate(-50%, -50%) scale(.3); }
+.morph .zi.on { opacity: 1; }
+.morph .zi.small { font-size: 56px; color: #9a3d24; }
+.morph .rest { position: absolute; top: 45%; font-size: 96px; font-weight: 900; color: #2b2112; opacity: 0; transform: translate(-50%, -50%); transition: opacity .8s; }
+.morph .rest.on { opacity: 1; }
+.lbl { position: absolute; bottom: 6px; left: 0; right: 0; text-align: center; font-size: 20px; font-weight: 900; color: #c0573b; }
+.zis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; }
+.zis .card { min-width: 0; }
+.zis .card b { font-size: 54px; line-height: 1.1; }
+.zis .card span { font-size: 18px; font-weight: 800; color: #6a5536; }
+.zis .card.pop { animation: pop .5s; }
+@keyframes pop { 50% { transform: scale(1.15); } }
+.hl { color: #c0573b; }
+.green .hl { color: #2e9d5b; }
+.sort { width: 100%; text-align: center; }
+.now { display: inline-block; font-size: 100px; font-weight: 900; line-height: 1.2; padding: 4px 26px; border-radius: 24px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; }
+.now.shake { animation: shake .4s; }
+@keyframes shake { 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+.now.fly { animation: fly .5s ease-in forwards; }
+@keyframes fly { to { transform: translateY(80px) scale(.3); opacity: 0; } }
+.bins { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+.bin { min-height: 130px; border: 0; border-radius: 22px; font: inherit; cursor: pointer; padding: 10px; }
+.bin h3 { margin: 0; font-size: 22px; }
+.bin.wood { background: #fbe3d6; box-shadow: 0 4px 0 #d79b7d; color: #7a2f16; }
+.bin.grass { background: #dcf3e3; box-shadow: 0 4px 0 #7fc79a; color: #1b6b3a; }
+.bin .got { font-size: 30px; font-weight: 900; letter-spacing: 4px; min-height: 40px; }
+.msg { min-height: 1.6em; font-size: 20px; font-weight: 900; text-align: center; margin-top: 8px; }
+.trap { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; width: 100%; }
+.trap .card { min-width: 140px; }
+.trap .card b { font-size: 70px; }
+.trap .card span { font-size: 18px; font-weight: 800; color: #6a5536; }
+.split { display: inline-flex; font-size: 70px; font-weight: 900; }
+.x { color: #e5484d; font-size: 36px; }
+.sway { display: inline-block; animation: sway 2s ease-in-out infinite; transform-origin: bottom center; }
+@keyframes sway { 50% { transform: rotate(6deg); } }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+  <section class="step" data-auto="大樹變成了木，小草變成了草字頭。今天我們來認識木字旁和草字頭！">
+    <h1>🌳 木字旁和草字頭 🌿</h1>
+    <div class="stage">
+      <div class="morph" id="m0">
+        <span class="pic" style="left:25%">🌳</span><span class="zi" style="left:25%">木</span>
+        <span class="pic" style="left:75%">🌱</span><span class="zi" style="left:75%;color:#2e9d5b">艹</span>
+      </div>
+    </div>
+    <p class="big">樹木變成「<span class="hl">木</span>」<br>小草變成「<span style="color:#2e9d5b">艹</span>」</p>
+    <p class="center"><button class="say" data-say="大樹變成木，小草變成草字頭。">🔊 聽一聽</button></p>
+  </section>
+
+  <section class="step" data-auto="木字旁就是把木寫在字的左邊。木字旁的字，常常和樹木、木頭有關係。點一點，聽聽每個字。">
+    <h1>🌳 木字旁</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="morph" id="m1" style="height:175px">
+        <span class="zi on" style="left:50%">木</span><span class="rest" style="left:50%">樹</span>
+        <span class="lbl">木 縮小、站到左邊，就變成木字旁</span>
+      </div>
+      <div class="zis">
+        <button class="card" data-say="林，樹林的林。兩棵樹。"><b>林</b><span>樹林的林</span></button>
+        <button class="card" data-say="樹，大樹的樹。"><b>樹</b><span>大樹的樹</span></button>
+        <button class="card" data-say="橋，木橋的橋。"><b>橋</b><span>木橋的橋</span></button>
+        <button class="card" data-say="椅，椅子的椅。"><b>椅</b><span>椅子的椅</span></button>
+        <button class="card" data-say="板，木板的板。"><b>板</b><span>木板的板</span></button>
+        <button class="card" data-say="桃，桃子的桃。桃子長在桃樹上。"><b>桃</b><span>桃子的桃</span></button>
+      </div>
+    </div>
+    <p class="small">「林」就是兩個木，好多樹站在一起！</p>
+  </section>
+
+  <section class="step green" data-auto="草字頭就是把小草寫在字的上面。草字頭的字，常常和花草、植物有關係。點一點，聽聽每個字。">
+    <h1 style="color:#2e9d5b">🌿 草字頭</h1>
+    <div class="stage" style="flex-direction:column">
+      <p class="big" style="margin:0"><span class="sway" style="color:#2e9d5b;font-size:60px">艹</span> 戴在頭上</p>
+      <div class="zis">
+        <button class="card" data-say="花，花朵的花。"><b>花</b><span>花朵的花</span></button>
+        <button class="card" data-say="草，小草的草。"><b>草</b><span>小草的草</span></button>
+        <button class="card" data-say="葉，葉子的葉。"><b>葉</b><span>葉子的葉</span></button>
+        <button class="card" data-say="菜，青菜的菜。"><b>菜</b><span>青菜的菜</span></button>
+        <button class="card" data-say="茶，喝茶的茶。茶是用茶樹的葉子做的。"><b>茶</b><span>喝茶的茶</span></button>
+        <button class="card" data-say="苗，小苗的苗。"><b>苗</b><span>小苗的苗</span></button>
+      </div>
+    </div>
+    <p class="small">花、草、葉、菜、茶、苗，都和植物有關 🌱</p>
+  </section>
+
+  <section class="step" data-auto="分分看！看看上面的字，是木字旁，還是草字頭？按下面的籃子。">
+    <h1>🧺 分分看</h1>
+    <div class="stage">
+      <div class="sort">
+        <div class="now" id="now">林</div>
+        <div class="msg" id="msg">木在左邊？艹在上面？</div>
+        <div class="bins">
+          <button class="bin wood" data-k="w"><h3>🌳 木字旁</h3><div class="got" id="gw"></div></button>
+          <button class="bin grass" data-k="g"><h3>🌿 草字頭</h3><div class="got" id="gg"></div></button>
+        </div>
+      </div>
+    </div>
+    <p class="center"><button class="say" id="again">🔄 再玩一次</button></p>
+  </section>
+
+  <section class="step" data-auto="小心陷阱！休這個字，右邊有木，可是左邊是單人旁，所以不是木字旁。早這個字，上面是日，不是草字頭。">
+    <h1>⚠️ 小心陷阱</h1>
+    <div class="stage">
+      <div class="trap">
+        <button class="card" data-say="休，休息的休。一個人靠在樹旁邊休息。木在右邊，左邊是單人旁，所以不是木字旁。"><b>休</b><span>木在<b style="font-size:20px;color:#e5484d">右邊</b></span><span>左邊是 亻</span><span class="x">✗ 不是木字旁</span></button>
+        <button class="card" data-say="早，早上的早。上面是太陽的日，不是草字頭。"><b>早</b><span>上面是 日</span><span>不是 艹</span><span class="x">✗ 不是草字頭</span></button>
+      </div>
+    </div>
+    <p class="big">「木」要在<span class="hl">左邊</span>才是木字旁<br>「艹」要在<span style="color:#2e9d5b">上面</span>才是草字頭</p>
+  </section>
+
+  <section class="step" data-auto="小測驗第一題：哪一個字是木字旁？">
+    <h1>✏️ 小測驗 1</h1>
+    <p class="big">哪一個字是<span class="hl">木字旁</span>？</p>
+    <div class="quiz" data-why="椅的左邊是木，是木字旁。休的木在右邊，花是草字頭。">
+      <button>休</button>
+      <button data-right>椅</button>
+      <button>花</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗第二題：哪一個字是草字頭？">
+    <h1>✏️ 小測驗 2</h1>
+    <p class="big">哪一個字是<span style="color:#2e9d5b">草字頭</span>？</p>
+    <div class="quiz" data-why="菜的上面是艹，是草字頭。早的上面是日，林是木字旁。">
+      <button>早</button>
+      <button>林</button>
+      <button data-right>菜</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+</main>
+<script>
+var T = [];
+function clearT() { T.forEach(clearTimeout); T = []; }
+function playMorph(id) {
+  var m = document.getElementById(id);
+  var pics = m.querySelectorAll('.pic'), zis = m.querySelectorAll('.zi');
+  [].forEach.call(pics, function (p) { p.classList.remove('gone'); });
+  [].forEach.call(zis, function (z) { z.classList.remove('on'); });
+  T.push(setTimeout(function () {
+    [].forEach.call(pics, function (p) { p.classList.add('gone'); });
+    [].forEach.call(zis, function (z) { z.classList.add('on'); });
+  }, 1200));
+}
+function playTree() {
+  var m = document.getElementById('m1'), z = m.querySelector('.zi'), r = m.querySelector('.rest');
+  z.classList.remove('small'); z.style.left = '50%'; z.style.opacity = ''; r.classList.remove('on');
+  T.push(setTimeout(function () { z.classList.add('small'); z.style.left = '40%'; }, 900));
+  T.push(setTimeout(function () { z.style.opacity = '0'; r.classList.add('on'); }, 1900));
+}
+/* 分分看 */
+var ITEMS = [['林', 'w'], ['花', 'g'], ['樹', 'w'], ['草', 'g'], ['橋', 'w'], ['菜', 'g'], ['椅', 'w'], ['茶', 'g']];
+var k = 0, nowEl = document.getElementById('now'), msg = document.getElementById('msg');
+function resetSort() {
+  k = 0; document.getElementById('gw').textContent = ''; document.getElementById('gg').textContent = '';
+  nowEl.className = 'now'; nowEl.textContent = ITEMS[0][0]; nowEl.style.visibility = 'visible';
+  msg.style.color = '#6a5536'; msg.textContent = '木在左邊？艹在上面？';
+}
+[].forEach.call(document.querySelectorAll('.bin'), function (b) {
+  b.addEventListener('click', function () {
+    if (k >= ITEMS.length) return;
+    var it = ITEMS[k];
+    if (b.dataset.k === it[1]) {
+      document.getElementById(it[1] === 'w' ? 'gw' : 'gg').textContent += it[0];
+      msg.style.color = '#0e6b2e';
+      msg.textContent = it[1] === 'w' ? '對！' + it[0] + '的左邊是木。' : '對！' + it[0] + '的上面是艹。';
+      say(it[1] === 'w' ? '對！' + it[0] + '是木字旁。' : '對！' + it[0] + '是草字頭。');
+      k++;
+      nowEl.className = 'now fly';
+      setTimeout(function () {
+        if (k < ITEMS.length) { nowEl.className = 'now'; nowEl.textContent = ITEMS[k][0]; }
+        else { nowEl.style.visibility = 'hidden'; msg.textContent = '🎉 全部分好了！'; say('全部分好了！好棒！'); }
+      }, 520);
+    } else {
+      nowEl.className = 'now'; void nowEl.offsetWidth; nowEl.className = 'now shake';
+      msg.style.color = '#a0161b';
+      msg.textContent = it[1] === 'w' ? '再看看：木在哪一邊？' : '再看看：上面是不是艹？';
+      say('再看看');
+    }
+  });
+});
+document.getElementById('again').onclick = resetSort;
+resetSort();
+window.onStep = function (i) {
+  clearT();
+  if (i === 0) playMorph('m0');
+  if (i === 1) playTree();
+};
+
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

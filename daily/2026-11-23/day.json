@@ -368,5 +368,31 @@
         }
       ]
     }
-  }
+  },
+  "lessons": [
+    {
+      "subject": "chinese",
+      "title": "木字旁和草字頭",
+      "summary": "看大樹變成「木」、小草變成「艹」，把林、樹、花、草分進籃子，再認識「休」「早」兩個小陷阱。",
+      "file": "daily/2026-11-23/lessons/chinese.html"
+    },
+    {
+      "subject": "english",
+      "title": "Happy Holidays!",
+      "summary": "認識 Chinese New Year、Moon Festival、Halloween、Christmas，猜猜紅包、月餅是哪個節日，再練習用完整句子回答。",
+      "file": "daily/2026-11-23/lessons/english.html"
+    },
+    {
+      "subject": "math",
+      "title": "長度的加減",
+      "summary": "接起來用加、剪掉用減、比長短用長的減短的，還有 1 公尺要先換成 100 公分再算。",
+      "file": "daily/2026-11-23/lessons/math.html"
+    },
+    {
+      "subject": "science",
+      "title": "我們吃植物的哪裡？",
+      "summary": "紅蘿蔔是根、馬鈴薯是莖、高麗菜是葉、花椰菜是花、番茄是果實、花生是種子，點點看猜猜看。",
+      "file": "daily/2026-11-23/lessons/science.html"
+    }
+  ]
 }
