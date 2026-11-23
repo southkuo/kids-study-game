@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>成語故事：守株待兔、畫蛇添足</title>
+<!--
+  教學老師的教材範本（每天複製這個檔案到 daily/日期/lessons/科目.html 再改內容）
+  規則：
+  - 一個檔案就是一個完整教材，CSS、JS、圖都寫在裡面，不能載入任何外部網址。
+  - 每一個 <section class="step"> 是一頁，下方會自動出現「上一步／下一步」和進度點。
+  - data-auto="要念的話"：進到這一頁時自動朗讀（data-lang="en-US" 用英文念）。
+  - 任何元素加上 data-say="要念的話"（可加 data-lang="en-US"），點了就會念。
+  - 小測驗：<div class="quiz" data-why="答對時的補充說明"> 裡面放按鈕，正確的按鈕加 data-right，後面放 <div class="fb"></div>。
+  - 需要每頁自己的動畫：寫 window.onStep = function (index, section) { … }，換頁時會呼叫。
+  - 只改「教材內容」區塊和自訂樣式；下面的共用程式不要改壞。
+-->
+<style>
+:root { --c: #ff7043; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式（這一份教材自己的動畫）寫在這裡 ===== */
+:root { --c: #c0573b; }
+.book { font-size: 90px; animation: bookPop 1s ease-out; }
+@keyframes bookPop { from { transform: scale(.3) rotate(-20deg); opacity: 0; } }
+.idioms { display: grid; grid-template-columns: repeat(2, minmax(130px, 1fr)); gap: 10px; width: 100%; }
+.idioms .card { font-size: 24px; font-weight: 900; color: #c0573b; animation: flyIn .6s ease-out backwards; }
+.idioms .card small { font-size: 17px; color: #6a5536; font-weight: 700; }
+@keyframes flyIn { from { transform: translateY(40px) scale(.6); opacity: 0; } }
+.scene { position: relative; width: 100%; max-width: 520px; height: 210px; border-radius: 18px; background: linear-gradient(#bfe6ff 0 60%, #a8d978 60%); overflow: hidden; }
+.scene .e { position: absolute; line-height: 1; }
+.farmer { left: 6%; bottom: 18px; font-size: 64px; }
+.stump { left: 46%; bottom: 20px; font-size: 54px; }
+.rabbit { left: 100%; bottom: 22px; font-size: 48px; }
+.rabbit.run { animation: hop 2.2s ease-in forwards; }
+@keyframes hop { 0% { left: 100%; } 15% { bottom: 50px; } 30% { bottom: 22px; } 45% { bottom: 50px; } 60% { bottom: 22px; } 82% { left: 60%; transform: rotate(0); } 100% { left: 58%; bottom: 14px; transform: rotate(80deg); } }
+.bump { left: 54%; bottom: 74px; font-size: 40px; opacity: 0; }
+.bump.show { animation: pop .5s 2s ease-out forwards; }
+@keyframes pop { from { opacity: 0; transform: scale(.2); } to { opacity: 1; transform: scale(1); } }
+.weeds { position: absolute; left: 0; right: 0; bottom: 0; text-align: center; font-size: 30px; letter-spacing: 2px; }
+.weeds span { display: inline-block; animation: pop .4s ease-out backwards; }
+.daytag { font-size: 20px; font-weight: 900; color: #6a5536; min-height: 1.5em; text-align: center; }
+.ctrl { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 8px; }
+.ctrl button { min-width: 150px; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; background: #fde3d9; box-shadow: 0 4px 0 #e3a58f; color: #8a3018; cursor: pointer; }
+.ctrl button:disabled { opacity: .4; }
+.ctrl button:active { transform: translateY(2px); }
+.mean { margin: 10px auto 0; max-width: 560px; padding: 12px 16px; border-radius: 18px; background: #fff3ee; border: 3px dashed #e3a58f; font-size: 20px; font-weight: 900; line-height: 1.6; text-align: center; }
+.mean b { color: #c0573b; }
+.snake path.body { fill: none; stroke: #4caf50; stroke-width: 16; stroke-linecap: round; stroke-dasharray: 700; stroke-dashoffset: 700; }
+.snake.draw path.body { animation: drawIt 2s ease-out forwards; }
+@keyframes drawIt { to { stroke-dashoffset: 0; } }
+.snake .feet { opacity: 0; transition: opacity .6s; }
+.snake.feet-on .feet { opacity: 1; }
+.snake .x { opacity: 0; transition: opacity .4s .5s; }
+.snake.feet-on .x { opacity: 1; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; width: 100%; }
+.panel { background: #fff7ec; border-radius: 20px; padding: 10px; box-shadow: 0 4px 0 #f0d9b5; text-align: center; }
+.panel h2 { margin: 4px 0; font-size: 24px; color: #c0573b; }
+.well { position: relative; height: 200px; border-radius: 14px; overflow: hidden; background: #d6ecff; transition: background .8s; }
+.well .sky { position: absolute; left: 50%; top: 10px; width: 70px; height: 26px; margin-left: -35px; border-radius: 50%; background: #5fb4ff; transition: all .8s; }
+.well .wall { position: absolute; top: 30px; bottom: 0; width: 36%; background: repeating-linear-gradient(0deg, #9e8a74 0 18px, #8a7660 18px 20px); transition: transform .8s; }
+.well .wall.l { left: 0; } .well .wall.r { right: 0; }
+.well .frog { position: absolute; left: 50%; bottom: 8px; margin-left: -22px; font-size: 44px; transition: bottom .8s, transform .8s; }
+.well .cloud { position: absolute; top: 18px; font-size: 34px; opacity: 0; transition: opacity .8s .4s; }
+.well.out .wall.l { transform: translateX(-100%); } .well.out .wall.r { transform: translateX(100%); }
+.well.out .sky { top: 0; left: 0; width: 100%; height: 100%; margin-left: 0; border-radius: 0; }
+.well.out .frog { bottom: 30px; transform: scale(1.1); }
+.well.out .cloud { opacity: 1; }
+.pen { position: relative; height: 200px; border-radius: 14px; background: #c9e8a6; overflow: hidden; }
+.fence { position: absolute; left: 8%; right: 8%; top: 30px; height: 130px; border: 8px solid #a06a3b; border-radius: 8px; }
+.gap { position: absolute; right: -8px; top: 40px; width: 8px; height: 48px; background: #c9e8a6; transition: background .5s; }
+.pen.fixed .gap { background: #e2a24f; }
+.sheep { position: absolute; font-size: 34px; transition: left 1.2s ease-in-out, opacity 1.2s; }
+.walkout { left: 100% !important; opacity: 0; }
+.wq { margin-top: 8px; }
+.wq .big { margin-bottom: 0; }
+
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容：每一頁一個 section.step ===== -->
+<section class="step" data-auto="成語就是四個字的小故事。今天要認識四個成語：守株待兔、畫蛇添足、井底之蛙、亡羊補牢。點一點卡片，聽聽看。">
+    <h1>📜 成語故事屋</h1>
+    <div class="stage">
+      <div class="book">📖</div>
+      <div class="idioms">
+        <button class="card" style="animation-delay:.3s" data-say="守株待兔。守著樹樁，等兔子。">🐇 守株待兔<small>守著樹樁等兔子</small></button>
+        <button class="card" style="animation-delay:.6s" data-say="畫蛇添足。畫蛇，還多畫了腳。">🐍 畫蛇添足<small>畫蛇多畫了腳</small></button>
+        <button class="card" style="animation-delay:.9s" data-say="井底之蛙。住在井底的青蛙。">🐸 井底之蛙<small>住在井底的青蛙</small></button>
+        <button class="card" style="animation-delay:1.2s" data-say="亡羊補牢。羊跑掉了，趕快修好羊圈。">🐑 亡羊補牢<small>羊跑了，修羊圈</small></button>
+      </div>
+    </div>
+    <p class="big">成語是<b style="color:#c0573b">四個字</b>的小故事！</p>
+  </section>
+
+  <section class="step" data-auto="守株待兔。有一個農夫在種田，一隻兔子跑過來，咚！撞到樹樁上。農夫撿到兔子好高興，從此不種田了，每天坐在樹樁旁邊等兔子。按再等一天，看看會怎麼樣。">
+    <h1>🐇 守株待兔</h1>
+    <div class="stage">
+      <div class="scene" id="farm">
+        <span class="e farmer">🧑‍🌾</span>
+        <span class="e stump">🪵</span>
+        <span class="e rabbit" id="rabbit">🐇</span>
+        <span class="e bump" id="bump">💫</span>
+        <div class="weeds" id="weeds"></div>
+      </div>
+    </div>
+    <div class="daytag" id="daytag">兔子跑過來，咚！撞到樹樁。</div>
+    <div class="ctrl"><button id="wait">⏳ 再等一天</button></div>
+    <div class="mean">「守」是守著、「株」是樹樁、「待」是等。<br><b>不要只想靠運氣，要自己努力。</b></div>
+    <p class="center"><button class="say" data-say="守株待兔。守是守著，株是樹樁，待是等。意思是不要只想靠運氣，要自己努力。">🔊 聽一聽</button></p>
+  </section>
+
+  <section class="step" data-auto="畫蛇添足。大家比賽畫蛇，最先畫好的人可以拿到獎品。有一個人最先畫好，他說：我還來得及幫蛇畫腳！按加上腳，看看會怎麼樣。">
+    <h1>🐍 畫蛇添足</h1>
+    <div class="stage">
+      <svg class="snake" id="snake" viewBox="0 0 320 170" width="320" height="170" style="max-width:100%">
+        <g class="feet" stroke="#c0573b" stroke-width="6" stroke-linecap="round">
+          <line x1="80" y1="100" x2="70" y2="140"/><line x1="70" y1="140" x2="58" y2="140"/>
+          <line x1="130" y1="70" x2="128" y2="112"/><line x1="128" y1="112" x2="116" y2="114"/>
+          <line x1="190" y1="100" x2="186" y2="140"/><line x1="186" y1="140" x2="174" y2="140"/>
+          <line x1="240" y1="74" x2="244" y2="114"/><line x1="244" y1="114" x2="232" y2="116"/>
+        </g>
+        <path class="body" d="M30 90 C 60 40, 100 40, 130 70 S 190 130, 220 90 S 270 50, 290 70"/>
+        <circle cx="292" cy="70" r="12" fill="#4caf50"/>
+        <circle cx="296" cy="66" r="3" fill="#222"/>
+        <path d="M303 74 l12 4 m-12 -4 l12 -2" stroke="#e53935" stroke-width="3" fill="none"/>
+        <g class="x"><circle cx="160" cy="85" r="70" fill="none" stroke="#e5484d" stroke-width="8"/><line x1="110" y1="35" x2="210" y2="135" stroke="#e5484d" stroke-width="8"/></g>
+      </svg>
+    </div>
+    <div class="daytag" id="snaketag">他最先畫好了蛇……</div>
+    <div class="ctrl"><button id="addfeet">🦶 幫蛇加上腳</button></div>
+    <div class="mean">「添」是加上、「足」是腳。<br><b>做了多餘的事，反而變不好。</b></div>
+    <p class="center"><button class="say" data-say="畫蛇添足。添是加上，足是腳。蛇本來就沒有腳，多畫了腳，反而輸了。意思是做了多餘的事，反而變不好。">🔊 聽一聽</button></p>
+  </section>
+
+  <section class="step" data-auto="再認識兩個成語。井底之蛙：青蛙住在井底，以為天空只有井口那麼大。亡羊補牢：羊圈破了洞，羊跑掉了，趕快修好羊圈，其他的羊就不會跑掉。按按鈕試試看。">
+    <h1>🐸 井底之蛙・🐑 亡羊補牢</h1>
+    <div class="two">
+      <div class="panel">
+        <h2>井底之蛙</h2>
+        <div class="well" id="well">
+          <div class="sky"></div>
+          <span class="cloud" style="left:12%">☁️</span><span class="cloud" style="right:12%">☀️</span>
+          <div class="wall l"></div><div class="wall r"></div>
+          <span class="frog">🐸</span>
+        </div>
+        <div class="daytag" id="welltag">「天空只有這麼小嗎？」</div>
+        <div class="ctrl"><button id="jump">🐸 跳出井口</button></div>
+        <div class="mean">看得太少，就以為自己<b>什麼都知道</b>。</div>
+        <button class="say" data-say="井底之蛙。青蛙住在井底，以為天空只有井口那麼大。意思是看得太少，就以為自己什麼都知道。">🔊 聽一聽</button>
+      </div>
+      <div class="panel">
+        <h2>亡羊補牢</h2>
+        <div class="pen" id="pen">
+          <div class="fence"><div class="gap"></div></div>
+          <span class="sheep" style="left:20%;top:50px">🐑</span>
+          <span class="sheep" style="left:40%;top:95px">🐑</span>
+          <span class="sheep" style="left:58%;top:45px">🐑</span>
+          <span class="sheep" id="lost" style="left:72%;top:60px">🐑</span>
+        </div>
+        <div class="daytag" id="pentag">羊圈破了一個洞……</div>
+        <div class="ctrl"><button id="fix">🔨 修好羊圈</button></div>
+        <div class="mean">「亡」是不見、「牢」是羊圈。<br>發現錯了<b>趕快改正</b>，還來得及。</div>
+        <button class="say" data-say="亡羊補牢。亡是不見，牢是羊圈。羊跑掉了，趕快修好羊圈。意思是發現錯了趕快改正，還來得及。">🔊 聽一聽</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="step" data-auto="小測驗！聽故事，選成語。">
+    <h1>✏️ 小測驗 1</h1>
+    <div class="wq">
+      <p class="big" data-say="農夫不種田，每天坐在樹樁旁邊等兔子。這是哪個成語？">🧑‍🌾 農夫不種田，每天坐在樹樁旁邊等兔子。這是哪個成語？</p>
+      <div class="quiz" data-why="守著樹樁等兔子，就是守株待兔。">
+        <button data-right>守株待兔</button><button>畫蛇添足</button><button>亡羊補牢</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+    <div class="wq">
+      <p class="big" data-say="青蛙住在井底，以為天空只有井口那麼大。這是哪個成語？">🐸 青蛙住在井底，以為天空只有井口那麼大。這是哪個成語？</p>
+      <div class="quiz" data-why="住在井底的青蛙，看得太少，就是井底之蛙。">
+        <button>守株待兔</button><button data-right>井底之蛙</button><button>畫蛇添足</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+  </section>
+
+  <section class="step" data-auto="小測驗！生活裡的成語。">
+    <h1>✏️ 小測驗 2</h1>
+    <div class="wq">
+      <p class="big" data-say="小樂的考卷本來寫對了，他又把答案亂改，結果改錯了。這就是哪個成語？">📝 小樂的考卷本來寫對了，他又把答案亂改，結果改錯了。這就是？</p>
+      <div class="quiz" data-why="本來已經對了，還做多餘的事，反而變錯，就像幫蛇畫腳，是畫蛇添足。">
+        <button>亡羊補牢</button><button>守株待兔</button><button data-right>畫蛇添足</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+    <div class="wq">
+      <p class="big" data-say="豆豆的鉛筆盒破了一個洞，掉了一枝鉛筆。他趕快把洞補好，其他鉛筆就不會再掉了。這就是哪個成語？">✏️ 豆豆的鉛筆盒破了一個洞，掉了一枝鉛筆。他趕快把洞補好。這就是？</p>
+      <div class="quiz" data-why="東西掉了以後趕快補好破洞，就像羊跑掉後修好羊圈，是亡羊補牢。">
+        <button data-right>亡羊補牢</button><button>井底之蛙</button><button>畫蛇添足</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+var waitDays = 0;
+function resetFarm() {
+  waitDays = 0;
+  var r = document.getElementById('rabbit'), b = document.getElementById('bump');
+  r.classList.remove('run'); b.classList.remove('show');
+  void r.offsetWidth;
+  r.classList.add('run'); b.classList.add('show');
+  r.style.display = '';
+  document.getElementById('weeds').innerHTML = '';
+  document.getElementById('daytag').textContent = '兔子跑過來，咚！撞到樹樁。';
+  document.getElementById('wait').disabled = false;
+}
+document.getElementById('wait').onclick = function () {
+  if (waitDays >= 3) return;
+  waitDays++;
+  document.getElementById('rabbit').style.display = 'none';
+  document.getElementById('bump').classList.remove('show');
+  var w = document.getElementById('weeds'), s = document.createElement('span');
+  s.textContent = waitDays === 1 ? '🌱🌱' : waitDays === 2 ? '🌿🌿🌿🌿' : '🌾🌿🌾🌿🌾🌿';
+  w.appendChild(s);
+  var msg = waitDays < 3 ? '第 ' + waitDays + ' 天：沒有兔子……田裡長出雜草了。' : '第 3 天：還是沒有兔子！田都荒掉了。';
+  document.getElementById('daytag').textContent = msg;
+  say(msg.replace('……', '，'));
+  if (waitDays >= 3) this.disabled = true;
+};
+document.getElementById('addfeet').onclick = function () {
+  var s = document.getElementById('snake');
+  s.classList.add('feet-on');
+  var t = '蛇本來就沒有腳！畫上腳就不是蛇了，他輸了比賽。';
+  document.getElementById('snaketag').textContent = t;
+  say(t);
+  this.disabled = true;
+};
+document.getElementById('jump').onclick = function () {
+  var w = document.getElementById('well'), out = !w.classList.contains('out');
+  w.classList.toggle('out', out);
+  var t = out ? '哇！原來天空這麼大！' : '天空只有這麼小嗎？';
+  document.getElementById('welltag').textContent = '「' + t + '」';
+  this.textContent = out ? '⬇️ 回到井底' : '🐸 跳出井口';
+  say(t);
+};
+document.getElementById('fix').onclick = function () {
+  var p = document.getElementById('pen');
+  p.classList.add('fixed');
+  var t = '羊圈修好了！其他的羊就不會再跑掉了。';
+  document.getElementById('pentag').textContent = t;
+  say(t);
+  this.disabled = true;
+};
+window.onStep = function (i) {
+  if (i === 1) resetFarm();
+  if (i === 2) {
+    var s = document.getElementById('snake');
+    s.classList.remove('draw', 'feet-on'); void s.getBoundingClientRect(); s.classList.add('draw');
+    document.getElementById('snaketag').textContent = '他最先畫好了蛇……';
+    document.getElementById('addfeet').disabled = false;
+  }
+  if (i === 3) {
+    var lost = document.getElementById('lost'), p = document.getElementById('pen');
+    p.classList.remove('fixed'); lost.classList.remove('walkout');
+    document.getElementById('fix').disabled = true;
+    document.getElementById('pentag').textContent = '羊圈破了一個洞……';
+    setTimeout(function () { lost.classList.add('walkout'); document.getElementById('pentag').textContent = '有一隻羊從洞跑掉了！'; document.getElementById('fix').disabled = false; }, 1200);
+  }
+};
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

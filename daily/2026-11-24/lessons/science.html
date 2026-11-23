@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>我們的五種感覺</title>
+<!--
+  教學老師的教材範本（每天複製這個檔案到 daily/日期/lessons/科目.html 再改內容）
+  規則：
+  - 一個檔案就是一個完整教材，CSS、JS、圖都寫在裡面，不能載入任何外部網址。
+  - 每一個 <section class="step"> 是一頁，下方會自動出現「上一步／下一步」和進度點。
+  - data-auto="要念的話"：進到這一頁時自動朗讀（data-lang="en-US" 用英文念）。
+  - 任何元素加上 data-say="要念的話"（可加 data-lang="en-US"），點了就會念。
+  - 小測驗：<div class="quiz" data-why="答對時的補充說明"> 裡面放按鈕，正確的按鈕加 data-right，後面放 <div class="fb"></div>。
+  - 需要每頁自己的動畫：寫 window.onStep = function (index, section) { … }，換頁時會呼叫。
+  - 只改「教材內容」區塊和自訂樣式；下面的共用程式不要改壞。
+-->
+<style>
+:root { --c: #ff7043; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式（這一份教材自己的動畫）寫在這裡 ===== */
+:root { --c: #2e9d5b; }
+.face { position: relative; width: 220px; height: 220px; }
+.face .e { position: absolute; font-size: 46px; animation: popIn .5s ease-out backwards; }
+@keyframes popIn { from { transform: scale(0); opacity: 0; } }
+.face .head { position: absolute; inset: 20px; border-radius: 50%; background: #ffe0b8; box-shadow: inset 0 -8px 0 #f4c58d; }
+.blink { animation: popIn .5s ease-out backwards, blink 3s 1s infinite; }
+@keyframes blink { 0%, 90%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+.senses { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; width: 100%; }
+.senses .card span { font-size: 46px; }
+.senses .card b { font-size: 21px; color: #2e9d5b; }
+.senses .card small { font-size: 17px; color: #6a5536; font-weight: 700; }
+.senses .card.tap span { animation: bounce .6s; }
+@keyframes bounce { 30% { transform: translateY(-14px) scale(1.2); } 60% { transform: translateY(0) scale(.95); } }
+.info { margin-top: 10px; min-height: 2.6em; text-align: center; font-size: clamp(20px, 5vw, 26px); font-weight: 900; color: #1f6b3e; line-height: 1.5; }
+.game .thing { font-size: 90px; text-align: center; animation: popIn .5s ease-out; }
+.game .what { text-align: center; font-size: clamp(21px, 5.4vw, 28px); font-weight: 900; }
+.organs { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-top: 10px; }
+.organs button { min-height: 72px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #b8dcc4; font: inherit; font-size: 20px; font-weight: 900; color: #1f6b3e; cursor: pointer; }
+.organs button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; }
+.organs button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.score { text-align: center; font-size: 20px; font-weight: 900; color: #6a5536; }
+.stars { font-size: 28px; letter-spacing: 4px; text-align: center; min-height: 1.3em; }
+.ctrl { display: flex; justify-content: center; margin-top: 10px; }
+.ctrl button { min-width: 160px; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; background: #dff3e6; box-shadow: 0 4px 0 #8fcfa6; color: #1f6b3e; cursor: pointer; }
+.tips { display: grid; gap: 10px; width: 100%; }
+.tip { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 10px 14px; border: 0; border-radius: 18px; background: #f2fbf5; box-shadow: 0 4px 0 #b8dcc4; font: inherit; font-size: clamp(18px, 4.6vw, 22px); font-weight: 900; color: var(--ink); text-align: left; cursor: pointer; animation: popIn .5s ease-out backwards; }
+.tip span { font-size: 36px; }
+.qline { margin-bottom: 18px; }
+
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容：每一頁一個 section.step ===== -->
+<section class="step" data-auto="我們的身體有五種感覺：看、聽、聞、嚐、摸。眼睛、耳朵、鼻子、舌頭和皮膚，幫我們認識這個世界！">
+    <h1>👀 我們的五種感覺</h1>
+    <div class="stage">
+      <div class="face">
+        <div class="head"></div>
+        <span class="e blink" style="left:60px;top:58px;animation-delay:.2s">👁️</span>
+        <span class="e blink" style="left:116px;top:58px;animation-delay:.2s">👁️</span>
+        <span class="e" style="left:-14px;top:88px;animation-delay:.6s">👂</span>
+        <span class="e" style="right:-14px;top:88px;animation-delay:.6s;transform:scaleX(-1)">👂</span>
+        <span class="e" style="left:87px;top:100px;animation-delay:1s">👃</span>
+        <span class="e" style="left:87px;top:146px;animation-delay:1.4s">👅</span>
+        <span class="e" style="right:-30px;bottom:-6px;animation-delay:1.8s">✋</span>
+      </div>
+    </div>
+    <p class="big">看、聽、聞、嚐、摸<br>五種感覺幫我們認識世界！</p>
+  </section>
+
+  <section class="step" data-auto="點一點卡片，看看每一種感覺是用身體的哪裡。">
+    <h1>🖐️ 五種感覺在哪裡？</h1>
+    <div class="stage">
+      <div class="senses" id="senses">
+        <button class="card" data-i="0"><span>👀</span><b>眼睛：看</b><small>視覺</small></button>
+        <button class="card" data-i="1"><span>👂</span><b>耳朵：聽</b><small>聽覺</small></button>
+        <button class="card" data-i="2"><span>👃</span><b>鼻子：聞</b><small>嗅覺</small></button>
+        <button class="card" data-i="3"><span>👅</span><b>舌頭：嚐</b><small>味覺</small></button>
+        <button class="card" data-i="4"><span>✋</span><b>皮膚：摸</b><small>觸覺</small></button>
+      </div>
+    </div>
+    <div class="info" id="info">👆 點一張卡片</div>
+  </section>
+
+  <section class="step game" data-auto="感覺小偵探！看看圖，要用哪一種感覺才知道？">
+    <h1>🔍 感覺小偵探</h1>
+    <div class="score" id="gcount"></div>
+    <div class="thing" id="gpic"></div>
+    <div class="what" id="gtext"></div>
+    <div class="organs" id="organs">
+      <button data-o="0">👀 眼睛</button><button data-o="1">👂 耳朵</button><button data-o="2">👃 鼻子</button><button data-o="3">👅 舌頭</button><button data-o="4">✋ 皮膚</button>
+    </div>
+    <div class="info" id="ginfo"></div>
+    <div class="stars" id="gstars"></div>
+    <div class="ctrl"><button id="gnext" style="visibility:hidden">下一題 ▶</button></div>
+  </section>
+
+  <section class="step" data-auto="感覺器官很重要，要好好保護它們。點一點，聽聽看要怎麼做。">
+    <h1>🛡️ 保護我們的感覺器官</h1>
+    <div class="stage" style="min-height:0">
+      <div class="tips">
+        <button class="tip" style="animation-delay:.1s" data-say="看書時，眼睛和書要保持一段距離，也要在明亮的地方看。"><span>📖</span>看書時，眼睛和書保持距離，在亮亮的地方看。</button>
+        <button class="tip" style="animation-delay:.3s" data-say="眼睛癢的時候，不要用手揉眼睛。"><span>🙅</span>眼睛癢，不要用手揉。</button>
+        <button class="tip" style="animation-delay:.5s" data-say="聲音不要開太大聲，也不要把東西塞進耳朵裡。"><span>🔉</span>聲音不要開太大，不要把東西塞進耳朵。</button>
+        <button class="tip" style="animation-delay:.7s" data-say="太燙的食物，要先吹一吹，等涼一點再吃，才不會燙到舌頭。"><span>🍜</span>太燙的食物先吹涼，才不會燙到舌頭。</button>
+        <button class="tip" style="animation-delay:.9s" data-say="不要摸太燙的東西，像是熱水壺，皮膚會被燙傷。"><span>♨️</span>不要摸太燙的東西，皮膚會燙傷。</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="step" data-auto="小測驗！">
+    <h1>✏️ 小測驗</h1>
+    <div class="qline">
+      <p class="big" data-say="吃一口檸檬，覺得酸酸的，是用哪裡知道的？">🍋 吃一口檸檬，覺得酸酸的，是用哪裡知道的？</p>
+      <div class="quiz" data-why="酸、甜、苦、鹹這些味道，是用舌頭嚐出來的。">
+        <button>耳朵</button><button data-right>舌頭</button><button>眼睛</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+    <div class="qline">
+      <p class="big" data-say="看書的時候，怎麼做才能保護眼睛？">📖 看書的時候，怎麼做才能保護眼睛？</p>
+      <div class="quiz" data-why="眼睛和書保持一段距離，在亮亮的地方看，眼睛才不會太累。">
+        <button>把書貼在眼睛前面</button><button>在很暗的地方看</button><button data-right>和書保持距離，在亮的地方看</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+var SENSE = [
+  '眼睛用來看，看得到顏色、形狀，還有東西在哪裡。',
+  '耳朵用來聽，聽得到說話聲、音樂和小鳥叫。',
+  '鼻子用來聞，聞得到花香，也聞得到臭臭的味道。',
+  '舌頭用來嚐，嚐得出酸、甜、苦、鹹。',
+  '皮膚用來摸，摸得出軟軟的、硬硬的、冷冷的、熱熱的。'
+];
+[].forEach.call(document.querySelectorAll('#senses .card'), function (c) {
+  c.addEventListener('click', function () {
+    c.classList.remove('tap'); void c.offsetWidth; c.classList.add('tap');
+    var t = SENSE[+c.dataset.i];
+    document.getElementById('info').textContent = t; say(t);
+  });
+});
+var GAME = [
+  { pic: '🌈', text: '彩虹有好多顏色', o: 0, why: '顏色要用眼睛看！' },
+  { pic: '🔔', text: '鈴鈴鈴，上課鐘響了', o: 1, why: '聲音要用耳朵聽！' },
+  { pic: '🌸', text: '花香香的', o: 2, why: '香味要用鼻子聞！' },
+  { pic: '🍬', text: '糖果甜甜的', o: 3, why: '甜甜的味道要用舌頭嚐！' },
+  { pic: '🧊', text: '用手摸冰塊，冰冰的', o: 4, why: '冷冷的、冰冰的，是皮膚摸到的！' }
+];
+var gi = 0, gdone = false, gstars = 0;
+function showGame() {
+  var g = GAME[gi]; gdone = false;
+  var pic = document.getElementById('gpic');
+  pic.textContent = g.pic; pic.style.animation = 'none'; void pic.offsetWidth; pic.style.animation = '';
+  document.getElementById('gtext').textContent = g.text + '，要用哪裡知道？';
+  document.getElementById('gcount').textContent = '第 ' + (gi + 1) + ' / ' + GAME.length + ' 題';
+  document.getElementById('ginfo').textContent = '';
+  document.getElementById('gnext').style.visibility = 'hidden';
+  [].forEach.call(document.querySelectorAll('#organs button'), function (b) { b.classList.remove('right', 'wrong'); });
+}
+document.getElementById('organs').addEventListener('click', function (e) {
+  var b = e.target.closest('button'); if (!b || gdone) return;
+  var g = GAME[gi], info = document.getElementById('ginfo');
+  if (+b.dataset.o === g.o) {
+    b.classList.add('right'); gdone = true; gstars++;
+    document.getElementById('gstars').textContent = '⭐'.repeat(gstars);
+    info.style.color = '#0e6b2e'; info.textContent = '🎉 答對了！' + g.why; say('答對了！' + g.why);
+    if (gi < GAME.length - 1) document.getElementById('gnext').style.visibility = 'visible';
+    else { info.textContent += ' 全部完成！'; }
+  } else {
+    b.classList.add('wrong'); info.style.color = '#a0161b'; info.textContent = '再想想看！'; say('再想想看');
+  }
+});
+document.getElementById('gnext').onclick = function () { if (gi < GAME.length - 1) { gi++; showGame(); say(GAME[gi].text + '，要用哪裡知道？'); } };
+window.onStep = function (i) {
+  if (i === 2) { gi = 0; gstars = 0; document.getElementById('gstars').textContent = ''; showGame(); }
+};
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

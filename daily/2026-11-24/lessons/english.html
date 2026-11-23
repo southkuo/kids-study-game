@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Classroom</title>
+<!--
+  教學老師的教材範本（每天複製這個檔案到 daily/日期/lessons/科目.html 再改內容）
+  規則：
+  - 一個檔案就是一個完整教材，CSS、JS、圖都寫在裡面，不能載入任何外部網址。
+  - 每一個 <section class="step"> 是一頁，下方會自動出現「上一步／下一步」和進度點。
+  - data-auto="要念的話"：進到這一頁時自動朗讀（data-lang="en-US" 用英文念）。
+  - 任何元素加上 data-say="要念的話"（可加 data-lang="en-US"），點了就會念。
+  - 小測驗：<div class="quiz" data-why="答對時的補充說明"> 裡面放按鈕，正確的按鈕加 data-right，後面放 <div class="fb"></div>。
+  - 需要每頁自己的動畫：寫 window.onStep = function (index, section) { … }，換頁時會呼叫。
+  - 只改「教材內容」區塊和自訂樣式；下面的共用程式不要改壞。
+-->
+<style>
+:root { --c: #ff7043; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式（這一份教材自己的動畫）寫在這裡 ===== */
+:root { --c: #3f6fe0; }
+.room { position: relative; width: 100%; max-width: 520px; height: 230px; margin: 0 auto; border-radius: 18px; background: linear-gradient(#fff6d8 0 72%, #d9b98a 72%); overflow: hidden; transition: max-width .8s, height .8s; }
+.room.small { max-width: 260px; height: 170px; }
+.room .board { position: absolute; left: 22%; right: 22%; top: 14px; height: 70px; border: 6px solid #8d6e63; border-radius: 6px; background: #2e6b4f; color: #fff; font-size: 22px; font-weight: 900; display: flex; align-items: center; justify-content: center; animation: drop .7s ease-out backwards; }
+.room .it { position: absolute; font-size: 40px; animation: drop .6s ease-out backwards; }
+@keyframes drop { from { transform: translateY(-60px); opacity: 0; } }
+.sz { font-size: clamp(24px, 6vw, 32px); font-weight: 900; text-align: center; color: #3f6fe0; min-height: 1.4em; }
+.ctrl { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 8px; }
+.ctrl button { min-width: 140px; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; background: #e3ebff; box-shadow: 0 4px 0 #9db5f2; color: #1f3f99; cursor: pointer; }
+.ctrl button.on { background: #3f6fe0; color: #fff; box-shadow: 0 4px 0 #22479e; }
+.things { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 10px; width: 100%; }
+.things .card { animation: drop .5s ease-out backwards; }
+.things .card span { font-size: 44px; line-height: 1.1; }
+.things .card b { font-size: 21px; color: #3f6fe0; }
+.things .card small { font-size: 17px; color: #6a5536; font-weight: 700; }
+.things .card.tap { animation: wig .5s; }
+@keyframes wig { 25% { transform: rotate(-8deg) scale(1.08); } 75% { transform: rotate(8deg) scale(1.08); } }
+.mini-board { display: inline-block; width: 52px; height: 34px; border: 4px solid #8d6e63; border-radius: 4px; background: #2e6b4f; }
+.seats { display: grid; grid-template-columns: 34px repeat(3, 1fr); gap: 8px; width: 100%; max-width: 440px; margin: 0 auto; }
+.seats .bd { grid-column: 2 / 5; height: 40px; border: 5px solid #8d6e63; border-radius: 6px; background: #2e6b4f; color: #fff; font-weight: 900; display: flex; align-items: center; justify-content: center; font-size: 17px; }
+.seats .win { grid-row: 2 / 5; grid-column: 1; border-radius: 8px; background: repeating-linear-gradient(#bfe6ff 0 26px, #fff 26px 30px); border: 3px solid #90a4ae; }
+.seat { min-height: 58px; border: 0; border-radius: 14px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; font-size: 28px; cursor: pointer; }
+.seat.me { background: #ffe58a; box-shadow: 0 4px 0 #d6a400; animation: wig .5s; }
+.rowlab { font-size: 17px; font-weight: 900; color: #6a5536; }
+.sent { margin-top: 10px; text-align: center; font-size: clamp(21px, 5.4vw, 28px); font-weight: 900; color: #1f3f99; min-height: 1.5em; }
+.sent small { display: block; font-size: 18px; color: #6a5536; }
+.act h2 { margin: 6px 0; text-align: center; font-size: 22px; color: #3f6fe0; }
+.acts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; width: 100%; }
+.acts .card span { font-size: 42px; }
+.acts .card b { font-size: 18px; color: #1f3f99; text-align: center; }
+.acts .card small { font-size: 17px; color: #6a5536; font-weight: 700; }
+.pic { font-size: 80px; text-align: center; }
+.qline { margin: 6px 0; }
+
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容：每一頁一個 section.step ===== -->
+<section class="step" data-auto="This is my classroom. Is your classroom big or small?" data-lang="en-US">
+    <h1>🏫 My Classroom</h1>
+    <div class="stage">
+      <div class="room" id="room">
+        <div class="board">Good morning!</div>
+        <span class="it" style="left:6%;top:24px;animation-delay:.5s">🪟</span>
+        <span class="it" style="right:5%;top:96px;animation-delay:.7s">🚪</span>
+        <span class="it" style="left:14%;bottom:18px;animation-delay:.9s">🪑</span>
+        <span class="it" style="left:38%;bottom:18px;animation-delay:1.1s">🪑</span>
+        <span class="it" style="left:62%;bottom:18px;animation-delay:1.3s">🪑</span>
+        <span class="it" style="left:44%;top:96px;animation-delay:1.5s">🧑‍🏫</span>
+      </div>
+    </div>
+    <div class="sz" id="sz">This is my classroom.</div>
+    <div class="ctrl"><button id="bigBtn" class="on">🏫 big 大</button><button id="smallBtn">🏠 small 小</button></div>
+    <p class="center"><button class="say" data-say="Is your classroom big or small?" data-lang="en-US">🔊 Is your classroom big or small?</button></p>
+  </section>
+
+  <section class="step" data-auto="What can you see in the classroom? Tap the cards." data-lang="en-US">
+    <h1>👀 In the Classroom</h1>
+    <p class="small">點卡片，聽英文怎麼說。</p>
+    <div class="stage">
+      <div class="things">
+        <button class="card" style="animation-delay:.1s" data-say="board. I can see the board." data-lang="en-US"><span><i class="mini-board"></i></span><b>board</b><small>黑板</small></button>
+        <button class="card" style="animation-delay:.2s" data-say="desk. This is my desk." data-lang="en-US"><span><svg width="52" height="44" viewBox="0 0 52 44"><rect x="2" y="8" width="48" height="8" rx="2" fill="#b07a46"/><rect x="6" y="16" width="5" height="26" fill="#8a5a2b"/><rect x="41" y="16" width="5" height="26" fill="#8a5a2b"/><rect x="12" y="16" width="28" height="10" fill="#c99560"/></svg></span><b>desk</b><small>書桌</small></button>
+        <button class="card" style="animation-delay:.3s" data-say="chair. I sit on my chair." data-lang="en-US"><span>🪑</span><b>chair</b><small>椅子</small></button>
+        <button class="card" style="animation-delay:.4s" data-say="window. Open the window, please." data-lang="en-US"><span>🪟</span><b>window</b><small>窗戶</small></button>
+        <button class="card" style="animation-delay:.5s" data-say="door. Close the door, please." data-lang="en-US"><span>🚪</span><b>door</b><small>門</small></button>
+        <button class="card" style="animation-delay:.6s" data-say="teacher. Good morning, teacher!" data-lang="en-US"><span>🧑‍🏫</span><b>teacher</b><small>老師</small></button>
+        <button class="card" style="animation-delay:.7s" data-say="classmates. My classmates are my friends." data-lang="en-US"><span>🧒👧</span><b>classmates</b><small>同學</small></button>
+        <button class="card" style="animation-delay:.8s" data-say="bookshelf. There are books on the bookshelf." data-lang="en-US"><span>📚</span><b>bookshelf</b><small>書櫃</small></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="step" data-auto="Where do you sit? Tap your seat." data-lang="en-US">
+    <h1>🪑 Where do you sit?</h1>
+    <p class="small">點一個位子，當作你的座位。</p>
+    <div class="stage">
+      <div class="seats" id="seats">
+        <div></div><div class="bd">board 黑板</div>
+        <div class="win" title="window"></div>
+      </div>
+    </div>
+    <div class="sent" id="seatSent">&nbsp;</div>
+    <div class="ctrl"><button class="say" data-say="I sit by the window." data-lang="en-US">🪟 I sit by the window.</button></div>
+  </section>
+
+  <section class="step act" data-auto="What do you do at recess? Do you help clean your classroom? Tap the cards." data-lang="en-US">
+    <h1>🔔 Recess and Cleaning</h1>
+    <h2>At recess 下課的時候</h2>
+    <div class="acts">
+      <button class="card" data-say="I play tag with my friends at recess." data-lang="en-US"><span>🏃</span><b>I play tag.</b><small>我玩鬼抓人</small></button>
+      <button class="card" data-say="I play ball on the playground at recess." data-lang="en-US"><span>⚽</span><b>I play ball.</b><small>我打球</small></button>
+      <button class="card" data-say="I read books at recess." data-lang="en-US"><span>📖</span><b>I read books.</b><small>我看書</small></button>
+    </div>
+    <h2>Cleaning time 打掃時間</h2>
+    <div class="acts">
+      <button class="card" data-say="I sweep the floor." data-lang="en-US"><span>🧹</span><b>I sweep the floor.</b><small>我掃地</small></button>
+      <button class="card" data-say="I clean the windows." data-lang="en-US"><span>🪟✨</span><b>I clean the windows.</b><small>我擦窗戶</small></button>
+      <button class="card" data-say="I take out the trash." data-lang="en-US"><span>🗑️</span><b>I take out the trash.</b><small>我倒垃圾</small></button>
+    </div>
+  </section>
+
+  <section class="step" data-auto="Quiz time! 小測驗！">
+    <h1>✏️ Quiz 1</h1>
+    <div class="qline">
+      <div class="pic">🪟</div>
+      <p class="big">What is this? 這是什麼？</p>
+      <div class="quiz" data-why="window 是窗戶。">
+        <button>door</button><button data-right>window</button><button>desk</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+    <div class="qline">
+      <div class="pic">🧹</div>
+      <p class="big">打掃時間，小安拿著掃把。他說：</p>
+      <div class="quiz" data-why="掃把是用來掃地的，掃地是 sweep the floor。">
+        <button data-right>I sweep the floor.</button><button>I take out the trash.</button><button>I read books.</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+  </section>
+
+  <section class="step" data-auto="Quiz time! 小測驗！">
+    <h1>✏️ Quiz 2</h1>
+    <div class="qline">
+      <div class="stage" style="min-height:0">
+        <div class="seats" style="max-width:300px">
+          <div></div><div class="bd">board</div>
+          <div class="win"></div>
+          <button class="seat">⭐</button><button class="seat"></button><button class="seat"></button>
+          <button class="seat"></button><button class="seat"></button><button class="seat"></button>
+          <button class="seat"></button><button class="seat"></button><button class="seat"></button>
+        </div>
+      </div>
+      <p class="big">⭐ 是小樂的位子，在黑板前面那一排。小樂說：</p>
+      <div class="quiz" data-why="最靠近黑板的那一排是前面，front 是前面。">
+        <button>I sit at the back of the classroom.</button><button data-right>I sit at the front of the classroom.</button><button>I sit in the middle of the classroom.</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+(function () {
+  var room = document.getElementById('room');
+  document.getElementById('bigBtn').onclick = function () {
+    room.classList.remove('small'); this.classList.add('on'); document.getElementById('smallBtn').classList.remove('on');
+    document.getElementById('sz').textContent = 'My classroom is big.'; say('My classroom is big.', 'en-US');
+  };
+  document.getElementById('smallBtn').onclick = function () {
+    room.classList.add('small'); this.classList.add('on'); document.getElementById('bigBtn').classList.remove('on');
+    document.getElementById('sz').textContent = 'My classroom is small.'; say('My classroom is small.', 'en-US');
+  };
+  [].forEach.call(document.querySelectorAll('.things .card'), function (c) {
+    c.addEventListener('click', function () { c.classList.remove('tap'); void c.offsetWidth; c.classList.add('tap'); });
+  });
+  var ROWS = [['front', 'at the front of the classroom', '我坐在教室的前面。'], ['middle', 'in the middle of the classroom', '我坐在教室的中間。'], ['back', 'at the back of the classroom', '我坐在教室的後面。']];
+  var box = document.getElementById('seats');
+  ROWS.forEach(function (r) {
+    for (var c = 0; c < 3; c++) {
+      var b = document.createElement('button');
+      b.className = 'seat'; b.textContent = '🪑'; b.dataset.row = r[0];
+      b.onclick = function () {
+        [].forEach.call(box.querySelectorAll('.seat'), function (x) { x.classList.remove('me'); x.textContent = '🪑'; });
+        this.classList.add('me'); this.textContent = '🙋';
+        var row = ROWS.filter(function (q) { return q[0] === this.dataset.row; }, this)[0];
+        var en = 'I sit ' + row[1] + '.';
+        document.getElementById('seatSent').innerHTML = en + '<small>' + row[2] + '</small>';
+        say(en, 'en-US');
+      };
+      box.appendChild(b);
+    }
+  });
+})();
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

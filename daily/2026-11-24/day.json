@@ -386,5 +386,31 @@
         }
       ]
     }
-  }
+  },
+  "lessons": [
+    {
+      "subject": "chinese",
+      "title": "成語故事：守株待兔、畫蛇添足",
+      "summary": "看動畫認識守株待兔、畫蛇添足、井底之蛙、亡羊補牢四個成語故事和意思。",
+      "file": "daily/2026-11-24/lessons/chinese.html"
+    },
+    {
+      "subject": "english",
+      "title": "My Classroom",
+      "summary": "認識教室裡的東西，學會說座位在哪裡、下課和打掃時做什麼。",
+      "file": "daily/2026-11-24/lessons/english.html"
+    },
+    {
+      "subject": "math",
+      "title": "認識幾時幾分",
+      "summary": "短針看時、長針看分，長針一格 5 分鐘，自己撥時鐘練習。",
+      "file": "daily/2026-11-24/lessons/math.html"
+    },
+    {
+      "subject": "science",
+      "title": "我們的五種感覺",
+      "summary": "眼睛看、耳朵聽、鼻子聞、舌頭嚐、皮膚摸，還有怎麼保護感覺器官。",
+      "file": "daily/2026-11-24/lessons/science.html"
+    }
+  ]
 }

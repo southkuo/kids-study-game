@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>認識幾時幾分</title>
+<!--
+  教學老師的教材範本（每天複製這個檔案到 daily/日期/lessons/科目.html 再改內容）
+  規則：
+  - 一個檔案就是一個完整教材，CSS、JS、圖都寫在裡面，不能載入任何外部網址。
+  - 每一個 <section class="step"> 是一頁，下方會自動出現「上一步／下一步」和進度點。
+  - data-auto="要念的話"：進到這一頁時自動朗讀（data-lang="en-US" 用英文念）。
+  - 任何元素加上 data-say="要念的話"（可加 data-lang="en-US"），點了就會念。
+  - 小測驗：<div class="quiz" data-why="答對時的補充說明"> 裡面放按鈕，正確的按鈕加 data-right，後面放 <div class="fb"></div>。
+  - 需要每頁自己的動畫：寫 window.onStep = function (index, section) { … }，換頁時會呼叫。
+  - 只改「教材內容」區塊和自訂樣式；下面的共用程式不要改壞。
+-->
+<style>
+:root { --c: #ff7043; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式（這一份教材自己的動畫）寫在這裡 ===== */
+:root { --c: #2f8fd8; }
+.clk { display: flex; justify-content: center; }
+.clk svg { width: min(78vw, 280px); height: auto; }
+.clk.sm svg { width: min(56vw, 200px); }
+.clk .num { cursor: pointer; }
+.clk .num circle { fill: transparent; }
+.clk .num.hit circle { fill: #ffe58a; }
+.tick { animation: tk 1s steps(1) infinite; font-size: 26px; font-weight: 900; color: #2f8fd8; }
+@keyframes tk { 50% { opacity: .3; } }
+.legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.hand-btn { min-height: 60px; padding: 8px 18px; border: 0; border-radius: 18px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+.hand-btn.h { background: #ffe3e0; box-shadow: 0 4px 0 #e74c3c; color: #b0281a; }
+.hand-btn.m { background: #e1edff; box-shadow: 0 4px 0 #2c6fbb; color: #1d4e8a; }
+.glow { animation: glow .5s ease-in-out 4 alternate; }
+@keyframes glow { to { opacity: .25; } }
+.readout { text-align: center; font-size: clamp(30px, 8vw, 44px); font-weight: 900; color: #2f8fd8; min-height: 1.3em; }
+.readout .h { color: #e74c3c; } .readout .m { color: #2c6fbb; }
+.count { text-align: center; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: #6a5536; min-height: 1.6em; line-height: 1.5; }
+.ctrl { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 8px; }
+.ctrl button { min-width: 120px; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 19px; font-weight: 900; background: #e3f2fd; box-shadow: 0 4px 0 #90caf9; color: #0d47a1; cursor: pointer; }
+.ctrl button:active { transform: translateY(2px); }
+.hint { text-align: center; font-size: 18px; font-weight: 700; color: #6a5536; min-height: 1.5em; }
+.qline { margin-bottom: 18px; }
+
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容：每一頁一個 section.step ===== -->
+<section class="step" data-auto="滴答滴答，時鐘在走。時鐘上有兩根針，一根短短的，一根長長的。今天來學會看幾時幾分！">
+    <h1>⏰ 時鐘滴答滴答</h1>
+    <div class="stage"><div class="clk" id="c0"></div></div>
+    <p class="center"><span class="tick">滴答！滴答！</span></p>
+    <p class="big">時鐘有<span style="color:#e74c3c">短針</span>和<span style="color:#2c6fbb">長針</span>。</p>
+  </section>
+
+  <section class="step" data-auto="紅色的短針，指的是幾時。藍色的長針，指的是幾分。點按鈕，看看是哪一根針。">
+    <h1>👆 短針看時，長針看分</h1>
+    <div class="stage"><div class="clk" id="c1"></div></div>
+    <div class="legend">
+      <button class="hand-btn h" id="showH">🔴 短針 ➜ 幾「時」</button>
+      <button class="hand-btn m" id="showM">🔵 長針 ➜ 幾「分」</button>
+    </div>
+    <p class="big">現在是 <span style="color:#e74c3c">3 時</span>。</p>
+    <p class="small">長針指著 12，是整點，叫做「3 時」。</p>
+  </section>
+
+  <section class="step" data-auto="長針每走到下一個數字，就是五分鐘。點時鐘上的數字，看看是幾分。">
+    <h1>🔵 長針一格 5 分鐘</h1>
+    <p class="small">點時鐘上的數字 👇</p>
+    <div class="stage"><div class="clk" id="c2"></div></div>
+    <div class="readout" id="r2">&nbsp;</div>
+    <div class="count" id="k2">&nbsp;</div>
+  </section>
+
+  <section class="step" data-auto="自己撥撥看！按按鈕，長針會走五分鐘，短針也會慢慢走。">
+    <h1>🕹️ 自己撥時鐘</h1>
+    <div class="stage"><div class="clk" id="c3"></div></div>
+    <div class="readout" id="r3"></div>
+    <div class="hint" id="h3"></div>
+    <div class="ctrl">
+      <button id="m5">⏪ 少 5 分</button><button id="p5">多 5 分 ⏩</button>
+    </div>
+    <div class="ctrl">
+      <button id="m60">⏮ 少 1 小時</button><button id="p60">多 1 小時 ⏭</button>
+    </div>
+  </section>
+
+  <section class="step" data-auto="小測驗！看看時鐘，現在是幾時幾分？">
+    <h1>✏️ 小測驗 1</h1>
+    <div class="clk sm" id="q1"></div>
+    <p class="big">現在是幾時幾分？</p>
+    <div class="quiz" data-why="長針指著 2，是 5、10，所以是 10 分。短針剛過 11，所以是 11 時 10 分。">
+      <button>11 時 2 分</button><button data-right>11 時 10 分</button><button>2 時 55 分</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗！這一題要小心看短針唷。">
+    <h1>✏️ 小測驗 2</h1>
+    <div class="clk sm" id="q2"></div>
+    <p class="big">現在是幾時幾分？</p>
+    <p class="small">小心！短針很靠近 6，但是還沒到 6。</p>
+    <div class="quiz" data-why="長針指著 9，是 9 個 5 分，等於 45 分。短針還沒走到 6，所以還是 5 時。合起來是 5 時 45 分。">
+      <button>6 時 45 分</button><button>5 時 9 分</button><button data-right>5 時 45 分</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+var NS = 'http://www.w3.org/2000/svg';
+function P(r, deg) { var a = deg * Math.PI / 180; return [100 + r * Math.sin(a), 100 - r * Math.cos(a)]; }
+function el(tag, attrs, parent) { var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+function makeClock(id, h, m, onNum) {
+  var box = document.getElementById(id); box.innerHTML = '';
+  var s = el('svg', { viewBox: '0 0 200 200', width: 280, height: 280 }, box);
+  el('circle', { cx: 100, cy: 100, r: 94, fill: '#fffdf5', stroke: '#5a3e2b', 'stroke-width': 6 }, s);
+  for (var i = 0; i < 60; i++) {
+    var big = i % 5 === 0, a = P(big ? 80 : 84, i * 6), b = P(89, i * 6);
+    el('line', { x1: a[0], y1: a[1], x2: b[0], y2: b[1], stroke: '#5a3e2b', 'stroke-width': big ? 3 : 1.2 }, s);
+  }
+  for (var n = 1; n <= 12; n++) {
+    var p = P(67, n * 30), g = el('g', { 'class': 'num', 'data-n': n }, s);
+    el('circle', { cx: p[0], cy: p[1], r: 14 }, g);
+    var t = el('text', { x: p[0], y: p[1] + 7, 'font-size': 20, 'font-weight': 'bold', 'text-anchor': 'middle', fill: '#333' }, g);
+    t.textContent = n;
+    if (onNum) g.addEventListener('click', (function (k, gg) { return function () { onNum(k, gg); }; })(n, g));
+  }
+  var hh = el('line', { x1: 100, y1: 100, x2: 100, y2: 62, stroke: '#e74c3c', 'stroke-width': 10, 'stroke-linecap': 'round' }, s);
+  var mh = el('line', { x1: 100, y1: 100, x2: 100, y2: 46, stroke: '#2c6fbb', 'stroke-width': 6, 'stroke-linecap': 'round' }, s);
+  el('circle', { cx: 100, cy: 100, r: 6, fill: '#333' }, s);
+  var c = { svg: s, hh: hh, mh: mh, set: function (H, M) {
+    hh.setAttribute('transform', 'rotate(' + ((H % 12) + M / 60) * 30 + ' 100 100)');
+    mh.setAttribute('transform', 'rotate(' + M * 6 + ' 100 100)');
+  } };
+  c.set(h, m);
+  return c;
+}
+function hourName(t) { var h = Math.floor(t / 60) % 12; return h === 0 ? 12 : h; }
+
+// 第 1 頁：會轉的時鐘
+var c0 = makeClock('c0', 10, 10), spin = null;
+function startSpin() {
+  var t = 600, last = 0;
+  cancelAnimationFrame(spin);
+  (function loop(ts) {
+    if (ts - last > 30) { t = (t + 1) % 720; c0.set(Math.floor(t / 60), t % 60); last = ts; }
+    spin = requestAnimationFrame(loop);
+  })(0);
+}
+
+// 第 2 頁：短針、長針
+var c1 = makeClock('c1', 3, 0);
+document.getElementById('showH').onclick = function () { c1.hh.classList.remove('glow'); void c1.svg.getBoundingClientRect(); c1.hh.classList.add('glow'); say('紅色的短針，短短胖胖的，指著三，是三時。'); };
+document.getElementById('showM').onclick = function () { c1.mh.classList.remove('glow'); void c1.svg.getBoundingClientRect(); c1.mh.classList.add('glow'); say('藍色的長針，長長瘦瘦的，指著十二，是整點。'); };
+
+// 第 3 頁：點數字看幾分
+var c2 = makeClock('c2', 4, 0, function (n, g) {
+  [].forEach.call(c2.svg.querySelectorAll('.num'), function (x) { x.classList.remove('hit'); });
+  g.classList.add('hit');
+  var min = n === 12 ? 0 : n * 5;
+  c2.set(4, min);
+  var steps = []; for (var i = 1; i <= (n === 12 ? 0 : n); i++) steps.push(i * 5);
+  document.getElementById('r2').innerHTML = '<span class="m">長針指著 ' + n + '</span> ➜ ' + (n === 12 ? '整點' : min + ' 分');
+  document.getElementById('k2').textContent = n === 12 ? '走了一整圈，是 60 分鐘，又回到 12。' : '5 個 5 個數：' + steps.join('、');
+  say(n === 12 ? '長針指著十二，是整點。' : '長針指著' + n + '，是' + min + '分。' + (n > 1 ? '五個五個數，' + steps.join('，') : ''));
+});
+
+// 第 4 頁：自己撥
+var t3 = 7 * 60, c3 = makeClock('c3', 7, 0);
+function show3(speak) {
+  var h = hourName(t3), m = t3 % 60, next = h === 12 ? 1 : h + 1;
+  c3.set(h, m);
+  var txt = h + ' 時' + (m ? ' ' + m + ' 分' : '');
+  document.getElementById('r3').innerHTML = '<span class="h">' + h + ' 時</span>' + (m ? ' <span class="m">' + m + ' 分</span>' : '');
+  document.getElementById('h3').textContent = m ? '短針還沒走到 ' + next + '，所以還是 ' + h + ' 時。' : '長針指著 12，是整點。';
+  if (speak) say(txt);
+}
+function move(d) { t3 = (t3 + d + 720) % 720; show3(true); }
+document.getElementById('m5').onclick = function () { move(-5); };
+document.getElementById('p5').onclick = function () { move(5); };
+document.getElementById('m60').onclick = function () { move(-60); };
+document.getElementById('p60').onclick = function () { move(60); };
+show3(false);
+
+// 小測驗的時鐘
+makeClock('q1', 11, 10);
+makeClock('q2', 5, 45);
+
+window.onStep = function (i) { if (i === 0) startSpin(); else cancelAnimationFrame(spin); };
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>
