@@ -1,0 +1,390 @@
+{
+  "date": "2026-11-24",
+  "theme": "教室裡的成語時鐘",
+  "homework": {
+    "english": {
+      "title": "英文口說作業",
+      "note": "請用完整句子回答唷！",
+      "topic": "My classroom 我的教室",
+      "questionAudio": "daily/2026-11-24/audio/",
+      "items": [
+        {
+          "q": "What day is today?",
+          "zh": "今天星期幾？",
+          "lines": [
+            {
+              "en": "Today is {today}.",
+              "zh": "今天是{todayZh}。"
+            }
+          ]
+        },
+        {
+          "q": "Is your classroom big or small?",
+          "zh": "你的教室大還是小？",
+          "lines": [
+            {
+              "options": [
+                {
+                  "pick": "🏫 很大",
+                  "en": "My classroom is big.",
+                  "zh": "我的教室很大。"
+                },
+                {
+                  "pick": "🏠 小小的",
+                  "en": "My classroom is small.",
+                  "zh": "我的教室小小的。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "q": "Where do you sit in your classroom?",
+          "zh": "你坐在教室的哪裡？",
+          "lines": [
+            {
+              "options": [
+                {
+                  "pick": "⬆️ 前面",
+                  "en": "I sit at the front of the classroom.",
+                  "zh": "我坐在教室的前面。"
+                },
+                {
+                  "pick": "⏺️ 中間",
+                  "en": "I sit in the middle of the classroom.",
+                  "zh": "我坐在教室的中間。"
+                },
+                {
+                  "pick": "⬇️ 後面",
+                  "en": "I sit at the back of the classroom.",
+                  "zh": "我坐在教室的後面。"
+                },
+                {
+                  "pick": "🪟 窗戶旁邊",
+                  "en": "I sit by the window.",
+                  "zh": "我坐在窗戶旁邊。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "q": "What do you do at recess?",
+          "zh": "下課的時候你做什麼？",
+          "lines": [
+            {
+              "options": [
+                {
+                  "pick": "🏃 玩鬼抓人",
+                  "en": "I play tag with my friends at recess.",
+                  "zh": "我下課和朋友玩鬼抓人。"
+                },
+                {
+                  "pick": "⚽ 打球",
+                  "en": "I play ball on the playground at recess.",
+                  "zh": "我下課在操場打球。"
+                },
+                {
+                  "pick": "📚 看書",
+                  "en": "I read books at recess.",
+                  "zh": "我下課看書。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "q": "Do you help clean your classroom?",
+          "zh": "你會幫忙打掃教室嗎？",
+          "lines": [
+            {
+              "options": [
+                {
+                  "pick": "🧹 掃地",
+                  "en": "Yes, I do. I sweep the floor.",
+                  "zh": "會，我負責掃地。"
+                },
+                {
+                  "pick": "🪟 擦窗戶",
+                  "en": "Yes, I do. I clean the windows.",
+                  "zh": "會，我負責擦窗戶。"
+                },
+                {
+                  "pick": "🗑️ 倒垃圾",
+                  "en": "Yes, I do. I take out the trash.",
+                  "zh": "會，我負責倒垃圾。"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "chinese": {
+      "title": "國文作業",
+      "topic": "成語故事：守株待兔、畫蛇添足、井底之蛙、亡羊補牢",
+      "battle": {
+        "theme": "forest",
+        "foe": {
+          "name": "千年樹妖",
+          "icon": "svg:tree-demon"
+        },
+        "moves": [
+          [
+            "成語火球",
+            "🔥"
+          ],
+          [
+            "智慧斧頭",
+            "🪓"
+          ]
+        ],
+        "special": [
+          "成語大爆發",
+          "💥"
+        ],
+        "foeMoves": [
+          [
+            "樹根纏纏",
+            "🌿"
+          ],
+          [
+            "落葉風暴",
+            "🍂"
+          ]
+        ]
+      },
+      "questions": [
+        {
+          "text": "「守株待兔」的故事：農夫看到一隻兔子撞到樹樁。後來農夫每天都做什麼？",
+          "options": [
+            "坐在樹樁旁邊等兔子",
+            "更努力種田",
+            "到山上抓兔子"
+          ],
+          "answer": "坐在樹樁旁邊等兔子",
+          "say": "守株待兔的故事：農夫看到一隻兔子撞到樹樁。後來農夫每天都做什麼",
+          "explain": "農夫以為每天都會有兔子撞過來，就不種田了，每天坐在樹樁旁邊等。<br>「守」是守著，「株」是樹樁，「待」是等待，所以叫守株待兔。結果再也等不到兔子，田也荒了。"
+        },
+        {
+          "text": "「守株待兔」告訴我們什麼？",
+          "options": [
+            "不要只想靠運氣，要自己努力",
+            "兔子跑得很快",
+            "等待一定會成功"
+          ],
+          "answer": "不要只想靠運氣，要自己努力",
+          "explain": "兔子撞到樹樁只是剛好碰到的好運氣，不會天天發生。<br>農夫不努力種田，只想等好運，最後什麼都沒有。"
+        },
+        {
+          "text": "「畫蛇添足」的故事：大家比賽畫蛇，第一個畫好的人又多畫了什麼，結果輸了？",
+          "options": [
+            "幫蛇畫上腳",
+            "把蛇畫得很長",
+            "幫蛇塗上顏色"
+          ],
+          "answer": "幫蛇畫上腳",
+          "say": "畫蛇添足的故事：大家比賽畫蛇，第一個畫好的人又多畫了什麼，結果輸了",
+          "explain": "「添足」就是加上腳。蛇本來就沒有腳，他多畫了腳，畫的就不是蛇了，所以輸了比賽。"
+        },
+        {
+          "text": "「畫蛇添足」是什麼意思？",
+          "options": [
+            "做了多餘的事，反而變不好",
+            "畫畫要畫得很快",
+            "蛇有很多隻腳"
+          ],
+          "answer": "做了多餘的事，反而變不好",
+          "explain": "蛇不需要腳，畫上去是多餘的，反而害自己輸了。<br>所以做了不需要的事、反而弄壞了，就叫畫蛇添足。"
+        },
+        {
+          "text": "「井底之蛙」：住在井底的青蛙，以為天空有多大？",
+          "options": [
+            "只有井口那麼大",
+            "和大海一樣大",
+            "天空不見了"
+          ],
+          "answer": "只有井口那麼大",
+          "say": "井底之蛙：住在井底的青蛙，以為天空有多大",
+          "explain": "青蛙住在井底，抬頭只看得到圓圓的井口，就以為天空只有那麼大。<br>這個成語是說：看得太少，就會以為自己什麼都知道。"
+        },
+        {
+          "text": "「亡羊補牢」：羊圈破了一個洞，羊跑掉了。主人趕快做什麼，其他的羊就不會再跑掉？",
+          "options": [
+            "把羊圈修好",
+            "再去買新的羊",
+            "坐在羊圈旁邊哭"
+          ],
+          "answer": "把羊圈修好",
+          "say": "亡羊補牢：羊圈破了一個洞，羊跑掉了。主人趕快做什麼，其他的羊就不會再跑掉",
+          "explain": "「亡羊」是羊不見了，「補牢」是修好羊圈。<br>發現錯了趕快改正，還來得及，這就是亡羊補牢。"
+        },
+        {
+          "text": "弟弟的圖已經畫得很好，他又亂加了很多線，圖反而變醜了。這就是（　）。",
+          "options": [
+            "畫蛇添足",
+            "守株待兔",
+            "井底之蛙"
+          ],
+          "answer": "畫蛇添足",
+          "say": "弟弟的圖已經畫得很好，他又亂加了很多線，圖反而變醜了。這就是什麼成語",
+          "explain": "圖已經畫好了，又多加不需要的線，反而變醜，就像幫蛇畫上腳一樣，是畫蛇添足。"
+        },
+        {
+          "text": "小米上次忘了帶水壺，從此每天出門前都先檢查書包。這就是（　）。",
+          "options": [
+            "亡羊補牢",
+            "畫蛇添足",
+            "守株待兔"
+          ],
+          "answer": "亡羊補牢",
+          "say": "小米上次忘了帶水壺，從此每天出門前都先檢查書包。這就是什麼成語",
+          "explain": "小米發現自己忘東西，就趕快想辦法改正，以後不再忘記，就像羊跑掉後趕快修好羊圈，是亡羊補牢。"
+        },
+        {
+          "text": "阿寶不練習跳繩，只希望比賽那天運氣好就能贏。他就像（　）裡的農夫。",
+          "options": [
+            "守株待兔",
+            "亡羊補牢",
+            "畫蛇添足"
+          ],
+          "answer": "守株待兔",
+          "say": "阿寶不練習跳繩，只希望比賽那天運氣好就能贏。他就像哪個成語裡的農夫",
+          "explain": "阿寶不努力練習，只想靠好運氣，就像守著樹樁等兔子的農夫，是守株待兔。"
+        }
+      ]
+    },
+    "math": {
+      "title": "數學作業",
+      "topic": "時間：認識幾時幾分",
+      "battle": {
+        "theme": "river",
+        "foe": {
+          "name": "水蛟龍",
+          "icon": "svg:water-dragon"
+        },
+        "moves": [
+          [
+            "時鐘水砲",
+            "💧"
+          ],
+          [
+            "滴答漩渦",
+            "🌀"
+          ]
+        ],
+        "special": [
+          "整點大浪",
+          "🌊"
+        ],
+        "foeMoves": [
+          [
+            "龍尾甩水",
+            "🐉"
+          ],
+          [
+            "迷霧時光",
+            "🌫️"
+          ]
+        ]
+      },
+      "questions": [
+        {
+          "text": "時鐘上是幾時？",
+          "visual": "<div><svg width=\"150\" height=\"150\" viewBox=\"0 0 120 120\"><circle cx=\"60\" cy=\"60\" r=\"56\" fill=\"#fffdf5\" stroke=\"#5a3e2b\" stroke-width=\"4\"/><line x1=\"60\" y1=\"12\" x2=\"60\" y2=\"7\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"65.3\" y1=\"9.3\" x2=\"65.5\" y2=\"7.3\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"70.6\" y1=\"10.1\" x2=\"71\" y2=\"8.2\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"75.8\" y1=\"11.5\" x2=\"76.4\" y2=\"9.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"80.7\" y1=\"13.4\" x2=\"81.6\" y2=\"11.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"84\" y1=\"18.4\" x2=\"86.5\" y2=\"14.1\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"90\" y1=\"18.7\" x2=\"91.2\" y2=\"17.1\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"94.1\" y1=\"22.1\" x2=\"95.5\" y2=\"20.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"97.9\" y1=\"25.9\" x2=\"99.4\" y2=\"24.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"101.3\" y1=\"30\" x2=\"102.9\" y2=\"28.8\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"101.6\" y1=\"36\" x2=\"105.9\" y2=\"33.5\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"106.6\" y1=\"39.3\" x2=\"108.4\" y2=\"38.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"108.5\" y1=\"44.2\" x2=\"110.4\" y2=\"43.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"109.9\" y1=\"49.4\" x2=\"111.8\" y2=\"49\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"110.7\" y1=\"54.7\" x2=\"112.7\" y2=\"54.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"108\" y1=\"60\" x2=\"113\" y2=\"60\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"110.7\" y1=\"65.3\" x2=\"112.7\" y2=\"65.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"109.9\" y1=\"70.6\" x2=\"111.8\" y2=\"71\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"108.5\" y1=\"75.8\" x2=\"110.4\" y2=\"76.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"106.6\" y1=\"80.7\" x2=\"108.4\" y2=\"81.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"101.6\" y1=\"84\" x2=\"105.9\" y2=\"86.5\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"101.3\" y1=\"90\" x2=\"102.9\" y2=\"91.2\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"97.9\" y1=\"94.1\" x2=\"99.4\" y2=\"95.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"94.1\" y1=\"97.9\" x2=\"95.5\" y2=\"99.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"90\" y1=\"101.3\" x2=\"91.2\" y2=\"102.9\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"84\" y1=\"101.6\" x2=\"86.5\" y2=\"105.9\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"80.7\" y1=\"106.6\" x2=\"81.6\" y2=\"108.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"75.8\" y1=\"108.5\" x2=\"76.4\" y2=\"110.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"70.6\" y1=\"109.9\" x2=\"71\" y2=\"111.8\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"65.3\" y1=\"110.7\" x2=\"65.5\" y2=\"112.7\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"60\" y1=\"108\" x2=\"60\" y2=\"113\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"54.7\" y1=\"110.7\" x2=\"54.5\" y2=\"112.7\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"49.4\" y1=\"109.9\" x2=\"49\" y2=\"111.8\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"44.2\" y1=\"108.5\" x2=\"43.6\" y2=\"110.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"39.3\" y1=\"106.6\" x2=\"38.4\" y2=\"108.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"36\" y1=\"101.6\" x2=\"33.5\" y2=\"105.9\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"30\" y1=\"101.3\" x2=\"28.8\" y2=\"102.9\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"25.9\" y1=\"97.9\" x2=\"24.5\" y2=\"99.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"22.1\" y1=\"94.1\" x2=\"20.6\" y2=\"95.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"18.7\" y1=\"90\" x2=\"17.1\" y2=\"91.2\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"18.4\" y1=\"84\" x2=\"14.1\" y2=\"86.5\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"13.4\" y1=\"80.7\" x2=\"11.6\" y2=\"81.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"11.5\" y1=\"75.8\" x2=\"9.6\" y2=\"76.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"10.1\" y1=\"70.6\" x2=\"8.2\" y2=\"71\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"9.3\" y1=\"65.3\" x2=\"7.3\" y2=\"65.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"12\" y1=\"60\" x2=\"7\" y2=\"60\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"9.3\" y1=\"54.7\" x2=\"7.3\" y2=\"54.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"10.1\" y1=\"49.4\" x2=\"8.2\" y2=\"49\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"11.5\" y1=\"44.2\" x2=\"9.6\" y2=\"43.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"13.4\" y1=\"39.3\" x2=\"11.6\" y2=\"38.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"18.4\" y1=\"36\" x2=\"14.1\" y2=\"33.5\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"18.7\" y1=\"30\" x2=\"17.1\" y2=\"28.8\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"22.1\" y1=\"25.9\" x2=\"20.6\" y2=\"24.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"25.9\" y1=\"22.1\" x2=\"24.5\" y2=\"20.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"30\" y1=\"18.7\" x2=\"28.8\" y2=\"17.1\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"36\" y1=\"18.4\" x2=\"33.5\" y2=\"14.1\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"39.3\" y1=\"13.4\" x2=\"38.4\" y2=\"11.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"44.2\" y1=\"11.5\" x2=\"43.6\" y2=\"9.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"49.4\" y1=\"10.1\" x2=\"49\" y2=\"8.2\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"54.7\" y1=\"9.3\" x2=\"54.5\" y2=\"7.3\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><text x=\"80\" y=\"29.9\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">1</text><text x=\"94.6\" y=\"44.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">2</text><text x=\"100\" y=\"64.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">3</text><text x=\"94.6\" y=\"84.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">4</text><text x=\"80\" y=\"99.1\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">5</text><text x=\"60\" y=\"104.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">6</text><text x=\"40\" y=\"99.1\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">7</text><text x=\"25.4\" y=\"84.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">8</text><text x=\"20\" y=\"64.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">9</text><text x=\"25.4\" y=\"44.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">10</text><text x=\"40\" y=\"29.9\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">11</text><text x=\"60\" y=\"24.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">12</text><line x1=\"60\" y1=\"60\" x2=\"81\" y2=\"60\" stroke=\"#e74c3c\" stroke-width=\"6\" stroke-linecap=\"round\"/><line x1=\"60\" y1=\"60\" x2=\"60\" y2=\"28\" stroke=\"#2c6fbb\" stroke-width=\"3.5\" stroke-linecap=\"round\"/><circle cx=\"60\" cy=\"60\" r=\"4\" fill=\"#333\"/></svg></div>",
+          "options": [
+            "3 時",
+            "12 時 3 分",
+            "4 時"
+          ],
+          "answer": "3 時",
+          "explain": "長針指著 12，表示「整點」，短針指著 3，就是 3 時。<br><span style=\"color:#e74c3c\">紅色短針</span>指「時」，<span style=\"color:#2c6fbb\">藍色長針</span>指「分」。"
+        },
+        {
+          "text": "看看時鐘，現在是幾時幾分？",
+          "visual": "<div><svg width=\"150\" height=\"150\" viewBox=\"0 0 120 120\"><circle cx=\"60\" cy=\"60\" r=\"56\" fill=\"#fffdf5\" stroke=\"#5a3e2b\" stroke-width=\"4\"/><line x1=\"60\" y1=\"12\" x2=\"60\" y2=\"7\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"65.3\" y1=\"9.3\" x2=\"65.5\" y2=\"7.3\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"70.6\" y1=\"10.1\" x2=\"71\" y2=\"8.2\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"75.8\" y1=\"11.5\" x2=\"76.4\" y2=\"9.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"80.7\" y1=\"13.4\" x2=\"81.6\" y2=\"11.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"84\" y1=\"18.4\" x2=\"86.5\" y2=\"14.1\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"90\" y1=\"18.7\" x2=\"91.2\" y2=\"17.1\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"94.1\" y1=\"22.1\" x2=\"95.5\" y2=\"20.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"97.9\" y1=\"25.9\" x2=\"99.4\" y2=\"24.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"101.3\" y1=\"30\" x2=\"102.9\" y2=\"28.8\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"101.6\" y1=\"36\" x2=\"105.9\" y2=\"33.5\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"106.6\" y1=\"39.3\" x2=\"108.4\" y2=\"38.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"108.5\" y1=\"44.2\" x2=\"110.4\" y2=\"43.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"109.9\" y1=\"49.4\" x2=\"111.8\" y2=\"49\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"110.7\" y1=\"54.7\" x2=\"112.7\" y2=\"54.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"108\" y1=\"60\" x2=\"113\" y2=\"60\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"110.7\" y1=\"65.3\" x2=\"112.7\" y2=\"65.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"109.9\" y1=\"70.6\" x2=\"111.8\" y2=\"71\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"108.5\" y1=\"75.8\" x2=\"110.4\" y2=\"76.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"106.6\" y1=\"80.7\" x2=\"108.4\" y2=\"81.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"101.6\" y1=\"84\" x2=\"105.9\" y2=\"86.5\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"101.3\" y1=\"90\" x2=\"102.9\" y2=\"91.2\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"97.9\" y1=\"94.1\" x2=\"99.4\" y2=\"95.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"94.1\" y1=\"97.9\" x2=\"95.5\" y2=\"99.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"90\" y1=\"101.3\" x2=\"91.2\" y2=\"102.9\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"84\" y1=\"101.6\" x2=\"86.5\" y2=\"105.9\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"80.7\" y1=\"106.6\" x2=\"81.6\" y2=\"108.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"75.8\" y1=\"108.5\" x2=\"76.4\" y2=\"110.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"70.6\" y1=\"109.9\" x2=\"71\" y2=\"111.8\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"65.3\" y1=\"110.7\" x2=\"65.5\" y2=\"112.7\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"60\" y1=\"108\" x2=\"60\" y2=\"113\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"54.7\" y1=\"110.7\" x2=\"54.5\" y2=\"112.7\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"49.4\" y1=\"109.9\" x2=\"49\" y2=\"111.8\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"44.2\" y1=\"108.5\" x2=\"43.6\" y2=\"110.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"39.3\" y1=\"106.6\" x2=\"38.4\" y2=\"108.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"36\" y1=\"101.6\" x2=\"33.5\" y2=\"105.9\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"30\" y1=\"101.3\" x2=\"28.8\" y2=\"102.9\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"25.9\" y1=\"97.9\" x2=\"24.5\" y2=\"99.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"22.1\" y1=\"94.1\" x2=\"20.6\" y2=\"95.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"18.7\" y1=\"90\" x2=\"17.1\" y2=\"91.2\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"18.4\" y1=\"84\" x2=\"14.1\" y2=\"86.5\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"13.4\" y1=\"80.7\" x2=\"11.6\" y2=\"81.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"11.5\" y1=\"75.8\" x2=\"9.6\" y2=\"76.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"10.1\" y1=\"70.6\" x2=\"8.2\" y2=\"71\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"9.3\" y1=\"65.3\" x2=\"7.3\" y2=\"65.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"12\" y1=\"60\" x2=\"7\" y2=\"60\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"9.3\" y1=\"54.7\" x2=\"7.3\" y2=\"54.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"10.1\" y1=\"49.4\" x2=\"8.2\" y2=\"49\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"11.5\" y1=\"44.2\" x2=\"9.6\" y2=\"43.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"13.4\" y1=\"39.3\" x2=\"11.6\" y2=\"38.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"18.4\" y1=\"36\" x2=\"14.1\" y2=\"33.5\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"18.7\" y1=\"30\" x2=\"17.1\" y2=\"28.8\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"22.1\" y1=\"25.9\" x2=\"20.6\" y2=\"24.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"25.9\" y1=\"22.1\" x2=\"24.5\" y2=\"20.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"30\" y1=\"18.7\" x2=\"28.8\" y2=\"17.1\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"36\" y1=\"18.4\" x2=\"33.5\" y2=\"14.1\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"39.3\" y1=\"13.4\" x2=\"38.4\" y2=\"11.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"44.2\" y1=\"11.5\" x2=\"43.6\" y2=\"9.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"49.4\" y1=\"10.1\" x2=\"49\" y2=\"8.2\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"54.7\" y1=\"9.3\" x2=\"54.5\" y2=\"7.3\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><text x=\"80\" y=\"29.9\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">1</text><text x=\"94.6\" y=\"44.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">2</text><text x=\"100\" y=\"64.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">3</text><text x=\"94.6\" y=\"84.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">4</text><text x=\"80\" y=\"99.1\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">5</text><text x=\"60\" y=\"104.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">6</text><text x=\"40\" y=\"99.1\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">7</text><text x=\"25.4\" y=\"84.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">8</text><text x=\"20\" y=\"64.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">9</text><text x=\"25.4\" y=\"44.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">10</text><text x=\"40\" y=\"29.9\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">11</text><text x=\"60\" y=\"24.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">12</text><line x1=\"60\" y1=\"60\" x2=\"39.7\" y2=\"65.4\" stroke=\"#e74c3c\" stroke-width=\"6\" stroke-linecap=\"round\"/><line x1=\"60\" y1=\"60\" x2=\"60\" y2=\"92\" stroke=\"#2c6fbb\" stroke-width=\"3.5\" stroke-linecap=\"round\"/><circle cx=\"60\" cy=\"60\" r=\"4\" fill=\"#333\"/></svg></div>",
+          "options": [
+            "8 時 30 分",
+            "9 時 30 分",
+            "6 時 40 分"
+          ],
+          "answer": "8 時 30 分",
+          "explain": "長針指著 6，走了半圈，是 30 分。<br>短針在 8 和 9 的中間，還沒走到 9，所以還是 8 時。合起來是 8 時 30 分。<br><span style=\"color:#e74c3c\">紅色短針</span>指「時」，<span style=\"color:#2c6fbb\">藍色長針</span>指「分」。"
+        },
+        {
+          "text": "長針指著 4，是幾分？",
+          "options": [
+            "20 分",
+            "4 分",
+            "40 分"
+          ],
+          "answer": "20 分",
+          "explain": "長針每走一個數字是 5 分鐘。<br>從 12 走到 4，是 5、10、15、20，所以是 20 分。"
+        },
+        {
+          "text": "1 小時 = ？ 分鐘",
+          "options": [
+            "60",
+            "100",
+            "12"
+          ],
+          "answer": "60",
+          "explain": "長針走一整圈是 1 小時。<br>一圈有 12 個數字，每個 5 分鐘，5 × 12 = 60，所以 1 小時 = 60 分鐘。"
+        },
+        {
+          "text": "小樂起床時看時鐘，是幾時幾分？",
+          "visual": "<div><svg width=\"150\" height=\"150\" viewBox=\"0 0 120 120\"><circle cx=\"60\" cy=\"60\" r=\"56\" fill=\"#fffdf5\" stroke=\"#5a3e2b\" stroke-width=\"4\"/><line x1=\"60\" y1=\"12\" x2=\"60\" y2=\"7\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"65.3\" y1=\"9.3\" x2=\"65.5\" y2=\"7.3\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"70.6\" y1=\"10.1\" x2=\"71\" y2=\"8.2\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"75.8\" y1=\"11.5\" x2=\"76.4\" y2=\"9.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"80.7\" y1=\"13.4\" x2=\"81.6\" y2=\"11.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"84\" y1=\"18.4\" x2=\"86.5\" y2=\"14.1\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"90\" y1=\"18.7\" x2=\"91.2\" y2=\"17.1\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"94.1\" y1=\"22.1\" x2=\"95.5\" y2=\"20.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"97.9\" y1=\"25.9\" x2=\"99.4\" y2=\"24.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"101.3\" y1=\"30\" x2=\"102.9\" y2=\"28.8\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"101.6\" y1=\"36\" x2=\"105.9\" y2=\"33.5\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"106.6\" y1=\"39.3\" x2=\"108.4\" y2=\"38.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"108.5\" y1=\"44.2\" x2=\"110.4\" y2=\"43.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"109.9\" y1=\"49.4\" x2=\"111.8\" y2=\"49\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"110.7\" y1=\"54.7\" x2=\"112.7\" y2=\"54.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"108\" y1=\"60\" x2=\"113\" y2=\"60\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"110.7\" y1=\"65.3\" x2=\"112.7\" y2=\"65.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"109.9\" y1=\"70.6\" x2=\"111.8\" y2=\"71\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"108.5\" y1=\"75.8\" x2=\"110.4\" y2=\"76.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"106.6\" y1=\"80.7\" x2=\"108.4\" y2=\"81.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"101.6\" y1=\"84\" x2=\"105.9\" y2=\"86.5\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"101.3\" y1=\"90\" x2=\"102.9\" y2=\"91.2\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"97.9\" y1=\"94.1\" x2=\"99.4\" y2=\"95.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"94.1\" y1=\"97.9\" x2=\"95.5\" y2=\"99.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"90\" y1=\"101.3\" x2=\"91.2\" y2=\"102.9\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"84\" y1=\"101.6\" x2=\"86.5\" y2=\"105.9\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"80.7\" y1=\"106.6\" x2=\"81.6\" y2=\"108.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"75.8\" y1=\"108.5\" x2=\"76.4\" y2=\"110.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"70.6\" y1=\"109.9\" x2=\"71\" y2=\"111.8\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"65.3\" y1=\"110.7\" x2=\"65.5\" y2=\"112.7\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"60\" y1=\"108\" x2=\"60\" y2=\"113\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"54.7\" y1=\"110.7\" x2=\"54.5\" y2=\"112.7\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"49.4\" y1=\"109.9\" x2=\"49\" y2=\"111.8\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"44.2\" y1=\"108.5\" x2=\"43.6\" y2=\"110.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"39.3\" y1=\"106.6\" x2=\"38.4\" y2=\"108.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"36\" y1=\"101.6\" x2=\"33.5\" y2=\"105.9\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"30\" y1=\"101.3\" x2=\"28.8\" y2=\"102.9\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"25.9\" y1=\"97.9\" x2=\"24.5\" y2=\"99.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"22.1\" y1=\"94.1\" x2=\"20.6\" y2=\"95.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"18.7\" y1=\"90\" x2=\"17.1\" y2=\"91.2\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"18.4\" y1=\"84\" x2=\"14.1\" y2=\"86.5\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"13.4\" y1=\"80.7\" x2=\"11.6\" y2=\"81.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"11.5\" y1=\"75.8\" x2=\"9.6\" y2=\"76.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"10.1\" y1=\"70.6\" x2=\"8.2\" y2=\"71\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"9.3\" y1=\"65.3\" x2=\"7.3\" y2=\"65.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"12\" y1=\"60\" x2=\"7\" y2=\"60\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"9.3\" y1=\"54.7\" x2=\"7.3\" y2=\"54.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"10.1\" y1=\"49.4\" x2=\"8.2\" y2=\"49\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"11.5\" y1=\"44.2\" x2=\"9.6\" y2=\"43.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"13.4\" y1=\"39.3\" x2=\"11.6\" y2=\"38.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"18.4\" y1=\"36\" x2=\"14.1\" y2=\"33.5\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"18.7\" y1=\"30\" x2=\"17.1\" y2=\"28.8\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"22.1\" y1=\"25.9\" x2=\"20.6\" y2=\"24.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"25.9\" y1=\"22.1\" x2=\"24.5\" y2=\"20.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"30\" y1=\"18.7\" x2=\"28.8\" y2=\"17.1\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"36\" y1=\"18.4\" x2=\"33.5\" y2=\"14.1\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"39.3\" y1=\"13.4\" x2=\"38.4\" y2=\"11.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"44.2\" y1=\"11.5\" x2=\"43.6\" y2=\"9.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"49.4\" y1=\"10.1\" x2=\"49\" y2=\"8.2\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"54.7\" y1=\"9.3\" x2=\"54.5\" y2=\"7.3\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><text x=\"80\" y=\"29.9\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">1</text><text x=\"94.6\" y=\"44.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">2</text><text x=\"100\" y=\"64.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">3</text><text x=\"94.6\" y=\"84.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">4</text><text x=\"80\" y=\"99.1\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">5</text><text x=\"60\" y=\"104.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">6</text><text x=\"40\" y=\"99.1\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">7</text><text x=\"25.4\" y=\"84.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">8</text><text x=\"20\" y=\"64.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">9</text><text x=\"25.4\" y=\"44.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">10</text><text x=\"40\" y=\"29.9\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">11</text><text x=\"60\" y=\"24.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">12</text><line x1=\"60\" y1=\"60\" x2=\"59.1\" y2=\"81\" stroke=\"#e74c3c\" stroke-width=\"6\" stroke-linecap=\"round\"/><line x1=\"60\" y1=\"60\" x2=\"76\" y2=\"32.3\" stroke=\"#2c6fbb\" stroke-width=\"3.5\" stroke-linecap=\"round\"/><circle cx=\"60\" cy=\"60\" r=\"4\" fill=\"#333\"/></svg></div>",
+          "options": [
+            "6 時 5 分",
+            "6 時 1 分",
+            "1 時 30 分"
+          ],
+          "answer": "6 時 5 分",
+          "explain": "長針指著 1，走了 5 分鐘，是 5 分，不是 1 分唷！<br>短針剛過 6，所以是 6 時 5 分。<br><span style=\"color:#e74c3c\">紅色短針</span>指「時」，<span style=\"color:#2c6fbb\">藍色長針</span>指「分」。"
+        },
+        {
+          "text": "下課鐘響時，時鐘是幾時幾分？",
+          "visual": "<div><svg width=\"150\" height=\"150\" viewBox=\"0 0 120 120\"><circle cx=\"60\" cy=\"60\" r=\"56\" fill=\"#fffdf5\" stroke=\"#5a3e2b\" stroke-width=\"4\"/><line x1=\"60\" y1=\"12\" x2=\"60\" y2=\"7\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"65.3\" y1=\"9.3\" x2=\"65.5\" y2=\"7.3\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"70.6\" y1=\"10.1\" x2=\"71\" y2=\"8.2\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"75.8\" y1=\"11.5\" x2=\"76.4\" y2=\"9.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"80.7\" y1=\"13.4\" x2=\"81.6\" y2=\"11.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"84\" y1=\"18.4\" x2=\"86.5\" y2=\"14.1\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"90\" y1=\"18.7\" x2=\"91.2\" y2=\"17.1\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"94.1\" y1=\"22.1\" x2=\"95.5\" y2=\"20.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"97.9\" y1=\"25.9\" x2=\"99.4\" y2=\"24.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"101.3\" y1=\"30\" x2=\"102.9\" y2=\"28.8\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"101.6\" y1=\"36\" x2=\"105.9\" y2=\"33.5\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"106.6\" y1=\"39.3\" x2=\"108.4\" y2=\"38.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"108.5\" y1=\"44.2\" x2=\"110.4\" y2=\"43.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"109.9\" y1=\"49.4\" x2=\"111.8\" y2=\"49\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"110.7\" y1=\"54.7\" x2=\"112.7\" y2=\"54.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"108\" y1=\"60\" x2=\"113\" y2=\"60\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"110.7\" y1=\"65.3\" x2=\"112.7\" y2=\"65.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"109.9\" y1=\"70.6\" x2=\"111.8\" y2=\"71\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"108.5\" y1=\"75.8\" x2=\"110.4\" y2=\"76.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"106.6\" y1=\"80.7\" x2=\"108.4\" y2=\"81.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"101.6\" y1=\"84\" x2=\"105.9\" y2=\"86.5\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"101.3\" y1=\"90\" x2=\"102.9\" y2=\"91.2\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"97.9\" y1=\"94.1\" x2=\"99.4\" y2=\"95.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"94.1\" y1=\"97.9\" x2=\"95.5\" y2=\"99.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"90\" y1=\"101.3\" x2=\"91.2\" y2=\"102.9\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"84\" y1=\"101.6\" x2=\"86.5\" y2=\"105.9\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"80.7\" y1=\"106.6\" x2=\"81.6\" y2=\"108.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"75.8\" y1=\"108.5\" x2=\"76.4\" y2=\"110.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"70.6\" y1=\"109.9\" x2=\"71\" y2=\"111.8\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"65.3\" y1=\"110.7\" x2=\"65.5\" y2=\"112.7\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"60\" y1=\"108\" x2=\"60\" y2=\"113\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"54.7\" y1=\"110.7\" x2=\"54.5\" y2=\"112.7\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"49.4\" y1=\"109.9\" x2=\"49\" y2=\"111.8\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"44.2\" y1=\"108.5\" x2=\"43.6\" y2=\"110.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"39.3\" y1=\"106.6\" x2=\"38.4\" y2=\"108.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"36\" y1=\"101.6\" x2=\"33.5\" y2=\"105.9\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"30\" y1=\"101.3\" x2=\"28.8\" y2=\"102.9\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"25.9\" y1=\"97.9\" x2=\"24.5\" y2=\"99.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"22.1\" y1=\"94.1\" x2=\"20.6\" y2=\"95.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"18.7\" y1=\"90\" x2=\"17.1\" y2=\"91.2\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"18.4\" y1=\"84\" x2=\"14.1\" y2=\"86.5\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"13.4\" y1=\"80.7\" x2=\"11.6\" y2=\"81.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"11.5\" y1=\"75.8\" x2=\"9.6\" y2=\"76.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"10.1\" y1=\"70.6\" x2=\"8.2\" y2=\"71\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"9.3\" y1=\"65.3\" x2=\"7.3\" y2=\"65.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"12\" y1=\"60\" x2=\"7\" y2=\"60\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"9.3\" y1=\"54.7\" x2=\"7.3\" y2=\"54.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"10.1\" y1=\"49.4\" x2=\"8.2\" y2=\"49\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"11.5\" y1=\"44.2\" x2=\"9.6\" y2=\"43.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"13.4\" y1=\"39.3\" x2=\"11.6\" y2=\"38.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"18.4\" y1=\"36\" x2=\"14.1\" y2=\"33.5\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"18.7\" y1=\"30\" x2=\"17.1\" y2=\"28.8\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"22.1\" y1=\"25.9\" x2=\"20.6\" y2=\"24.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"25.9\" y1=\"22.1\" x2=\"24.5\" y2=\"20.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"30\" y1=\"18.7\" x2=\"28.8\" y2=\"17.1\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"36\" y1=\"18.4\" x2=\"33.5\" y2=\"14.1\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"39.3\" y1=\"13.4\" x2=\"38.4\" y2=\"11.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"44.2\" y1=\"11.5\" x2=\"43.6\" y2=\"9.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"49.4\" y1=\"10.1\" x2=\"49\" y2=\"8.2\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"54.7\" y1=\"9.3\" x2=\"54.5\" y2=\"7.3\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><text x=\"80\" y=\"29.9\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">1</text><text x=\"94.6\" y=\"44.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">2</text><text x=\"100\" y=\"64.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">3</text><text x=\"94.6\" y=\"84.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">4</text><text x=\"80\" y=\"99.1\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">5</text><text x=\"60\" y=\"104.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">6</text><text x=\"40\" y=\"99.1\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">7</text><text x=\"25.4\" y=\"84.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">8</text><text x=\"20\" y=\"64.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">9</text><text x=\"25.4\" y=\"44.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">10</text><text x=\"40\" y=\"29.9\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">11</text><text x=\"60\" y=\"24.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">12</text><line x1=\"60\" y1=\"60\" x2=\"79.4\" y2=\"52\" stroke=\"#e74c3c\" stroke-width=\"6\" stroke-linecap=\"round\"/><line x1=\"60\" y1=\"60\" x2=\"92\" y2=\"60\" stroke=\"#2c6fbb\" stroke-width=\"3.5\" stroke-linecap=\"round\"/><circle cx=\"60\" cy=\"60\" r=\"4\" fill=\"#333\"/></svg></div>",
+          "options": [
+            "2 時 15 分",
+            "2 時 3 分",
+            "3 時 10 分"
+          ],
+          "answer": "2 時 15 分",
+          "explain": "長針指著 3，是 5、10、15，所以是 15 分。<br>短針剛過 2，所以是 2 時 15 分。<br><span style=\"color:#e74c3c\">紅色短針</span>指「時」，<span style=\"color:#2c6fbb\">藍色長針</span>指「分」。"
+        },
+        {
+          "text": "長針指著 9，短針在 4 和 5 的中間，是幾時幾分？",
+          "options": [
+            "4 時 45 分",
+            "5 時 45 分",
+            "4 時 9 分"
+          ],
+          "answer": "4 時 45 分",
+          "explain": "長針指著 9，是 9 個 5 分，5 × 9 = 45，所以是 45 分。<br>短針還沒走到 5，所以還是 4 時。合起來是 4 時 45 分。"
+        },
+        {
+          "text": "小米家的時鐘，現在是幾時幾分？",
+          "visual": "<div><svg width=\"150\" height=\"150\" viewBox=\"0 0 120 120\"><circle cx=\"60\" cy=\"60\" r=\"56\" fill=\"#fffdf5\" stroke=\"#5a3e2b\" stroke-width=\"4\"/><line x1=\"60\" y1=\"12\" x2=\"60\" y2=\"7\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"65.3\" y1=\"9.3\" x2=\"65.5\" y2=\"7.3\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"70.6\" y1=\"10.1\" x2=\"71\" y2=\"8.2\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"75.8\" y1=\"11.5\" x2=\"76.4\" y2=\"9.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"80.7\" y1=\"13.4\" x2=\"81.6\" y2=\"11.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"84\" y1=\"18.4\" x2=\"86.5\" y2=\"14.1\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"90\" y1=\"18.7\" x2=\"91.2\" y2=\"17.1\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"94.1\" y1=\"22.1\" x2=\"95.5\" y2=\"20.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"97.9\" y1=\"25.9\" x2=\"99.4\" y2=\"24.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"101.3\" y1=\"30\" x2=\"102.9\" y2=\"28.8\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"101.6\" y1=\"36\" x2=\"105.9\" y2=\"33.5\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"106.6\" y1=\"39.3\" x2=\"108.4\" y2=\"38.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"108.5\" y1=\"44.2\" x2=\"110.4\" y2=\"43.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"109.9\" y1=\"49.4\" x2=\"111.8\" y2=\"49\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"110.7\" y1=\"54.7\" x2=\"112.7\" y2=\"54.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"108\" y1=\"60\" x2=\"113\" y2=\"60\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"110.7\" y1=\"65.3\" x2=\"112.7\" y2=\"65.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"109.9\" y1=\"70.6\" x2=\"111.8\" y2=\"71\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"108.5\" y1=\"75.8\" x2=\"110.4\" y2=\"76.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"106.6\" y1=\"80.7\" x2=\"108.4\" y2=\"81.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"101.6\" y1=\"84\" x2=\"105.9\" y2=\"86.5\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"101.3\" y1=\"90\" x2=\"102.9\" y2=\"91.2\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"97.9\" y1=\"94.1\" x2=\"99.4\" y2=\"95.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"94.1\" y1=\"97.9\" x2=\"95.5\" y2=\"99.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"90\" y1=\"101.3\" x2=\"91.2\" y2=\"102.9\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"84\" y1=\"101.6\" x2=\"86.5\" y2=\"105.9\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"80.7\" y1=\"106.6\" x2=\"81.6\" y2=\"108.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"75.8\" y1=\"108.5\" x2=\"76.4\" y2=\"110.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"70.6\" y1=\"109.9\" x2=\"71\" y2=\"111.8\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"65.3\" y1=\"110.7\" x2=\"65.5\" y2=\"112.7\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"60\" y1=\"108\" x2=\"60\" y2=\"113\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"54.7\" y1=\"110.7\" x2=\"54.5\" y2=\"112.7\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"49.4\" y1=\"109.9\" x2=\"49\" y2=\"111.8\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"44.2\" y1=\"108.5\" x2=\"43.6\" y2=\"110.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"39.3\" y1=\"106.6\" x2=\"38.4\" y2=\"108.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"36\" y1=\"101.6\" x2=\"33.5\" y2=\"105.9\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"30\" y1=\"101.3\" x2=\"28.8\" y2=\"102.9\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"25.9\" y1=\"97.9\" x2=\"24.5\" y2=\"99.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"22.1\" y1=\"94.1\" x2=\"20.6\" y2=\"95.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"18.7\" y1=\"90\" x2=\"17.1\" y2=\"91.2\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"18.4\" y1=\"84\" x2=\"14.1\" y2=\"86.5\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"13.4\" y1=\"80.7\" x2=\"11.6\" y2=\"81.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"11.5\" y1=\"75.8\" x2=\"9.6\" y2=\"76.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"10.1\" y1=\"70.6\" x2=\"8.2\" y2=\"71\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"9.3\" y1=\"65.3\" x2=\"7.3\" y2=\"65.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"12\" y1=\"60\" x2=\"7\" y2=\"60\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"9.3\" y1=\"54.7\" x2=\"7.3\" y2=\"54.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"10.1\" y1=\"49.4\" x2=\"8.2\" y2=\"49\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"11.5\" y1=\"44.2\" x2=\"9.6\" y2=\"43.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"13.4\" y1=\"39.3\" x2=\"11.6\" y2=\"38.4\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"18.4\" y1=\"36\" x2=\"14.1\" y2=\"33.5\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"18.7\" y1=\"30\" x2=\"17.1\" y2=\"28.8\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"22.1\" y1=\"25.9\" x2=\"20.6\" y2=\"24.5\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"25.9\" y1=\"22.1\" x2=\"24.5\" y2=\"20.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"30\" y1=\"18.7\" x2=\"28.8\" y2=\"17.1\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"36\" y1=\"18.4\" x2=\"33.5\" y2=\"14.1\" stroke=\"#5a3e2b\" stroke-width=\"2\"/><line x1=\"39.3\" y1=\"13.4\" x2=\"38.4\" y2=\"11.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"44.2\" y1=\"11.5\" x2=\"43.6\" y2=\"9.6\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"49.4\" y1=\"10.1\" x2=\"49\" y2=\"8.2\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><line x1=\"54.7\" y1=\"9.3\" x2=\"54.5\" y2=\"7.3\" stroke=\"#5a3e2b\" stroke-width=\"0.8\"/><text x=\"80\" y=\"29.9\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">1</text><text x=\"94.6\" y=\"44.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">2</text><text x=\"100\" y=\"64.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">3</text><text x=\"94.6\" y=\"84.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">4</text><text x=\"80\" y=\"99.1\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">5</text><text x=\"60\" y=\"104.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">6</text><text x=\"40\" y=\"99.1\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">7</text><text x=\"25.4\" y=\"84.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">8</text><text x=\"20\" y=\"64.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">9</text><text x=\"25.4\" y=\"44.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">10</text><text x=\"40\" y=\"29.9\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">11</text><text x=\"60\" y=\"24.5\" font-size=\"13\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#333\">12</text><line x1=\"60\" y1=\"60\" x2=\"47.2\" y2=\"43.3\" stroke=\"#e74c3c\" stroke-width=\"6\" stroke-linecap=\"round\"/><line x1=\"60\" y1=\"60\" x2=\"28\" y2=\"60\" stroke=\"#2c6fbb\" stroke-width=\"3.5\" stroke-linecap=\"round\"/><circle cx=\"60\" cy=\"60\" r=\"4\" fill=\"#333\"/></svg></div>",
+          "options": [
+            "10 時 45 分",
+            "11 時 45 分",
+            "10 時 9 分"
+          ],
+          "answer": "10 時 45 分",
+          "explain": "長針指著 9，是 45 分。<br>短針很靠近 11，可是還沒到 11，所以還是 10 時。合起來是 10 時 45 分。<br><span style=\"color:#e74c3c\">紅色短針</span>指「時」，<span style=\"color:#2c6fbb\">藍色長針</span>指「分」。"
+        },
+        {
+          "text": "小安 7 時 20 分起床，再過 10 分鐘吃早餐。小安幾時幾分吃早餐？",
+          "options": [
+            "7 時 30 分",
+            "8 時 20 分",
+            "7 時 21 分"
+          ],
+          "answer": "7 時 30 分",
+          "explain": "時沒有變，只有分鐘變多：20 分再過 10 分鐘，20 + 10 = 30，是 30 分。<br>所以是 7 時 30 分。"
+        }
+      ]
+    }
+  }
+}
