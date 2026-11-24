@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>時間：經過多久</title>
+<!--
+  教學老師的教材範本（每天複製這個檔案到 daily/日期/lessons/科目.html 再改內容）
+  規則：
+  - 一個檔案就是一個完整教材，CSS、JS、圖都寫在裡面，不能載入任何外部網址。
+  - 每一個 <section class="step"> 是一頁，下方會自動出現「上一步／下一步」和進度點。
+  - data-auto="要念的話"：進到這一頁時自動朗讀（data-lang="en-US" 用英文念）。
+  - 任何元素加上 data-say="要念的話"（可加 data-lang="en-US"），點了就會念。
+  - 小測驗：<div class="quiz" data-why="答對時的補充說明"> 裡面放按鈕，正確的按鈕加 data-right，後面放 <div class="fb"></div>。
+  - 需要每頁自己的動畫：寫 window.onStep = function (index, section) { … }，換頁時會呼叫。
+  - 只改「教材內容」區塊和自訂樣式；下面的共用程式不要改壞。
+-->
+<style>
+:root { --c: #ff7043; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式（這一份教材自己的動畫）寫在這裡 ===== */
+:root { --c: #2f8fd8; }
+.clk { display: flex; justify-content: center; }
+.clk svg { width: min(70vw, 260px); height: auto; }
+.clk.sm svg { width: min(40vw, 170px); }
+.pair { display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pair .lab { text-align: center; font-size: 18px; font-weight: 900; color: #6a5536; }
+.arrow { font-size: 34px; color: #2f8fd8; font-weight: 900; }
+.readout { text-align: center; font-size: clamp(28px, 7.5vw, 40px); font-weight: 900; color: #2f8fd8; min-height: 1.3em; }
+.readout .h { color: #e74c3c; } .readout .m { color: #2c6fbb; }
+.count { text-align: center; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: #6a5536; min-height: 1.6em; line-height: 1.5; }
+.ctrl { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 8px; }
+.ctrl button { min-width: 130px; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 19px; font-weight: 900; background: #e3f2fd; box-shadow: 0 4px 0 #90caf9; color: #0d47a1; cursor: pointer; }
+.ctrl button.reset { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: #5a4632; }
+.ctrl button:active { transform: translateY(2px); }
+.ctrl button:disabled { opacity: .4; }
+.dots { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; min-height: 30px; margin-top: 6px; }
+.dots i { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; background: #cfe6fa; color: #1d4e8a; font-style: normal; font-size: 13px; font-weight: 900; animation: pop .35s ease-out; }
+.dots i.b { background: #ffe0b2; color: #8a4a00; }
+@keyframes pop { from { transform: scale(0); } }
+.ques { font-size: 52px; font-weight: 900; color: #2f8fd8; animation: wig 1.4s ease-in-out infinite; }
+@keyframes wig { 25% { transform: rotate(-10deg); } 75% { transform: rotate(10deg); } }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容：每一頁一個 section.step ===== -->
+  <section class="step" data-auto="時鐘的針一直走，一直走。從開始到結束，經過多久呢？今天來學算經過的時間！">
+    <h1>⏳ 經過多久？</h1>
+    <div class="stage"><div class="clk" id="c0"></div><div class="ques">？</div></div>
+    <p class="big">從<span style="color:#e74c3c">開始</span>到<span style="color:#2c6fbb">結束</span>，<br>中間過了多少時間？</p>
+  </section>
+
+  <section class="step" data-auto="現在是八時。按按鈕，讓時間走一小時。短針走到下一個數字，就是經過一小時。">
+    <h1>🔴 經過幾小時</h1>
+    <div class="stage" style="flex-direction:column"><div class="clk" id="c1"></div><div class="readout" id="r1"></div></div>
+    <div class="count" id="k1">短針從 8 開始走。</div>
+    <div class="ctrl"><button id="h1go">走 1 小時 ⏩</button><button class="reset" id="h1re">🔄 重來</button></div>
+    <p class="small">短針走一個數字 ＝ 經過 1 小時</p>
+  </section>
+
+  <section class="step" data-auto="一小時有多少分鐘？按按鈕，看長針走一整圈。">
+    <h1>🔵 1 小時 ＝ 60 分鐘</h1>
+    <div class="stage" style="flex-direction:column"><div class="clk" id="c2"></div><div class="readout" id="r2"></div></div>
+    <div class="dots" id="d2"></div>
+    <div class="ctrl"><button id="m2go">▶ 長針走一圈</button></div>
+    <p class="small">長針走一整圈，短針才走一個數字。</p>
+  </section>
+
+  <section class="step" data-auto="公車十時五十分出發。按按鈕讓時間往前走，看公車開了幾分鐘。要過十一時整點的時候，要小心唷！">
+    <h1>🚌 經過幾分鐘</h1>
+    <p class="small">公車 <b>10 時 50 分</b>出發 🚌 按按鈕讓時間走 👇</p>
+    <div class="stage" style="flex-direction:column"><div class="clk" id="c3"></div><div class="readout" id="r3"></div></div>
+    <div class="dots" id="d3"></div>
+    <div class="count" id="k3"></div>
+    <div class="ctrl"><button id="m3go">走 5 分鐘 ⏩</button><button class="reset" id="m3re">🔄 重來</button></div>
+  </section>
+
+  <section class="step" data-auto="小測驗！從三時到六時，經過幾小時？">
+    <h1>✏️ 小測驗 1</h1>
+    <div class="pair"><div><div class="clk sm" id="q1a"></div><div class="lab">開始</div></div><div class="arrow">➜</div><div><div class="clk sm" id="q1b"></div><div class="lab">結束</div></div></div>
+    <p class="big">從 3 時到 6 時，經過幾小時？</p>
+    <div class="quiz" data-why="短針從 3 走到 4、5、6，走了 3 個數字。6 減 3 等於 3，所以經過 3 小時。">
+      <button>9 小時</button><button data-right>3 小時</button><button>6 小時</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗！小樂兩時四十分出門，三時十分到奶奶家。小樂走了多久？">
+    <h1>✏️ 小測驗 2</h1>
+    <div class="pair"><div><div class="clk sm" id="q2a"></div><div class="lab">2 時 40 分出門</div></div><div class="arrow">➜</div><div><div class="clk sm" id="q2b"></div><div class="lab">3 時 10 分到</div></div></div>
+    <p class="big">小樂走了多久？</p>
+    <div class="quiz" data-why="分兩段算：2 時 40 分到 3 時，是 20 分鐘；3 時到 3 時 10 分，是 10 分鐘。20 加 10 等於 30，所以走了 30 分鐘。">
+      <button>70 分鐘</button><button>1 小時 10 分鐘</button><button data-right>30 分鐘</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+var NS = 'http://www.w3.org/2000/svg';
+function P(r, deg) { var a = deg * Math.PI / 180; return [100 + r * Math.sin(a), 100 - r * Math.cos(a)]; }
+function el(tag, attrs, parent) { var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+function makeClock(id, h, m) {
+  var box = document.getElementById(id); box.innerHTML = '';
+  var s = el('svg', { viewBox: '0 0 200 200', width: 260, height: 260 }, box);
+  el('circle', { cx: 100, cy: 100, r: 94, fill: '#fffdf5', stroke: '#5a3e2b', 'stroke-width': 6 }, s);
+  for (var i = 0; i < 60; i++) {
+    var big = i % 5 === 0, a = P(big ? 80 : 84, i * 6), b = P(89, i * 6);
+    el('line', { x1: a[0], y1: a[1], x2: b[0], y2: b[1], stroke: '#5a3e2b', 'stroke-width': big ? 3 : 1.2 }, s);
+  }
+  for (var n = 1; n <= 12; n++) {
+    var p = P(67, n * 30), t = el('text', { x: p[0], y: p[1] + 7, 'font-size': 20, 'font-weight': 'bold', 'text-anchor': 'middle', fill: '#333' }, s);
+    t.textContent = n;
+  }
+  var hh = el('line', { x1: 100, y1: 100, x2: 100, y2: 62, stroke: '#e74c3c', 'stroke-width': 10, 'stroke-linecap': 'round' }, s);
+  var mh = el('line', { x1: 100, y1: 100, x2: 100, y2: 46, stroke: '#2c6fbb', 'stroke-width': 6, 'stroke-linecap': 'round' }, s);
+  el('circle', { cx: 100, cy: 100, r: 6, fill: '#333' }, s);
+  var c = { set: function (t) { // t = 從 0 時開始的分鐘數
+    hh.setAttribute('transform', 'rotate(' + (t / 60 % 12) * 30 + ' 100 100)');
+    mh.setAttribute('transform', 'rotate(' + (t % 60) * 6 + ' 100 100)');
+  } };
+  c.set(h * 60 + m);
+  return c;
+}
+function hm(t) { var h = Math.floor(t / 60) % 12; return [h === 0 ? 12 : h, t % 60]; }
+function label(t) { var x = hm(t); return '<span class="h">' + x[0] + ' 時</span>' + (x[1] ? ' <span class="m">' + x[1] + ' 分</span>' : ''); }
+function sayTime(t) { var x = hm(t); return x[0] + '時' + (x[1] ? x[1] + '分' : ''); }
+// 平順地把時鐘從 a 轉到 b
+function tween(c, a, b, ms, done) {
+  var st = null;
+  cancelAnimationFrame(c._raf);
+  c._raf = requestAnimationFrame(function loop2(ts) { if (st === null) st = ts; var k = Math.min(1, (ts - st) / ms); c.set(a + (b - a) * k); if (k < 1) c._raf = requestAnimationFrame(loop2); else if (done) done(); });
+}
+
+// 第 1 頁：一直轉的時鐘
+var c0 = makeClock('c0', 1, 0), spin = null;
+function startSpin() {
+  var t = 60, last = 0;
+  cancelAnimationFrame(spin);
+  spin = requestAnimationFrame(function loop(ts) {
+    if (ts - last > 25) { t = (t + 1) % 720; c0.set(t); last = ts; }
+    spin = requestAnimationFrame(loop);
+  });
+}
+
+// 第 2 頁：經過幾小時
+var c1 = makeClock('c1', 8, 0), t1 = 480, busy1 = false;
+function show1(speak) {
+  var n = (t1 - 480) / 60;
+  document.getElementById('r1').innerHTML = label(t1);
+  document.getElementById('k1').textContent = n === 0 ? '短針從 8 開始走。' : '從 8 時到 ' + hm(t1)[0] + ' 時，經過 ' + n + ' 小時（' + hm(t1)[0] + ' − 8 = ' + n + '）';
+  document.getElementById('h1go').disabled = n >= 4;
+  if (speak) say('從八時到' + hm(t1)[0] + '時，經過' + n + '小時。');
+}
+document.getElementById('h1go').onclick = function () {
+  if (busy1 || t1 >= 720) return; busy1 = true;
+  tween(c1, t1, t1 + 60, 1200, function () { t1 += 60; busy1 = false; show1(true); });
+};
+document.getElementById('h1re').onclick = function () { cancelAnimationFrame(c1._raf); busy1 = false; t1 = 480; c1.set(t1); show1(false); };
+show1(false);
+
+// 第 3 頁：1 小時 = 60 分鐘
+var c2 = makeClock('c2', 3, 0), run2 = null;
+function reset2() { clearInterval(run2); c2.set(180); document.getElementById('r2').innerHTML = label(180); document.getElementById('d2').innerHTML = ''; document.getElementById('m2go').disabled = false; }
+document.getElementById('m2go').onclick = function () {
+  reset2(); this.disabled = true;
+  var k = 0, d = document.getElementById('d2');
+  run2 = setInterval(function () {
+    k++;
+    tween(c2, 180 + (k - 1) * 5, 180 + k * 5, 450);
+    var i = document.createElement('i'); i.textContent = k * 5; d.appendChild(i);
+    say(String(k * 5));
+    if (k === 12) {
+      clearInterval(run2);
+      setTimeout(function () {
+        document.getElementById('r2').innerHTML = label(240);
+        say('長針走了一整圈，六十分鐘。短針從三走到四，經過一小時。一小時等於六十分鐘！');
+        document.getElementById('m2go').disabled = false;
+      }, 700);
+    }
+  }, 900);
+};
+
+// 第 4 頁：公車 10 時 50 分出發
+var START = 10 * 60 + 50, c3 = makeClock('c3', 10, 50), t3 = START, busy3 = false;
+function show3(speak) {
+  var n = t3 - START;
+  document.getElementById('r3').innerHTML = label(t3);
+  var k = document.getElementById('k3');
+  if (n === 0) k.textContent = '還沒出發，經過 0 分鐘。';
+  else if (t3 <= 660) k.textContent = '經過 ' + n + ' 分鐘' + (t3 === 660 ? '，剛好到 11 時整點！' : '');
+  else k.innerHTML = '10 時 50 分 ➜ 11 時：<b>10</b> 分鐘<br>11 時 ➜ ' + hm(t3)[0] + ' 時 ' + hm(t3)[1] + ' 分：<b>' + (t3 - 660) + '</b> 分鐘<br>10 ＋ ' + (t3 - 660) + ' ＝ <b>' + n + ' 分鐘</b>';
+  document.getElementById('m3go').disabled = n >= 30;
+  if (speak) {
+    if (t3 === 660) say('十一時整點，經過十分鐘。');
+    else if (t3 > 660) say(sayTime(t3) + '。十分鐘加' + (t3 - 660) + '分鐘，經過' + n + '分鐘。' + (n === 30 ? '公車到站了！' : ''));
+    else say(sayTime(t3) + '，經過' + n + '分鐘。');
+  }
+}
+document.getElementById('m3go').onclick = function () {
+  if (busy3 || t3 - START >= 30) return; busy3 = true;
+  tween(c3, t3, t3 + 5, 600, function () {
+    t3 += 5; busy3 = false;
+    var i = document.createElement('i'); i.textContent = '5'; if (t3 > 660) i.className = 'b';
+    document.getElementById('d3').appendChild(i);
+    show3(true);
+  });
+};
+document.getElementById('m3re').onclick = function () { cancelAnimationFrame(c3._raf); busy3 = false; t3 = START; c3.set(t3); document.getElementById('d3').innerHTML = ''; show3(false); };
+show3(false);
+
+// 小測驗的時鐘
+makeClock('q1a', 3, 0); makeClock('q1b', 6, 0);
+makeClock('q2a', 2, 40); makeClock('q2b', 3, 10);
+
+window.onStep = function (i) {
+  if (i === 0) startSpin(); else cancelAnimationFrame(spin);
+  if (i !== 2) reset2();
+};
+
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>昆蟲的身體</title>
+<!--
+  教學老師的教材範本（每天複製這個檔案到 daily/日期/lessons/科目.html 再改內容）
+  規則：
+  - 一個檔案就是一個完整教材，CSS、JS、圖都寫在裡面，不能載入任何外部網址。
+  - 每一個 <section class="step"> 是一頁，下方會自動出現「上一步／下一步」和進度點。
+  - data-auto="要念的話"：進到這一頁時自動朗讀（data-lang="en-US" 用英文念）。
+  - 任何元素加上 data-say="要念的話"（可加 data-lang="en-US"），點了就會念。
+  - 小測驗：<div class="quiz" data-why="答對時的補充說明"> 裡面放按鈕，正確的按鈕加 data-right，後面放 <div class="fb"></div>。
+  - 需要每頁自己的動畫：寫 window.onStep = function (index, section) { … }，換頁時會呼叫。
+  - 只改「教材內容」區塊和自訂樣式；下面的共用程式不要改壞。
+-->
+<style>
+:root { --c: #ff7043; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式（這一份教材自己的動畫）寫在這裡 ===== */
+:root { --c: #2e9d5b; }
+.meadow { position: relative; width: 100%; height: 210px; background: linear-gradient(#eaf8ef, #d3f0dc); border-radius: 18px; }
+.meadow .grass { position: absolute; bottom: 0; left: 0; right: 0; font-size: 30px; letter-spacing: 6px; text-align: center; white-space: nowrap; overflow: hidden; }
+.ant { position: absolute; bottom: 30px; left: -50px; font-size: 40px; animation: walk 7s linear infinite; transform: scaleX(-1); }
+@keyframes walk { to { left: 105%; } }
+.fly { position: absolute; top: 30px; left: 20%; font-size: 50px; animation: flap 3.5s ease-in-out infinite; }
+.bee { position: absolute; top: 60px; right: 18%; font-size: 46px; animation: buzz 1.2s ease-in-out infinite; }
+@keyframes flap { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(40px, -14px) scaleX(.8); } 50% { transform: translate(80px, 6px); } 75% { transform: translate(40px, 16px) scaleX(.8); } }
+@keyframes buzz { 50% { transform: translate(-14px, -10px) rotate(-8deg); } }
+.bug svg { width: min(88vw, 420px); height: auto; display: block; margin: 0 auto; }
+.bug .part { cursor: pointer; transition: fill .3s; }
+.bug .leg, .bug .ant2 { cursor: pointer; transition: stroke .3s; }
+.bug .leg.on { stroke: #ff8f00; stroke-width: 9; }
+.bug .ant2.on { stroke: #8e44ad; }
+.tag { text-align: center; min-height: 2.6em; font-size: clamp(19px, 5vw, 24px); font-weight: 900; line-height: 1.4; color: #1f6e3f; }
+.chips { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+.chip { min-height: 52px; padding: 6px 16px; border: 0; border-radius: 999px; font: inherit; font-size: 19px; font-weight: 900; cursor: pointer; }
+.chip.h { background: #ffe9c7; box-shadow: 0 3px 0 #e0a040; }
+.chip.t { background: #d9f2e2; box-shadow: 0 3px 0 #2e9d5b; }
+.chip.a { background: #e3ecff; box-shadow: 0 3px 0 #5b7fd6; }
+.counter { text-align: center; font-size: clamp(26px, 7vw, 38px); font-weight: 900; color: #ff8f00; min-height: 1.3em; }
+.sortbox { text-align: center; }
+.now { display: inline-flex; flex-direction: column; align-items: center; min-width: 150px; padding: 8px 20px; border-radius: 22px; background: #fff; box-shadow: 0 5px 0 #cfe8d8; }
+.now .e { font-size: 76px; line-height: 1.1; }
+.now b { font-size: 24px; }
+.now.shake { animation: shake .4s; }
+.now.pop { animation: popin .4s ease-out; }
+@keyframes shake { 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+@keyframes popin { from { transform: scale(.4); opacity: 0; } }
+.yn { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+.yn button { min-height: 72px; border: 0; border-radius: 20px; font: inherit; font-size: 21px; font-weight: 900; cursor: pointer; }
+.yn .y { background: #d9f2e2; box-shadow: 0 4px 0 #2e9d5b; color: #11592f; }
+.yn .n { background: #ffe5e0; box-shadow: 0 4px 0 #d9604a; color: #8a2a18; }
+.yn button:active { transform: translateY(3px); }
+.msg { text-align: center; font-size: 19px; font-weight: 900; min-height: 3em; line-height: 1.5; margin-top: 10px; }
+.shelf { display: flex; justify-content: center; gap: 4px; flex-wrap: wrap; font-size: 30px; min-height: 40px; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容：每一頁一個 section.step ===== -->
+  <section class="step" data-auto="草地上好熱鬧！螞蟻在走路，蝴蝶在飛，蜜蜂嗡嗡嗡。牠們都是昆蟲。昆蟲的身體長什麼樣子呢？">
+    <h1>🐜 昆蟲的身體</h1>
+    <div class="stage" style="padding:8px">
+      <div class="meadow">
+        <div class="fly" data-say="蝴蝶">🦋</div>
+        <div class="bee" data-say="蜜蜂">🐝</div>
+        <div class="ant" data-say="螞蟻">🐜</div>
+        <div class="grass">🌱🌿🌼🌱🌿🌱🌼🌿🌱🌿🌼🌱</div>
+      </div>
+    </div>
+    <p class="big">螞蟻、蝴蝶、蜜蜂，都是<span style="color:#2e9d5b">昆蟲</span>。</p>
+    <p class="center"><button class="say" data-say="螞蟻、蝴蝶、蜜蜂，都是昆蟲。">🔊 聽一聽</button></p>
+  </section>
+
+  <section class="step" data-auto="昆蟲的身體分成三段：頭、胸、腹。點一點身體，或點下面的按鈕。">
+    <h1>🔍 身體分成三段</h1>
+    <div class="stage" style="flex-direction:column"><div class="bug" id="bug1"></div></div>
+    <div class="tag" id="tag1">點一點身體的每一段 👆</div>
+    <div class="chips">
+      <button class="chip h" data-p="head">① 頭</button>
+      <button class="chip t" data-p="thorax">② 胸</button>
+      <button class="chip a" data-p="abdomen">③ 腹</button>
+    </div>
+  </section>
+
+  <section class="step" data-auto="昆蟲有六隻腳，都長在胸部。頭上還有兩根觸角。點每一隻腳，數數看！">
+    <h1>🦵 六隻腳、兩根觸角</h1>
+    <div class="stage" style="flex-direction:column"><div class="bug" id="bug2"></div></div>
+    <div class="counter" id="cnt">點腳數數看 👆</div>
+    <div class="tag" id="tag2"></div>
+  </section>
+
+  <section class="step" data-auto="是不是昆蟲？看看牠有幾隻腳，身體有幾段，再按按鈕。">
+    <h1>🧐 是不是昆蟲？</h1>
+    <div class="sortbox"><div class="now" id="now"><span class="e">🐞</span><b>瓢蟲</b></div></div>
+    <div class="yn"><button class="y" data-a="1">✅ 是昆蟲</button><button class="n" data-a="0">❌ 不是昆蟲</button></div>
+    <div class="msg" id="msg">&nbsp;</div>
+    <div class="shelf" id="shelf"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗！昆蟲有幾隻腳？">
+    <h1>✏️ 小測驗 1</h1>
+    <p class="big">昆蟲有幾隻腳？🐜</p>
+    <div class="quiz" data-why="昆蟲都有六隻腳，左邊三隻、右邊三隻。蜘蛛有八隻腳，所以蜘蛛不是昆蟲。">
+      <button>4 隻</button><button data-right>6 隻</button><button>8 隻</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗！昆蟲的腳，長在身體的哪一段？">
+    <h1>✏️ 小測驗 2</h1>
+    <p class="big">昆蟲的腳，長在身體的哪一段？</p>
+    <div class="quiz" data-why="昆蟲的六隻腳都長在中間的胸部。頭上有眼睛和觸角，腹部在最後面。">
+      <button>頭</button><button data-right>胸</button><button>腹</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+var NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs, parent) { var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+var LEGS = [
+  'M92 66 L74 38 L58 22', 'M106 62 L110 32 L120 14', 'M120 66 L142 38 L164 22',
+  'M92 94 L74 122 L58 138', 'M106 98 L110 128 L120 146', 'M120 94 L142 122 L164 138'
+];
+var ANTS = ['M46 66 Q34 40 14 30', 'M46 94 Q34 120 14 130'];
+var COLOR = { head: '#e0a040', thorax: '#2e9d5b', abdomen: '#5b7fd6' };
+function drawBug(id) {
+  var s = el('svg', { viewBox: '0 0 260 160', width: 420, height: 258 }, document.getElementById(id));
+  var legs = LEGS.map(function (d) { return el('path', { d: d, 'class': 'leg', fill: 'none', stroke: '#5a3e2b', 'stroke-width': 6, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, s); });
+  var ants = ANTS.map(function (d) { return el('path', { d: d, 'class': 'ant2', fill: 'none', stroke: '#5a3e2b', 'stroke-width': 4, 'stroke-linecap': 'round' }, s); });
+  var parts = {
+    abdomen: el('ellipse', { cx: 182, cy: 80, rx: 54, ry: 32, 'class': 'part', fill: '#cfc6b8', stroke: '#5a3e2b', 'stroke-width': 3 }, s),
+    thorax: el('ellipse', { cx: 106, cy: 80, rx: 26, ry: 21, 'class': 'part', fill: '#cfc6b8', stroke: '#5a3e2b', 'stroke-width': 3 }, s),
+    head: el('circle', { cx: 58, cy: 80, r: 21, 'class': 'part', fill: '#cfc6b8', stroke: '#5a3e2b', 'stroke-width': 3 }, s)
+  };
+  parts.head.dataset.p = 'head'; parts.thorax.dataset.p = 'thorax'; parts.abdomen.dataset.p = 'abdomen';
+  el('circle', { cx: 50, cy: 70, r: 5, fill: '#222', 'pointer-events': 'none' }, s);
+  el('circle', { cx: 50, cy: 90, r: 5, fill: '#222', 'pointer-events': 'none' }, s);
+  [160, 182, 204].forEach(function (x) { el('line', { x1: x, y1: 54, x2: x, y2: 106, stroke: '#a89a86', 'stroke-width': 2, 'pointer-events': 'none' }, s); });
+  return { svg: s, legs: legs, ants: ants, parts: parts };
+}
+
+// 第 2 頁：頭、胸、腹
+var INFO = {
+  head: ['① 頭', '頭上有眼睛和兩根觸角。'],
+  thorax: ['② 胸', '中間這一段，六隻腳都長在這裡。'],
+  abdomen: ['③ 腹', '最後面、最大的一段。']
+};
+var b1 = drawBug('bug1');
+function pick(p) {
+  for (var k in b1.parts) b1.parts[k].setAttribute('fill', k === p ? COLOR[k] : '#cfc6b8');
+  document.getElementById('tag1').innerHTML = '<span style="color:' + COLOR[p] + '">' + INFO[p][0] + '</span>：' + INFO[p][1];
+  say(INFO[p][0].slice(2) + '。' + INFO[p][1]);
+}
+b1.svg.addEventListener('click', function (e) { var t = e.target.closest('.part'); if (t) pick(t.dataset.p); });
+[].forEach.call(document.querySelectorAll('.chip'), function (c) { c.onclick = function () { pick(c.dataset.p); }; });
+
+// 第 3 頁：數腳
+var b2 = drawBug('bug2'), legN = 0;
+b2.parts.thorax.setAttribute('fill', '#bfe6cd');
+var NUM = ['一', '二', '三', '四', '五', '六'];
+function resetLegs() {
+  legN = 0;
+  b2.legs.forEach(function (l) { l.classList.remove('on'); });
+  b2.ants.forEach(function (a) { a.classList.remove('on'); });
+  document.getElementById('cnt').textContent = '點腳數數看 👆';
+  document.getElementById('tag2').textContent = '';
+}
+// 腳和觸角很細，蓋一層看不見的粗線，比較好點
+function hitFor(path) { var h = el('path', { d: path.getAttribute('d'), fill: 'none', stroke: 'rgba(0,0,0,0)', 'stroke-width': 26, 'stroke-linecap': 'round', 'pointer-events': 'stroke', style: 'cursor:pointer' }, b2.svg); h.addEventListener('click', function () { path.dispatchEvent(new Event('click')); }); return h; }
+b2.legs.forEach(hitFor); b2.ants.forEach(hitFor);
+b2.legs.forEach(function (l) {
+  l.addEventListener('click', function () {
+    if (l.classList.contains('on')) return;
+    l.classList.add('on'); legN++;
+    document.getElementById('cnt').textContent = '🦵 ' + legN + ' 隻腳';
+    if (legN === 6) {
+      document.getElementById('tag2').textContent = '六隻腳都長在胸部！再點頭上的觸角看看。';
+      say('六！昆蟲有六隻腳，都長在胸部。再點頭上的觸角看看。');
+    } else say(NUM[legN - 1]);
+  });
+});
+b2.ants.forEach(function (a) {
+  a.addEventListener('click', function () {
+    b2.ants.forEach(function (x) { x.classList.add('on'); });
+    document.getElementById('tag2').textContent = '兩根觸角：可以聞味道、摸東西。';
+    say('兩根觸角，可以聞味道，也可以摸東西。');
+  });
+});
+
+// 第 4 頁：是不是昆蟲
+var BUGS = [
+  ['🐞', '瓢蟲', 1, '瓢蟲有六隻腳，身體分三段，是昆蟲。'],
+  ['🕷️', '蜘蛛', 0, '蜘蛛有八隻腳，身體只分兩段，所以不是昆蟲。'],
+  ['🦋', '蝴蝶', 1, '蝴蝶有六隻腳，還有翅膀，是昆蟲。'],
+  ['🐌', '蝸牛', 0, '蝸牛沒有六隻腳，背上有殼，用身體下面慢慢爬，不是昆蟲。'],
+  ['🐝', '蜜蜂', 1, '蜜蜂有六隻腳，身體分三段，是昆蟲。'],
+  ['🪱', '蚯蚓', 0, '蚯蚓沒有腳，身體長長的，不是昆蟲。'],
+  ['🦗', '蟋蟀', 1, '蟋蟀有六隻腳，會跳又會叫，是昆蟲。']
+];
+var bi = 0, busy = false, now = document.getElementById('now'), msg = document.getElementById('msg');
+function showBug() {
+  if (bi >= BUGS.length) { now.innerHTML = '<span class="e">🏆</span><b>全部答完了！</b>'; msg.textContent = '你是昆蟲小專家！'; say('全部答完了！你是昆蟲小專家！'); return; }
+  now.innerHTML = '<span class="e">' + BUGS[bi][0] + '</span><b>' + BUGS[bi][1] + '</b>';
+  now.classList.remove('pop'); void now.offsetWidth; now.classList.add('pop');
+}
+[].forEach.call(document.querySelectorAll('.yn button'), function (b) {
+  b.onclick = function () {
+    if (busy || bi >= BUGS.length) return;
+    var it = BUGS[bi];
+    if (+b.dataset.a === it[2]) {
+      busy = true;
+      msg.style.color = '#11592f'; msg.textContent = '✅ ' + it[3];
+      say('答對了！' + it[3]);
+      if (it[2]) document.getElementById('shelf').textContent += it[0];
+      setTimeout(function () { bi++; busy = false; showBug(); }, 2600);
+    } else {
+      now.classList.remove('shake'); void now.offsetWidth; now.classList.add('shake');
+      msg.style.color = '#8a2a18'; msg.textContent = '再想想：數一數牠有幾隻腳？';
+      say('再想想，數一數牠有幾隻腳？');
+    }
+  };
+});
+window.onStep = function (i) { if (i === 2) resetLegs(); };
+
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

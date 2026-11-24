@@ -397,5 +397,31 @@
         }
       ]
     }
-  }
+  },
+  "lessons": [
+    {
+      "subject": "chinese",
+      "title": "言字旁和單人旁",
+      "summary": "看「言」和「亻」怎麼拼成說、話、你、休，再玩分分看。",
+      "file": "daily/2026-11-25/lessons/chinese.html"
+    },
+    {
+      "subject": "english",
+      "title": "Let's Go Shopping!",
+      "summary": "點地點、把東西放進購物車，學 I like to buy… 和店裡的對話。",
+      "file": "daily/2026-11-25/lessons/english.html"
+    },
+    {
+      "subject": "math",
+      "title": "時間：經過多久",
+      "summary": "撥時鐘看經過幾小時、1 小時 = 60 分鐘，跨過整點分兩段算。",
+      "file": "daily/2026-11-25/lessons/math.html"
+    },
+    {
+      "subject": "science",
+      "title": "昆蟲的身體",
+      "summary": "點一點認識頭、胸、腹，數六隻腳，分辨誰是昆蟲。",
+      "file": "daily/2026-11-25/lessons/science.html"
+    }
+  ]
 }

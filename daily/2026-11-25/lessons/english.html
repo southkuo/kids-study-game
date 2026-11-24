@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Let's Go Shopping!</title>
+<!--
+  教學老師的教材範本（每天複製這個檔案到 daily/日期/lessons/科目.html 再改內容）
+  規則：
+  - 一個檔案就是一個完整教材，CSS、JS、圖都寫在裡面，不能載入任何外部網址。
+  - 每一個 <section class="step"> 是一頁，下方會自動出現「上一步／下一步」和進度點。
+  - data-auto="要念的話"：進到這一頁時自動朗讀（data-lang="en-US" 用英文念）。
+  - 任何元素加上 data-say="要念的話"（可加 data-lang="en-US"），點了就會念。
+  - 小測驗：<div class="quiz" data-why="答對時的補充說明"> 裡面放按鈕，正確的按鈕加 data-right，後面放 <div class="fb"></div>。
+  - 需要每頁自己的動畫：寫 window.onStep = function (index, section) { … }，換頁時會呼叫。
+  - 只改「教材內容」區塊和自訂樣式；下面的共用程式不要改壞。
+-->
+<style>
+:root { --c: #ff7043; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式（這一份教材自己的動畫）寫在這裡 ===== */
+:root { --c: #3f6fe0; }
+.road { position: relative; width: 100%; height: 200px; }
+.shop { position: absolute; right: 6%; bottom: 30px; font-size: 90px; }
+.cartgo { position: absolute; left: -90px; bottom: 34px; font-size: 70px; animation: roll 3.2s ease-out forwards; }
+.ground { position: absolute; left: 0; right: 0; bottom: 20px; height: 8px; border-radius: 4px; background: #d6e2ff; }
+@keyframes roll { to { left: calc(94% - 190px); } }
+.en { font-size: clamp(22px, 5.6vw, 30px); font-weight: 900; color: #3f6fe0; text-align: center; margin: 6px 0; }
+.zh { font-size: 18px; font-weight: 700; color: #6a5536; text-align: center; }
+.places { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.places .card { min-width: 0; min-height: 120px; }
+.places .card .e { font-size: 50px; }
+.places .card b { font-size: 19px; color: #2a4fa8; }
+.places .card small { font-size: 17px; color: #7a6040; font-weight: 700; }
+.places .card.on { background: #e6eeff; box-shadow: 0 4px 0 #3f6fe0; }
+.items { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.items .card { min-width: 0; min-height: 96px; }
+.items .card .e { font-size: 42px; }
+.items .card b { font-size: 18px; color: #2a4fa8; }
+.items .card small { font-size: 17px; font-weight: 700; color: #7a6040; }
+.items .card.in { opacity: .35; }
+.cart { position: relative; display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: wrap; min-height: 90px; padding: 8px; border-radius: 20px; background: #f1f5ff; font-size: 36px; }
+.cart .big-cart { font-size: 56px; }
+.cart .drop { animation: drop .5s ease-out; }
+@keyframes drop { from { transform: translateY(-60px) scale(1.5); opacity: 0; } }
+.chat { display: flex; flex-direction: column; gap: 10px; }
+.bub { max-width: 82%; padding: 12px 16px; border: 0; border-radius: 20px; font: inherit; font-size: clamp(19px, 5vw, 23px); font-weight: 900; text-align: left; cursor: pointer; opacity: .25; transition: opacity .4s; }
+.bub small { display: block; font-size: 17px; font-weight: 700; color: #6a5536; }
+.bub.show { opacity: 1; }
+.bub.l { align-self: flex-start; background: #fff3d6; box-shadow: 0 3px 0 #e6c77a; }
+.bub.r { align-self: flex-end; background: #e6eeff; box-shadow: 0 3px 0 #9db5f0; }
+.bub.l::before { content: '🧑‍🍳 '; }
+.bub.r::before { content: '👦 '; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容：每一頁一個 section.step ===== -->
+  <section class="step" data-lang="en-US" data-auto="Let's go shopping!">
+    <h1>🛒 Let's Go Shopping!</h1>
+    <div class="stage"><div class="road"><div class="ground"></div><div class="shop">🏪</div><div class="cartgo" id="cartgo">🛒</div></div></div>
+    <p class="en">Let's go shopping!</p>
+    <p class="zh">我們去買東西吧！</p>
+    <p class="center"><button class="say" data-lang="en-US" data-say="Let's go shopping!">🔊 Listen</button></p>
+  </section>
+
+  <section class="step" data-lang="en-US" data-auto="Where do you like to go shopping? Tap a place.">
+    <h1>📍 Where do you like to go?</h1>
+    <p class="en" id="placeSay">I like to go to the ______.</p>
+    <p class="zh" id="placeZh">點一個地方，聽聽看怎麼說 👇</p>
+    <div class="places" id="places">
+      <button class="card" data-en="supermarket" data-zh="超市"><span class="e">🛒</span><b>supermarket</b><small>超市</small></button>
+      <button class="card" data-en="night market" data-zh="夜市"><span class="e">🏮</span><b>night market</b><small>夜市</small></button>
+      <button class="card" data-en="bookstore" data-zh="書店"><span class="e">📚</span><b>bookstore</b><small>書店</small></button>
+      <button class="card" data-en="convenience store" data-zh="便利商店"><span class="e">🏪</span><b>convenience store</b><small>便利商店</small></button>
+    </div>
+  </section>
+
+  <section class="step" data-lang="en-US" data-auto="What do you like to buy? Tap and put it in the cart.">
+    <h1>🧺 What do you like to buy?</h1>
+    <div class="cart" id="cart"><span class="big-cart">🛒</span></div>
+    <p class="en" id="buySay">I like to buy ______.</p>
+    <div class="items" id="items">
+      <button class="card" data-en="snacks" data-e="🍪"><span class="e">🍪</span><b>snacks</b><small>零食</small></button>
+      <button class="card" data-en="toys" data-e="🧸"><span class="e">🧸</span><b>toys</b><small>玩具</small></button>
+      <button class="card" data-en="books" data-e="📖"><span class="e">📖</span><b>books</b><small>書</small></button>
+      <button class="card" data-en="fruit" data-e="🍎"><span class="e">🍎</span><b>fruit</b><small>水果</small></button>
+      <button class="card" data-en="stickers" data-e="⭐"><span class="e">⭐</span><b>stickers</b><small>貼紙</small></button>
+      <button class="card" data-en="milk" data-e="🥛"><span class="e">🥛</span><b>milk</b><small>牛奶</small></button>
+    </div>
+    <p class="center"><button class="say" id="emptyCart">🔄 清空購物車</button></p>
+  </section>
+
+  <section class="step" data-lang="en-US" data-auto="At the store. Tap the next sentence.">
+    <h1>💬 At the Store</h1>
+    <p class="small">一句一句點下去，聽店員和 Ivan 說話 👇</p>
+    <div class="chat" id="chat">
+      <button class="bub l" data-en="Hello! Can I help you?">Hello! Can I help you?<small>你好！需要幫忙嗎？</small></button>
+      <button class="bub r" data-en="Yes, please. How much is this apple?">Yes, please. How much is this apple?<small>好的，這顆蘋果多少錢？</small></button>
+      <button class="bub l" data-en="It's twenty dollars.">It's twenty dollars.<small>二十元。</small></button>
+      <button class="bub r" data-en="Here you are.">Here you are. 💰<small>給你。</small></button>
+      <button class="bub l" data-en="Thank you! Do you have a bag?">Thank you! Do you have a bag?<small>謝謝！你有袋子嗎？</small></button>
+      <button class="bub r" data-en="Yes, I do. I bring my own bag.">Yes, I do. I bring my own bag. ♻️<small>有，我自己帶袋子。</small></button>
+    </div>
+  </section>
+
+  <section class="step" data-lang="en-US" data-auto="Quiz! Where can you buy books?">
+    <h1>✏️ Quiz 1</h1>
+    <p class="en">Where can you buy books? 📖</p>
+    <p class="zh">哪裡可以買到書？</p>
+    <div class="quiz" data-why="bookstore 是書店，book 就是書，store 是商店。">
+      <button>at the night market 🏮</button><button data-right>at the bookstore 📚</button><button>at the zoo 🦁</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-lang="en-US" data-auto="Quiz! Who do you go shopping with? Pick the right sentence.">
+    <h1>✏️ Quiz 2</h1>
+    <p class="en">Who do you go shopping with?</p>
+    <p class="zh">哪一句是正確的完整句子？</p>
+    <div class="quiz" data-why="I 後面用 go，不是 goes。完整的句子是 I go shopping with my mom.">
+      <button>I goes shopping with my mom.</button><button data-right>I go shopping with my mom.</button><button>Shopping my mom.</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+// 第 1 頁：推車滾進商店
+function rollCart() { var c = document.getElementById('cartgo'); c.style.animation = 'none'; void c.offsetWidth; c.style.animation = ''; }
+// 第 2 頁：地點
+document.getElementById('places').addEventListener('click', function (e) {
+  var c = e.target.closest('.card'); if (!c) return;
+  [].forEach.call(this.children, function (x) { x.classList.remove('on'); });
+  c.classList.add('on');
+  var s = 'I like to go to the ' + c.dataset.en + '.';
+  document.getElementById('placeSay').textContent = s;
+  document.getElementById('placeZh').textContent = '我喜歡去' + c.dataset.zh + '。';
+  say(s, 'en-US');
+});
+// 第 3 頁：放進購物車
+var cart = document.getElementById('cart');
+document.getElementById('items').addEventListener('click', function (e) {
+  var c = e.target.closest('.card'); if (!c) return;
+  var s = 'I like to buy ' + c.dataset.en + '.';
+  document.getElementById('buySay').textContent = s;
+  if (!c.classList.contains('in')) {
+    c.classList.add('in');
+    var sp = document.createElement('span'); sp.className = 'drop'; sp.textContent = c.dataset.e; cart.appendChild(sp);
+  }
+  say(s, 'en-US');
+});
+document.getElementById('emptyCart').onclick = function () {
+  cart.innerHTML = '<span class="big-cart">🛒</span>';
+  [].forEach.call(document.querySelectorAll('#items .card'), function (x) { x.classList.remove('in'); });
+  document.getElementById('buySay').textContent = 'I like to buy ______.';
+};
+// 第 4 頁：對話一句一句出現
+var bubs = [].slice.call(document.querySelectorAll('.bub')), shown = 0;
+function resetChat() { shown = 0; bubs.forEach(function (b, i) { b.classList.toggle('show', i === 0); }); }
+document.getElementById('chat').addEventListener('click', function (e) {
+  var b = e.target.closest('.bub'); if (!b) return;
+  var i = bubs.indexOf(b);
+  if (i > shown) return;
+  say(b.dataset.en, 'en-US');
+  if (i === shown && shown < bubs.length - 1) { shown++; bubs[shown].classList.add('show'); }
+});
+resetChat();
+window.onStep = function (i) { if (i === 0) rollCart(); if (i === 3) resetChat(); };
+
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>
