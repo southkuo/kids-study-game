@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>我們的牙齒</title>
+<!--
+  教學老師的教材範本（每天複製這個檔案到 daily/日期/lessons/科目.html 再改內容）
+  規則：
+  - 一個檔案就是一個完整教材，CSS、JS、圖都寫在裡面，不能載入任何外部網址。
+  - 每一個 <section class="step"> 是一頁，下方會自動出現「上一步／下一步」和進度點。
+  - data-auto="要念的話"：進到這一頁時自動朗讀（data-lang="en-US" 用英文念）。
+  - 任何元素加上 data-say="要念的話"（可加 data-lang="en-US"），點了就會念。
+  - 小測驗：<div class="quiz" data-why="答對時的補充說明"> 裡面放按鈕，正確的按鈕加 data-right，後面放 <div class="fb"></div>。
+  - 需要每頁自己的動畫：寫 window.onStep = function (index, section) { … }，換頁時會呼叫。
+  - 只改「教材內容」區塊和自訂樣式；下面的共用程式不要改壞。
+-->
+<style>
+:root { --c: #ff7043; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式（這一份教材自己的動畫）寫在這裡 ===== */
+:root { --c: #2e9d5b; }
+.hero { position: relative; font-size: 130px; line-height: 1; animation: bob 1.6s ease-in-out infinite; }
+@keyframes bob { 50% { transform: translateY(-8px) rotate(-4deg); } }
+.brush { position: absolute; font-size: 64px; right: -50px; top: 40px; animation: scrub .7s ease-in-out infinite alternate; }
+@keyframes scrub { from { transform: translateX(-20px) rotate(-10deg); } to { transform: translateX(14px) rotate(10deg); } }
+.spark { position: absolute; font-size: 30px; animation: tw 1.2s ease-in-out infinite; }
+@keyframes tw { 50% { transform: scale(.4); opacity: .3; } }
+.swap { display: flex; align-items: flex-end; justify-content: center; gap: 30px; width: 100%; min-height: 170px; }
+.gum { position: relative; width: 120px; height: 160px; }
+.gum .base { position: absolute; left: 0; right: 0; bottom: 0; height: 40px; background: #f8a5b5; border-radius: 20px 20px 10px 10px; }
+.gum .t { position: absolute; left: 50%; bottom: 30px; transform: translateX(-50%); line-height: 1; transition: font-size .8s, bottom .8s; }
+.gum .baby { font-size: 54px; }
+.gum .baby.wig { animation: wig .25s linear 4; }
+.gum .baby.fall { animation: fall 1s ease-in forwards; }
+.gum .adult { font-size: 0; }
+.gum .adult.grow { font-size: 84px; }
+@keyframes wig { 25% { transform: translateX(-50%) rotate(-12deg); } 75% { transform: translateX(-50%) rotate(12deg); } }
+@keyframes fall { to { transform: translateX(-50%) translateY(140px) rotate(160deg); opacity: 0; } }
+.lab { text-align: center; font-size: 19px; font-weight: 900; color: #2e6b43; }
+.facts { display: grid; gap: 8px; width: 100%; }
+.facts .card { width: 100%; flex-direction: row; justify-content: flex-start; gap: 10px; font-size: 19px; font-weight: 800; color: #24452f; text-align: left; line-height: 1.5; }
+.facts .card b { font-size: 34px; }
+.jobs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; width: 100%; }
+.jobs .card { font-size: 20px; font-weight: 900; color: #24452f; }
+.jobs .card .e { font-size: 44px; }
+.jobs .card small { font-size: 17px; color: #6a5536; font-weight: 700; }
+.jobs .card.on { background: #dff5e7; box-shadow: 0 4px 0 #2e9d5b; }
+.jbig { min-height: 1.6em; text-align: center; font-size: clamp(20px, 5vw, 25px); font-weight: 900; color: #2e9d5b; }
+.mouth { position: relative; width: 240px; height: 210px; }
+.mouth .tooth { position: absolute; left: 30px; top: 0; font-size: 180px; line-height: 1; filter: saturate(.6); transition: filter .5s; }
+.mouth.clean .tooth { filter: none; animation: bob 1.6s ease-in-out infinite; }
+.germ { position: absolute; width: 56px; height: 56px; border: 0; padding: 0; background: none; font-size: 40px; cursor: pointer; animation: jig 1s ease-in-out infinite; }
+.germ.gone { animation: bye .5s ease-out forwards; pointer-events: none; }
+@keyframes jig { 50% { transform: translateY(-6px) rotate(10deg); } }
+@keyframes bye { to { transform: scale(2); opacity: 0; } }
+.tips { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-top: 10px; }
+.tips .card { font-size: 18px; font-weight: 900; color: #24452f; }
+.tips .card b { font-size: 34px; }
+.pic { text-align: center; font-size: 80px; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容：每一頁一個 section.step ===== -->
+  <section class="step" data-auto="每天吃飯都要用到牙齒！牙齒有哪些種類？為什麼會蛀牙？一起來認識我們的牙齒。">
+    <h1>🦷 我們的牙齒</h1>
+    <div class="stage">
+      <div class="hero">🦷<span class="brush">🪥</span><span class="spark" style="left:-30px;top:-10px">✨</span><span class="spark" style="left:120px;top:110px;animation-delay:.6s">✨</span></div>
+    </div>
+    <p class="big">咬、切、磨，<br>牙齒每天都好忙！</p>
+    <p class="center"><button class="say" data-say="咬、切、磨，牙齒每天都好忙！">🔊 聽一聽</button></p>
+  </section>
+
+  <section class="step" data-auto="小朋友的牙齒叫做乳牙，一共二十顆。大約六歲開始，乳牙會一顆一顆掉下來，換成恆牙。按按鈕看看換牙。">
+    <h1>🔄 乳牙和恆牙</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="swap"><div><div class="gum" id="gum"><span class="t baby" id="baby">🦷</span><span class="t adult" id="adult">🦷</span><div class="base"></div></div><div class="lab" id="glab">乳牙（小小的）</div></div></div>
+      <div class="ctrl center"><button class="say" id="swapbtn">🦷 換牙囉！</button></div>
+    </div>
+    <div class="facts">
+      <button class="card" data-say="小朋友的乳牙一共二十顆。"><b>👶</b>小朋友的<b style="font-size:inherit;color:#2e9d5b">乳牙</b>一共 20 顆</button>
+      <button class="card" data-say="大約六歲開始換牙，乳牙掉了，長出恆牙。"><b>🧒</b>大約 6 歲開始換牙，長出<b style="font-size:inherit;color:#2e9d5b">恆牙</b></button>
+      <button class="card" data-say="恆牙要用一輩子，掉了就不會再長出來，要好好愛護！"><b>💪</b>恆牙要用一輩子，掉了不會再長！</button>
+    </div>
+  </section>
+
+  <section class="step" data-auto="牙齒有不同的形狀，做不同的工作。點一點，看看每一種牙齒會做什麼。">
+    <h1>🍎 牙齒的工作</h1>
+    <p class="small">點一點卡片 👇</p>
+    <div class="stage" style="flex-direction:column">
+      <div class="jobs" id="jobs">
+        <button class="card" data-t="門牙在前面，扁扁的，像剪刀一樣，把食物切斷。"><span class="e">✂️</span>門牙<small>切斷 🍎</small></button>
+        <button class="card" data-t="犬齒尖尖的，也叫虎牙，幫忙把食物撕開。"><span class="e">🔺</span>犬齒（虎牙）<small>撕開 🍗</small></button>
+        <button class="card" data-t="臼齒在後面，又大又平，把食物磨碎。"><span class="e">⚙️</span>臼齒（大牙）<small>磨碎 🥜</small></button>
+      </div>
+      <div class="jbig" id="jtxt"></div>
+    </div>
+  </section>
+
+  <section class="step" data-auto="嘴巴裡的細菌最喜歡吃糖。細菌吃了糖會做出酸，酸會把牙齒弄出小洞，這就是蛀牙。快點細菌，把牙齒刷乾淨！">
+    <h1>🦠 蛀牙怎麼來？</h1>
+    <p class="small">細菌 ＋ 糖 → 酸 → 牙齒破洞。點細菌，把牠們刷掉！</p>
+    <div class="stage" style="flex-direction:column">
+      <div class="mouth" id="mouth"><span class="tooth">🦷</span></div>
+      <div class="jbig" id="mtxt">還有 5 隻細菌！</div>
+    </div>
+    <div class="tips">
+      <button class="card" data-say="早上起床、晚上睡前都要刷牙。"><b>🪥</b>早晚都刷牙</button>
+      <button class="card" data-say="吃完東西要漱口。"><b>🚰</b>吃完要漱口</button>
+      <button class="card" data-say="少吃糖果，少喝含糖飲料。"><b>🍬</b>少吃甜食</button>
+      <button class="card" data-say="定期讓牙醫檢查牙齒。"><b>🧑‍⚕️</b>定期看牙醫</button>
+    </div>
+  </section>
+
+  <section class="step" data-auto="小測驗！吃東西的時候，哪一種牙齒負責把食物磨碎？">
+    <h1>✏️ 小測驗 1</h1>
+    <div class="pic">🥜➡️✨</div>
+    <p class="big">哪一種牙齒負責把食物<span style="color:#2e9d5b">磨碎</span>？</p>
+    <div class="quiz" data-why="臼齒在嘴巴後面，又大又平，可以把食物磨碎。門牙負責切斷，犬齒負責撕開。">
+      <button>門牙</button><button>犬齒</button><button data-right>臼齒</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗！哪一個做法，最容易蛀牙？">
+    <h1>✏️ 小測驗 2</h1>
+    <div class="pic">🦷❓</div>
+    <p class="big">哪一個做法最容易蛀牙？</p>
+    <div class="quiz" data-why="吃完糖果不刷牙，糖留在牙齒上，細菌吃了糖會做出酸，把牙齒弄出小洞。">
+      <button>早上和睡前都刷牙</button><button data-right>吃完糖果就睡覺，沒有刷牙</button><button>吃完東西馬上漱口</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+// 第 2 頁：換牙
+var swapping = false;
+function resetSwap() {
+  swapping = false;
+  document.getElementById('baby').className = 't baby';
+  document.getElementById('adult').className = 't adult';
+  document.getElementById('glab').textContent = '乳牙（小小的）';
+  document.getElementById('swapbtn').textContent = '🦷 換牙囉！';
+}
+document.getElementById('swapbtn').addEventListener('click', function () {
+  var b = document.getElementById('baby'), a = document.getElementById('adult'), btn = this;
+  if (swapping) { resetSwap(); return; }
+  swapping = true; btn.textContent = '🔄 再看一次';
+  say('乳牙搖一搖，掉下來了！下面長出新的恆牙。');
+  b.classList.add('wig');
+  setTimeout(function () { b.classList.remove('wig'); b.classList.add('fall'); }, 1000);
+  setTimeout(function () { a.classList.add('grow'); document.getElementById('glab').textContent = '恆牙（比較大）'; }, 2000);
+});
+// 第 3 頁：牙齒的工作
+document.getElementById('jobs').addEventListener('click', function (e) {
+  var b = e.target.closest('button'); if (!b) return;
+  [].forEach.call(this.children, function (x) { x.classList.toggle('on', x === b); });
+  document.getElementById('jtxt').textContent = b.dataset.t;
+  say(b.dataset.t);
+});
+// 第 4 頁：刷掉細菌
+var SPOTS = [[10, 20], [160, 10], [60, 120], [170, 110], [110, 60]];
+function setupGerms() {
+  var m = document.getElementById('mouth');
+  m.classList.remove('clean');
+  [].forEach.call(m.querySelectorAll('.germ'), function (g) { g.remove(); });
+  SPOTS.forEach(function (p) {
+    var g = document.createElement('button'); g.className = 'germ'; g.textContent = '🦠'; g.setAttribute('aria-label', '細菌');
+    g.style.left = p[0] + 'px'; g.style.top = p[1] + 'px'; g.style.animationDelay = (Math.random() * .8) + 's';
+    m.appendChild(g);
+  });
+  document.getElementById('mtxt').textContent = '還有 5 隻細菌！';
+}
+document.getElementById('mouth').addEventListener('click', function (e) {
+  var g = e.target.closest('.germ'); if (!g || g.classList.contains('gone')) return;
+  g.classList.add('gone'); g.textContent = '🫧';
+  var left = this.querySelectorAll('.germ:not(.gone)').length;
+  if (left) { document.getElementById('mtxt').textContent = '刷刷刷！還有 ' + left + ' 隻細菌！'; say('刷刷刷'); }
+  else { this.classList.add('clean'); document.getElementById('mtxt').textContent = '✨ 牙齒亮晶晶！'; say('牙齒亮晶晶！記得早晚都要刷牙喔！'); }
+});
+setupGerms();
+window.onStep = function (i) { if (i === 1) resetSwap(); if (i === 3) setupGerms(); };
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

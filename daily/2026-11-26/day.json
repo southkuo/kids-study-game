@@ -423,5 +423,31 @@
         }
       ]
     }
-  }
+  },
+  "lessons": [
+    {
+      "subject": "chinese",
+      "title": "讀短文找線索",
+      "summary": "用「誰、什麼時候、在哪裡、做什麼、為什麼」五個問題讀短文，認識「因為」和引號這兩個線索。",
+      "file": "daily/2026-11-26/lessons/chinese.html"
+    },
+    {
+      "subject": "english",
+      "title": "Feelings and Thanks",
+      "summary": "學說 I feel happy today. 等心情句子，還有 Thank you 和 You're welcome。",
+      "file": "daily/2026-11-26/lessons/english.html"
+    },
+    {
+      "subject": "math",
+      "title": "三位數的加減",
+      "summary": "用百、十、一的積木認識滿十進一，再一步一步算直式加法進位和減法退位。",
+      "file": "daily/2026-11-26/lessons/math.html"
+    },
+    {
+      "subject": "science",
+      "title": "我們的牙齒",
+      "summary": "認識乳牙和恆牙、門牙犬齒臼齒的工作，知道蛀牙怎麼來和怎麼保護牙齒。",
+      "file": "daily/2026-11-26/lessons/science.html"
+    }
+  ]
 }

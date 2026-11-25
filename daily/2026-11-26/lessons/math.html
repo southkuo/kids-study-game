@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>三位數的加減</title>
+<!--
+  教學老師的教材範本（每天複製這個檔案到 daily/日期/lessons/科目.html 再改內容）
+  規則：
+  - 一個檔案就是一個完整教材，CSS、JS、圖都寫在裡面，不能載入任何外部網址。
+  - 每一個 <section class="step"> 是一頁，下方會自動出現「上一步／下一步」和進度點。
+  - data-auto="要念的話"：進到這一頁時自動朗讀（data-lang="en-US" 用英文念）。
+  - 任何元素加上 data-say="要念的話"（可加 data-lang="en-US"），點了就會念。
+  - 小測驗：<div class="quiz" data-why="答對時的補充說明"> 裡面放按鈕，正確的按鈕加 data-right，後面放 <div class="fb"></div>。
+  - 需要每頁自己的動畫：寫 window.onStep = function (index, section) { … }，換頁時會呼叫。
+  - 只改「教材內容」區塊和自訂樣式；下面的共用程式不要改壞。
+-->
+<style>
+:root { --c: #ff7043; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式（這一份教材自己的動畫）寫在這裡 ===== */
+:root { --c: #2f8fd8; }
+.blocks { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: center; gap: 14px; width: 100%; min-height: 90px; }
+.grp { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 4px; max-width: 100%; }
+.flat { width: 60px; height: 60px; border-radius: 4px; background-color: #ffcc80; background-image: linear-gradient(#e08a1e 1px, transparent 1px), linear-gradient(90deg, #e08a1e 1px, transparent 1px); background-size: 6px 6px; border: 2px solid #c06a00; animation: drop .45s ease-out both; }
+.rod { width: 10px; height: 60px; border-radius: 3px; background-color: #90caf9; background-image: linear-gradient(#1e6fb8 1px, transparent 1px); background-size: 10px 6px; border: 2px solid #1e6fb8; animation: drop .45s ease-out both; }
+.cube { width: 12px; height: 12px; border-radius: 3px; background: #a5d6a7; border: 2px solid #2e7d32; animation: drop .45s ease-out both; }
+@keyframes drop { from { transform: translateY(-50px); opacity: 0; } }
+.num3 { width: 100%; text-align: center; font-size: clamp(44px, 12vw, 64px); font-weight: 900; letter-spacing: 4px; }
+.hD { color: #e08a1e; } .tD { color: #1e6fb8; } .oD { color: #2e7d32; }
+.legend { width: 100%; text-align: center; font-size: 19px; font-weight: 900; color: #6a5536; }
+.ctrl { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 8px; }
+.ctrl button { min-width: 96px; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 19px; font-weight: 900; background: #e3f2fd; box-shadow: 0 4px 0 #90caf9; color: #0d47a1; cursor: pointer; }
+.ctrl button.on { background: #2f8fd8; color: #fff; box-shadow: 0 4px 0 #1a5f9a; }
+.ctrl button.reset { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: #5a4632; }
+.ctrl button:active { transform: translateY(2px); }
+.ctrl button:disabled { opacity: .4; }
+.msg { min-height: 1.6em; text-align: center; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: #c0392b; }
+.col { display: grid; grid-template-columns: 48px repeat(3, 64px); gap: 2px 6px; justify-content: center; font-weight: 900; }
+.col div { text-align: center; }
+.col .hd { font-size: 17px; color: #6a5536; }
+.col .mk { font-size: 20px; color: #e53935; min-height: 26px; }
+.col .dg { font-size: 46px; line-height: 1.15; border-radius: 10px; transition: background .3s; }
+.col .dg s { color: #9e9e9e; text-decoration-color: #e53935; text-decoration-thickness: 3px; }
+.col .op { font-size: 40px; color: #2f8fd8; }
+.col .ln { grid-column: 1 / -1; height: 5px; background: #2b2112; border-radius: 3px; margin: 2px 0; }
+.col .res { color: #2f8fd8; }
+.col .res.new { animation: pop .4s ease-out; }
+.col .hot { background: #fff3b0; }
+@keyframes pop { from { transform: scale(0); } }
+.explain { min-height: 3.2em; text-align: center; font-size: clamp(19px, 5vw, 23px); font-weight: 900; color: #4a3a20; line-height: 1.55; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容：每一頁一個 section.step ===== -->
+  <section class="step" data-auto="三位數有三個位置：百位、十位、個位。一片是一百，一條是十，一顆是一。三百四十五就是三個百、四個十、五個一。">
+    <h1>🧱 三位數的加減</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="blocks" id="b0"></div>
+      <div class="num3"><span class="hD">3</span><span class="tD">4</span><span class="oD">5</span></div>
+      <div class="legend"><span class="hD">■ 百位</span>　<span class="tD">▮ 十位</span>　<span class="oD">▪ 個位</span></div>
+    </div>
+    <p class="big">345 ＝ <span class="hD">3 個百</span>、<span class="tD">4 個十</span>、<span class="oD">5 個一</span></p>
+  </section>
+
+  <section class="step" data-auto="按按鈕加加看。個位滿十個一，就換成一個十；十位滿十個十，就換成一個百。這就是滿十進一！">
+    <h1>🔟 滿十進一</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="num3" id="n1"></div>
+      <div class="blocks" id="b1"></div>
+      <div class="msg" id="m1"></div>
+    </div>
+    <div class="ctrl"><button id="p100">＋100</button><button id="p10">＋10</button><button id="p1">＋1</button><button class="reset" id="p0">🔄 重來</button></div>
+    <p class="small">10 個一 ＝ 1 個十　　10 個十 ＝ 1 個百</p>
+  </section>
+
+  <section class="step" data-auto="加法直式：先把百位、十位、個位對齊，再從個位開始，一位一位加。選一題，按下一位。">
+    <h1>➕ 直式加法</h1>
+    <div class="ctrl"><button id="a1" class="on">234 + 152</button><button id="a2">168 + 217（要進位）</button></div>
+    <div class="stage" style="flex-direction:column"><div class="col" id="ca"></div></div>
+    <div class="explain" id="ea"></div>
+    <div class="ctrl"><button id="ga">👉 下一位</button><button class="reset" id="ra">🔄 重來</button></div>
+  </section>
+
+  <section class="step" data-auto="減法直式也一樣，從個位開始。上面的數不夠減，就向左邊借一個十。一起算三百五十二減一百二十六。">
+    <h1>➖ 直式減法（退位）</h1>
+    <div class="stage" style="flex-direction:column"><div class="col" id="cs"></div></div>
+    <div class="explain" id="es"></div>
+    <div class="ctrl"><button id="gs">👉 下一位</button><button class="reset" id="rs">🔄 重來</button></div>
+    <p class="small">不夠減的時候，不能把上下倒過來減喔！</p>
+  </section>
+
+  <section class="step" data-auto="小測驗！二百五十六加一百三十八，等於多少？">
+    <h1>✏️ 小測驗 1</h1>
+    <p class="big" style="font-size:clamp(32px,9vw,46px)">256 + 138 = ？</p>
+    <div class="quiz" data-why="個位 6 加 8 等於 14，寫 4 進 1；十位 5 加 3 再加 1 等於 9；百位 2 加 1 等於 3。答案是 394。忘了進位就會變成 384。">
+      <button>384</button><button data-right>394</button><button>494</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗！五百三十二減二百一十五，等於多少？">
+    <h1>✏️ 小測驗 2</h1>
+    <p class="big" style="font-size:clamp(32px,9vw,46px)">532 − 215 = ？</p>
+    <div class="quiz" data-why="個位 2 不夠減 5，向十位借 1，12 減 5 等於 7；十位 3 被借走剩 2，2 減 1 等於 1；百位 5 減 2 等於 3。答案是 317。">
+      <button>323</button><button>327</button><button data-right>317</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+function drawBlocks(id, n) {
+  var box = document.getElementById(id), h = Math.floor(n / 100), t = Math.floor(n / 10) % 10, o = n % 10, html = '', d = 0;
+  function g(cls, k) { var s = '<div class="grp">'; for (var i = 0; i < k; i++) s += '<div class="' + cls + '" style="animation-delay:' + (d++ * 0.08) + 's"></div>'; return s + '</div>'; }
+  html = (h ? g('flat', h) : '') + (t ? g('rod', t) : '') + (o ? g('cube', o) : '');
+  box.innerHTML = html;
+}
+var ZH = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+function readZh(n) {
+  var h = Math.floor(n / 100), t = Math.floor(n / 10) % 10, o = n % 10;
+  if (n === 0) return '零';
+  var s = '';
+  if (h) s += ZH[h] + '百';
+  if (t) s += (t === 1 && !h ? '' : ZH[t]) + '十'; else if (h && o) s += '零';
+  if (o) s += ZH[o];
+  return s;
+}
+// 第 2 頁：滿十進一
+var n1 = 0;
+function show1(msg) {
+  var h = Math.floor(n1 / 100), t = Math.floor(n1 / 10) % 10, o = n1 % 10;
+  document.getElementById('n1').innerHTML = '<span class="hD">' + h + '</span><span class="tD">' + t + '</span><span class="oD">' + o + '</span>';
+  drawBlocks('b1', n1);
+  document.getElementById('m1').textContent = msg || '';
+  ['p100', 'p10', 'p1'].forEach(function (id, i) { document.getElementById(id).disabled = n1 + [100, 10, 1][i] > 999; });
+}
+function add1(k) {
+  var before = n1; n1 += k; var msg = '';
+  if (k === 1 && before % 10 === 9) msg = '10 個一換成 1 個十！';
+  if (k <= 10 && Math.floor(before / 10) % 10 === 9 && Math.floor(n1 / 10) % 10 === 0) msg = '10 個十換成 1 個百！';
+  show1(msg);
+  say((msg ? msg.replace(/10 個/, '十個').replace(/1 個/, '一個') + '現在是' : '') + readZh(n1));
+}
+document.getElementById('p100').onclick = function () { add1(100); };
+document.getElementById('p10').onclick = function () { add1(10); };
+document.getElementById('p1').onclick = function () { add1(1); };
+document.getElementById('p0').onclick = function () { n1 = 0; show1(''); };
+n1 = 0; show1('');
+
+// 直式計算
+var NAMES = ['個位', '十位', '百位'];
+function digits(n) { return [n % 10, Math.floor(n / 10) % 10, Math.floor(n / 100)]; }
+function plan(a, b, op) {
+  var A = digits(a), B = digits(b), out = [], c = 0;
+  for (var p = 0; p < 3; p++) {
+    var r = { p: p };
+    if (op === '+') {
+      var s = A[p] + B[p] + c;
+      r.d = s % 10; r.carryNext = s >= 10 ? 1 : 0;
+      r.txt = NAMES[p] + '：' + A[p] + ' + ' + B[p] + (c ? ' + 1（進位）' : '') + ' = ' + s + (s >= 10 ? '，寫 ' + r.d + '，進 1 到' + NAMES[p + 1] : '');
+      r.sp = NAMES[p] + '，' + A[p] + '加' + B[p] + (c ? '，再加進位的一' : '') + '，等於' + s + (s >= 10 ? '。寫' + r.d + '，進一到' + NAMES[p + 1] : '');
+      c = r.carryNext;
+    } else {
+      var top = A[p] - c, txt = NAMES[p] + '：', sp = NAMES[p] + '，';
+      if (c) { txt += A[p] + ' 被借走 1，剩 ' + top + '。'; sp += A[p] + '被借走一，剩' + top + '。'; }
+      if (top < B[p]) {
+        r.borrowNext = 1; r.d = top + 10 - B[p];
+        txt += top + ' 不夠減 ' + B[p] + '，向' + NAMES[p + 1] + '借 1 → ' + (top + 10) + ' − ' + B[p] + ' = ' + r.d;
+        sp += top + '不夠減' + B[p] + '，向' + NAMES[p + 1] + '借一，' + (top + 10) + '減' + B[p] + '等於' + r.d;
+      } else {
+        r.borrowNext = 0; r.d = top - B[p];
+        txt += top + ' − ' + B[p] + ' = ' + r.d; sp += top + '減' + B[p] + '等於' + r.d;
+      }
+      r.txt = txt; r.sp = sp; c = r.borrowNext;
+    }
+    out.push(r);
+  }
+  return out;
+}
+function Column(boxId, expId, goId, op) {
+  this.box = document.getElementById(boxId); this.exp = document.getElementById(expId); this.go = document.getElementById(goId); this.op = op;
+  var self = this;
+  this.go.onclick = function () { self.next(); };
+}
+Column.prototype.load = function (a, b) { this.a = a; this.b = b; this.k = 0; this.steps = plan(a, b, this.op); this.render(); this.exp.textContent = '先對齊百位、十位、個位，從個位開始。'; this.go.disabled = false; this.go.textContent = '👉 下一位'; };
+Column.prototype.render = function () {
+  var A = digits(this.a), B = digits(this.b), k = this.k, st = this.steps, op = this.op, h = '';
+  var cell = function (cls, v) { return '<div class="' + cls + '">' + v + '</div>'; };
+  var hot = function (p) { return k > 0 && k <= 3 && st[k - 1].p === p ? ' hot' : ''; };
+  h += cell('hd', '') + cell('hd', '百') + cell('hd', '十') + cell('hd', '個');
+  // 標記列（進位或退位）
+  h += cell('mk', '');
+  for (var p = 2; p >= 0; p--) {
+    var m = '';
+    if (op === '+' && p > 0 && k >= p && st[p - 1].carryNext) m = '1';
+    if (op === '−') {
+      if (p > 0 && k >= p && st[p - 1].borrowNext) m = String(A[p] - 1);
+      if (k >= p + 1 && st[p].borrowNext) m = (m ? m + ' ' : '') + '+10';
+    }
+    h += cell('mk', m);
+  }
+  h += cell('dg', '');
+  for (p = 2; p >= 0; p--) {
+    var struck = op === '−' && p > 0 && k >= p && st[p - 1].borrowNext;
+    h += cell('dg' + hot(p), struck ? '<s>' + A[p] + '</s>' : A[p]);
+  }
+  h += cell('op', op);
+  for (p = 2; p >= 0; p--) h += cell('dg' + hot(p), B[p]);
+  h += '<div class="ln"></div>' + cell('dg', '');
+  for (p = 2; p >= 0; p--) h += cell('dg res' + hot(p) + (k - 1 === p ? ' new' : ''), k > p ? st[p].d : '');
+  this.box.innerHTML = h;
+};
+Column.prototype.next = function () {
+  if (this.k >= 3) return;
+  var s = this.steps[this.k]; this.k++; this.render();
+  this.exp.textContent = s.txt;
+  var ans = this.op === '+' ? this.a + this.b : this.a - this.b;
+  if (this.k === 3) {
+    this.exp.textContent = s.txt + '。答案是 ' + ans + '！';
+    say(s.sp + '。答案是' + readZh(ans) + '！');
+    this.go.disabled = true;
+  } else say(s.sp);
+};
+var colA = new Column('ca', 'ea', 'ga', '+'), colS = new Column('cs', 'es', 'gs', '−'), curA = [234, 152];
+document.getElementById('a1').onclick = function () { curA = [234, 152]; this.classList.add('on'); document.getElementById('a2').classList.remove('on'); colA.load(234, 152); };
+document.getElementById('a2').onclick = function () { curA = [168, 217]; this.classList.add('on'); document.getElementById('a1').classList.remove('on'); colA.load(168, 217); };
+document.getElementById('ra').onclick = function () { colA.load(curA[0], curA[1]); };
+document.getElementById('rs').onclick = function () { colS.load(352, 126); };
+colA.load(234, 152); colS.load(352, 126);
+window.onStep = function (i) { if (i === 0) drawBlocks('b0', 345); };
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>
