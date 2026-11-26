@@ -29,7 +29,7 @@ function checkQuestions(where, hw) {
 }
 function checkBattle(where, b) {
   {
-    const THEMES = ['space', 'garden', 'underworld', 'jungle', 'deepsea', 'sky', 'river', 'volcano', 'prehistoric', 'forest', 'storm'], ART = ['mantis-king', 'skeleton-general', 'steel-tiger', 'big-shark', 'eagle', 'water-dragon', 'fire-dragon', 'trex', 'tree-demon', 'thunder-leopard'];
+    const THEMES = ['space', 'garden', 'underworld', 'jungle', 'deepsea', 'sky', 'river', 'volcano', 'prehistoric', 'forest', 'storm', 'savanna', 'swamp'], ART = ['mantis-king', 'skeleton-general', 'steel-tiger', 'big-shark', 'eagle', 'water-dragon', 'fire-dragon', 'trex', 'tree-demon', 'thunder-leopard', 'armor-rhino', 'croc-king'];
     if (b.theme != null && !THEMES.includes(b.theme)) err(where, `battle.theme 只能是 ${THEMES.join('／')}（或不寫）`);
     if (b.foe != null) {
       if (!isStr(b.foe.name)) err(where, 'battle.foe 需要 name');

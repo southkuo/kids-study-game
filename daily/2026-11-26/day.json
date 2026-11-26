@@ -144,39 +144,11 @@
       "title": "國文作業",
       "topic": "短文閱讀：小米的感謝卡",
       "battle": {
-        "theme": "volcano",
+        "theme": "savanna",
         "foe": {
-          "name": "火龍",
-          "icon": "svg:fire-dragon"
-        },
-        "foeMoves": [
-          [
-            "火球連發",
-            "🔥"
-          ],
-          [
-            "熱風吹吹",
-            "🌪️"
-          ],
-          [
-            "尾巴掃掃",
-            "🐉"
-          ]
-        ],
-        "moves": [
-          [
-            "閱讀冰箭",
-            "❄️"
-          ],
-          [
-            "線索水球",
-            "💧"
-          ]
-        ],
-        "special": [
-          "感謝大冰山",
-          "🧊"
-        ]
+          "name": "鐵甲犀牛",
+          "icon": "svg:armor-rhino"
+        }
       },
       "questions": [
         {
@@ -302,35 +274,11 @@
       "title": "數學作業",
       "topic": "三位數的加法和減法",
       "battle": {
-        "theme": "space",
+        "theme": "swamp",
         "foe": {
-          "name": "百位外星人",
-          "icon": "👾"
-        },
-        "foeMoves": [
-          [
-            "數字亂碼光線",
-            "🟢"
-          ],
-          [
-            "進位黑洞",
-            "🌀"
-          ]
-        ],
-        "moves": [
-          [
-            "百位雷射",
-            "🔫"
-          ],
-          [
-            "對齊飛彈",
-            "🚀"
-          ]
-        ],
-        "special": [
-          "三位數超新星",
-          "💥"
-        ]
+          "name": "鱷魚王",
+          "icon": "svg:croc-king"
+        }
       },
       "questions": [
         {

@@ -379,6 +379,33 @@
       + '<path d="M21 57 L22 61 L24 57.5 Z M29 57 L28 61 L26 57.5 Z" fill="#fff" stroke="#9e9e9e" stroke-width=".6"/>'
       + '<g class="spark" stroke="#4fc3f7" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M8 30 L4 36 L9 36 L5 42"/><path d="M50 24 L46 30 L51 30 L47 36"/><path d="M90 46 L86 52 L91 52 L87 58"/><path d="M36 80 L32 86 L37 86 L33 92"/></g>'
       + '<path d="M30 30 L28 36 L32 36 L30 42" stroke="#29b6f6" stroke-width="2.2" fill="none" stroke-linejoin="round"/></svg>',
+    'armor-rhino': '<svg class="foe-svg big" viewBox="0 0 100 100" aria-hidden="true">'
+      + '<path d="M90 58 Q98 60 96 70" stroke="#607d8b" stroke-width="3" fill="none" stroke-linecap="round"/>'
+      + '<g fill="#78909c" stroke="#37474f" stroke-width="2"><rect x="40" y="70" width="11" height="20" rx="4"/><rect x="54" y="72" width="11" height="18" rx="4"/><rect x="72" y="70" width="11" height="20" rx="4"/><rect x="83" y="68" width="10" height="20" rx="4"/></g>'
+      + '<ellipse cx="66" cy="60" rx="28" ry="18" fill="#90a4ae" stroke="#37474f" stroke-width="2"/>'
+      + '<path d="M44 50 Q66 34 90 50 L88 62 Q66 52 46 62 Z" fill="#b0bec5" stroke="#455a64" stroke-width="2" stroke-linejoin="round"/>'
+      + '<path d="M46 62 Q66 52 88 62 L86 70 Q66 62 48 70 Z" fill="#cfd8dc" stroke="#455a64" stroke-width="2" stroke-linejoin="round"/>'
+      + '<g fill="#eceff1" stroke="#546e7a" stroke-width="1"><circle cx="54" cy="50" r="1.8"/><circle cx="66" cy="45" r="1.8"/><circle cx="78" cy="47" r="1.8"/><circle cx="56" cy="62" r="1.6"/><circle cx="68" cy="59" r="1.6"/><circle cx="80" cy="62" r="1.6"/></g>'
+      + '<path d="M42 46 Q30 40 18 46 Q8 52 10 62 Q14 70 28 70 Q40 70 46 62 Z" fill="#90a4ae" stroke="#37474f" stroke-width="2" stroke-linejoin="round"/>'
+      + '<path d="M26 44 Q34 38 44 46 L40 54 Q32 48 24 52 Z" fill="#b0bec5" stroke="#455a64" stroke-width="1.8" stroke-linejoin="round"/><circle cx="34" cy="46" r="1.5" fill="#eceff1"/>'
+      + '<path d="M14 50 Q4 36 10 22 Q16 38 22 46 Z" fill="#eceff1" stroke="#78909c" stroke-width="1.8" stroke-linejoin="round"/><path class="shine" d="M11 30 Q12 38 16 44" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round"/>'
+      + '<path d="M26 44 L24 40 L29 42 Z" fill="#eceff1" stroke="#78909c" stroke-width="1.2"/>'
+      + '<path d="M40 40 L38 32 L45 38 Z" fill="#90a4ae" stroke="#37474f" stroke-width="1.6" stroke-linejoin="round"/>'
+      + '<ellipse cx="28" cy="55" rx="3.6" ry="3.4" fill="#fff"/><circle cx="27.5" cy="55.5" r="2" fill="#b71c1c"/><path d="M23 50 L32 52" stroke="#263238" stroke-width="2.4" stroke-linecap="round"/>'
+      + '<circle cx="14" cy="62" r="1.4" fill="#37474f"/><path d="M14 66 Q22 70 30 67" stroke="#37474f" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>',
+    'croc-king': '<svg class="foe-svg big wide" viewBox="0 24 100 62" aria-hidden="true">'
+      + '<path d="M60 66 Q84 60 98 72 Q86 74 74 76 Z" fill="#558b2f" stroke="#33691e" stroke-width="2" stroke-linejoin="round"/>'
+      + '<ellipse cx="58" cy="66" rx="24" ry="12" fill="#689f38" stroke="#33691e" stroke-width="2"/>'
+      + '<g fill="#7cb342" stroke="#33691e" stroke-width="1.4" stroke-linejoin="round"><path d="M50 54 L54 48 L58 54 Z"/><path d="M60 54 L64 48 L68 55 Z"/><path d="M70 56 L74 50 L78 58 Z"/><path d="M80 60 L84 55 L87 62 Z"/></g>'
+      + '<path d="M40 56 Q24 50 8 54 Q4 56 6 60 L40 62 Z" fill="#7cb342" stroke="#33691e" stroke-width="2" stroke-linejoin="round"/>'
+      + '<path d="M40 64 Q24 72 8 70 Q4 68 6 64 L40 64 Z" fill="#689f38" stroke="#33691e" stroke-width="2" stroke-linejoin="round"/>'
+      + '<path d="M6 60 Q20 64 40 62 Q20 66 6 64 Z" fill="#c62828"/>'
+      + '<path d="M10 59 L12 63 L14 59.5 L16 63.5 L18 60 L20 64 L22 60.2 L24 64 L26 60.5 L28 63.8 L30 61" fill="#fff" stroke="#9e9e9e" stroke-width=".7" stroke-linejoin="round"/>'
+      + '<path d="M10 65 L12 61.5 L14 65 L16 61.8 L18 65.2 L20 62 L22 65.4 L24 62.2 L26 65.4" fill="#fff" stroke="#9e9e9e" stroke-width=".7" stroke-linejoin="round"/>'
+      + '<circle cx="30" cy="50" r="6" fill="#7cb342" stroke="#33691e" stroke-width="1.8"/><circle cx="30" cy="50" r="3.4" fill="#ffee58"/><ellipse cx="29.5" cy="50" rx="1.2" ry="2.8" fill="#212121"/>'
+      + '<circle cx="8" cy="55" r="1.3" fill="#33691e"/>'
+      + '<path d="M22 44 L24 32 L28 38 L31 28 L34 38 L38 32 L40 44 Z" fill="#ffca28" stroke="#c77800" stroke-width="1.6" stroke-linejoin="round"/><circle cx="31" cy="39" r="2" fill="#e53935"/><circle cx="25" cy="40" r="1.3" fill="#42a5f5"/><circle cx="37" cy="40" r="1.3" fill="#42a5f5"/>'
+      + '<g class="waves"><ellipse cx="52" cy="76" rx="48" ry="6" fill="#4e9a7a" opacity=".7"/><path d="M8 76 Q18 72 28 76 M40 77 Q50 73 60 77 M72 76 Q82 72 92 76" stroke="#b2dfdb" stroke-width="2" fill="none" stroke-linecap="round"/></g></svg>',
   };
   const artHTML = (icon) => (String(icon).startsWith('svg:') ? (BATTLE_ART[icon.slice(4)] || '❓') : esc(icon));
   // 太空主題：主角坐在太空飛行船裡
@@ -428,6 +455,8 @@
     volcano: { moves: [['冰霜劍氣', '❄️'], ['水龍捲', '💧'], ['寒冰箭', '🧊']], special: ['冰封千里', '❄️'], foeMoves: [['火焰吐息', '🔥'], ['龍爪撕裂', '💢'], ['熔岩炸彈', '🌋']] },
     forest: { moves: [['烈焰劍', '🔥'], ['斧頭劈砍', '🪓'], ['陽光之劍', '☀️']], special: ['火鳳凰大爆發', '🔥'], foeMoves: [['樹根纏繞', '🌿'], ['落葉飛刀', '🍂'], ['巨木重擊', '🪵']] },
     storm: { moves: [['大地之錘', '🔨'], ['旋風斬', '🌪️'], ['避雷神劍', '🗡️']], special: ['雷霆萬鈞斬', '⚡'], foeMoves: [['閃電爪', '⚡'], ['雷光衝刺', '💨'], ['雷電吼', '🌩️']] },
+    savanna: { moves: [['破甲重錘', '🔨'], ['穿甲長槍', '🔱'], ['雷霆一擊', '⚡']], special: ['鋼鐵粉碎拳', '💥'], foeMoves: [['犀角衝撞', '💢'], ['鐵甲頂撞', '🛡️'], ['塵土狂奔', '💨']] },
+    swamp: { moves: [['蘆葦飛鏢', '🎯'], ['荷葉盾擊', '🍃'], ['泥巴炸彈', '💣']], special: ['沼澤大漩渦', '🌀'], foeMoves: [['鱷魚大咬', '🦷'], ['甩尾水花', '🌊'], ['死亡翻滾', '🌀']] },
     prehistoric: { moves: [['飛石彈弓', '🪨'], ['巨木衝撞', '🪵'], ['藤蔓纏繞', '🌿']], special: ['遠古大隕石', '☄️'], foeMoves: [['恐龍大咬', '🦷'], ['甩尾重擊', '💢'], ['震地大吼', '📢']] },
     river: { moves: [['激流水砲', '💦'], ['漩渦旋轉', '🌀'], ['浪花飛刀', '🌊']], special: ['大河奔流', '🌊'], foeMoves: [['蛟龍吐水', '💧'], ['龍尾掃浪', '🌊'], ['龍捲水柱', '🌪️']], boat: true },
     deepsea: { moves: [['魚雷發射', '🚀'], ['泡泡砲', '🫧'], ['聲納衝擊波', '🌀']], special: ['深海巨浪砲', '🌊'], foeMoves: [['大嘴咬咬', '🦷'], ['尾巴大浪', '🌊'], ['鯊魚衝撞', '💢']], sub: true },

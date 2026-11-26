@@ -40,6 +40,26 @@
           }
         }
       }
+    },
+    "2026-11-26": {
+      "chinese": {
+        "battle": {
+          "theme": "savanna",
+          "foe": {
+            "name": "鐵甲犀牛",
+            "icon": "svg:armor-rhino"
+          }
+        }
+      },
+      "math": {
+        "battle": {
+          "theme": "swamp",
+          "foe": {
+            "name": "鱷魚王",
+            "icon": "svg:croc-king"
+          }
+        }
+      }
     }
   }
 }
