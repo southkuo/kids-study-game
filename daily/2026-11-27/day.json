@@ -382,5 +382,31 @@
         }
       ]
     }
-  }
+  },
+  "lessons": [
+    {
+      "subject": "chinese",
+      "title": "日字旁和豎心旁",
+      "summary": "認識左邊是「日」和「忄」的字，知道日字旁和太陽、時間有關，豎心旁和心裡的感覺有關，還要分清楚「早」「想」不算「旁」。",
+      "file": "daily/2026-11-27/lessons/chinese.html"
+    },
+    {
+      "subject": "english",
+      "title": "My Friends",
+      "summary": "學用 He／She 介紹朋友、用 kind、funny 等形容詞說朋友的樣子，還有 Can I help you? 等好朋友會說的話。",
+      "file": "daily/2026-11-27/lessons/english.html"
+    },
+    {
+      "subject": "math",
+      "title": "連續進位和連續退位",
+      "summary": "一步一步看直式加法怎麼連續進位、減法怎麼連續退位，學會遇到 0 怎麼借，最後用加法檢查減法。",
+      "file": "daily/2026-11-27/lessons/math.html"
+    },
+    {
+      "subject": "science",
+      "title": "彩虹怎麼來？",
+      "summary": "知道彩虹要有陽光和小水滴、白色的陽光藏著七種顏色，動手試試彩虹什麼時候會出現。",
+      "file": "daily/2026-11-27/lessons/science.html"
+    }
+  ]
 }

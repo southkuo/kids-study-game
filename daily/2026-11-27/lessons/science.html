@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>彩虹怎麼來？</title>
+<!--
+  教學老師的教材範本（每天複製這個檔案到 daily/日期/lessons/科目.html 再改內容）
+  規則：
+  - 一個檔案就是一個完整教材，CSS、JS、圖都寫在裡面，不能載入任何外部網址。
+  - 每一個 <section class="step"> 是一頁，下方會自動出現「上一步／下一步」和進度點。
+  - data-auto="要念的話"：進到這一頁時自動朗讀（data-lang="en-US" 用英文念）。
+  - 任何元素加上 data-say="要念的話"（可加 data-lang="en-US"），點了就會念。
+  - 小測驗：<div class="quiz" data-why="答對時的補充說明"> 裡面放按鈕，正確的按鈕加 data-right，後面放 <div class="fb"></div>。
+  - 需要每頁自己的動畫：寫 window.onStep = function (index, section) { … }，換頁時會呼叫。
+  - 只改「教材內容」區塊和自訂樣式；下面的共用程式不要改壞。
+-->
+<style>
+:root { --c: #ff7043; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式（這一份教材自己的動畫）寫在這裡 ===== */
+:root { --c: #2e9d5b; }
+.sky { position: relative; width: 100%; max-width: 520px; height: 250px; border-radius: 18px; background: linear-gradient(#bfe3ff, #eaf6ff); overflow: hidden; }
+.sky svg { position: absolute; left: 0; bottom: 0; width: 100%; height: 100%; }
+.arc { fill: none; stroke-width: 12; stroke-linecap: round; stroke-dasharray: 800; stroke-dashoffset: 800; }
+.sky.go .arc { animation: draw 1.4s ease-out forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.cloud { position: absolute; top: 14px; font-size: 60px; }
+.sky.go .cloud { animation: away 2.2s ease-in forwards; }
+@keyframes away { to { transform: translateX(-260px); opacity: 0; } }
+.sun { position: absolute; top: 10px; right: 16px; font-size: 54px; opacity: 0; }
+.sky.go .sun { animation: sunIn 1s .8s ease-out forwards; }
+@keyframes sunIn { to { opacity: 1; } }
+.drops { position: absolute; inset: 0; pointer-events: none; }
+.drops i { position: absolute; top: -20px; width: 4px; height: 14px; border-radius: 2px; background: #5aa9e6; animation: rain 1s linear infinite; }
+@keyframes rain { to { transform: translateY(290px); } }
+.need { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; width: 100%; font-size: 30px; font-weight: 900; }
+.need .card { min-width: 130px; }
+.need .card b { font-size: 56px; line-height: 1.1; }
+.need .card span { font-size: 20px; }
+.bands { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 460px; }
+.band { display: flex; align-items: center; justify-content: space-between; min-height: 50px; padding: 0 18px; border: 0; border-radius: 999px; font: inherit; font-size: 22px; font-weight: 900; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.35); cursor: pointer; }
+.band:active { transform: scale(.97); }
+.band.on { outline: 4px solid #2b2112; }
+.tog { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 8px; }
+.tog button { min-width: 140px; min-height: 58px; padding: 0 16px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; background: #fff; box-shadow: 0 4px 0 #b7d9c4; color: #1d6b3d; cursor: pointer; }
+.tog button.on { background: #2e9d5b; color: #fff; box-shadow: 0 4px 0 #1d6b3d; }
+.tog button:active { transform: translateY(2px); }
+.status { min-height: 1.6em; text-align: center; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: #1d6b3d; }
+#lab .arc { stroke-dashoffset: 0; transition: opacity .6s; }
+#lab.off .arc { opacity: 0; }
+.prism { display: flex; align-items: center; justify-content: center; width: 100%; }
+.prism svg { width: 100%; max-width: 460px; height: auto; }
+.beam { stroke-dasharray: 300; stroke-dashoffset: 300; }
+.prism.go .beam { animation: draw 1.2s ease-out forwards; }
+.prism.go .beam.b2 { animation-delay: 1s; }
+.safe { margin-top: 10px; padding: 10px 14px; border-radius: 16px; background: #fff3e0; font-size: 18px; font-weight: 900; color: #8a4b00; text-align: center; line-height: 1.5; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容：每一頁一個 section.step ===== -->
+  <section class="step" data-auto="下雨了。雨停了，太陽出來，天空出現一道彩虹！彩虹是怎麼來的呢？">
+    <h1>🌈 彩虹怎麼來？</h1>
+    <div class="stage">
+      <div class="sky" id="sky0">
+        <div class="drops" id="rain0"></div>
+        <span class="cloud" style="left:30%">🌧️</span><span class="sun">☀️</span>
+        <svg viewBox="0 0 520 250" aria-hidden="true"></svg>
+      </div>
+    </div>
+    <p class="center"><button class="say" id="replay0">▶️ 再看一次</button></p>
+  </section>
+
+  <section class="step" data-auto="彩虹要有兩個好朋友：陽光，和空氣裡很多很多的小水滴。下過雨以後，空氣裡有很多小水滴，太陽一出來，就可能看到彩虹。">
+    <h1>☀️ ＋ 💧 ＝ 🌈</h1>
+    <div class="stage">
+      <div class="need">
+        <button class="card" data-say="陽光。"><b>☀️</b><span>陽光</span></button>
+        ＋
+        <button class="card" data-say="空氣裡很多很多的小水滴，像剛下過雨以後。"><b>💧</b><span>很多小水滴</span></button>
+        ＝
+        <button class="card" data-say="彩虹！"><b>🌈</b><span>彩虹</span></button>
+      </div>
+    </div>
+    <p class="big">陽光看起來白白的，<br>其實<b style="color:#2e9d5b">藏著很多顏色</b>！</p>
+    <p class="small">陽光穿過小水滴，顏色就被分開了。</p>
+  </section>
+
+  <section class="step" data-auto="陽光穿過水滴或三稜鏡，會被分成好幾種顏色。看！白白的光進去，出來變成彩色的光。">
+    <h1>🔦 白光藏著彩色</h1>
+    <div class="stage">
+      <div class="prism" id="pr">
+        <svg viewBox="0 0 460 220" aria-hidden="true">
+          <line class="beam" x1="10" y1="120" x2="196" y2="120" stroke="#b9b9b9" stroke-width="14" stroke-linecap="round"/><line class="beam" x1="10" y1="120" x2="196" y2="120" stroke="#ffffff" stroke-width="8" stroke-linecap="round"/><text x="60" y="100" font-size="22" font-weight="900" fill="#6a5536">白光</text><text x="330" y="215" font-size="22" font-weight="900" fill="#6a5536">彩色的光</text>
+          <polygon points="230,30 160,190 300,190" fill="#d9f1ff" stroke="#5aa9e6" stroke-width="4"/>
+          <g id="fan"></g>
+        </svg>
+      </div>
+    </div>
+    <p class="center"><button class="say" id="replay2">▶️ 再看一次</button></p>
+    <p class="big">彩虹裡的每一個小水滴，<br>都像一個小小的三稜鏡。</p>
+  </section>
+
+  <section class="step" data-auto="彩虹有紅、橙、黃、綠、藍、靛、紫，七種顏色。最外面是紅色，最裡面是紫色。點每一種顏色聽聽看。">
+    <h1>🎨 彩虹的七種顏色</h1>
+    <div class="stage">
+      <div class="bands" id="bands"></div>
+    </div>
+    <p class="big">最外面是<b style="color:#e53935">紅</b>，最裡面是<b style="color:#7b3fb0">紫</b></p>
+  </section>
+
+  <section class="step" data-auto="來做實驗！彩虹出現要有陽光，還要有小水滴，而且太陽要在你的背後。按按鈕試試看，彩虹什麼時候會出現？">
+    <h1>🧪 彩虹出現了嗎？</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="sky off" id="lab">
+        <span class="sun" id="lsun" style="opacity:0">☀️</span>
+        <div class="drops" id="rain1"></div>
+        <svg viewBox="0 0 520 250" aria-hidden="true"></svg>
+      </div>
+      <div class="status" id="ls">現在看不到彩虹</div>
+    </div>
+    <div class="tog"><button id="tSun">☀️ 出太陽</button><button id="tRain">💧 有小水滴</button></div>
+    <p class="small">彩虹出現要：陽光 ＋ 小水滴。真正看彩虹時，太陽會在你的背後喔！</p>
+  </section>
+
+  <section class="step" data-auto="在家也能做彩虹！晴天的時候，背對太陽，請大人用水管噴出細細的水霧，就可能看到小彩虹。記得，不要直接看太陽喔！">
+    <h1>🏡 自己做彩虹</h1>
+    <div class="stage" style="flex-direction:column;min-height:180px">
+      <div style="font-size:70px">☀️ 🧍 💦 🌈</div>
+      <p class="big" style="margin:0">晴天 ➜ 背對太陽 ➜ 噴水霧</p>
+    </div>
+    <div class="safe">⚠️ 要請大人陪你一起做，<br>而且<b>絕對不要直接看太陽</b>，眼睛會受傷！</div>
+    <p class="center"><button class="say" data-say="晴天，背對太陽，噴出細細的水霧。要請大人陪你一起做，絕對不要直接看太陽！">🔊 聽一聽</button></p>
+  </section>
+
+  <section class="step" data-auto="小測驗！什麼時候最容易看到彩虹？">
+    <h1>✏️ 小測驗 1</h1>
+    <p class="big">什麼時候最容易看到彩虹？</p>
+    <div class="quiz" data-why="彩虹需要陽光和小水滴。下過雨以後空氣裡有很多小水滴，太陽一出來，就容易看到彩虹。">
+      <button>🌙 晚上睡覺的時候</button><button data-right>🌦️ 雨停了、太陽出來的時候</button><button>☁️ 整天都是陰天的時候</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗！彩虹最外面那一圈，是什麼顏色？">
+    <h1>✏️ 小測驗 2</h1>
+    <p class="big">彩虹<b style="color:#2e9d5b">最外面</b>那一圈是什麼顏色？</p>
+    <div class="quiz" data-why="彩虹的顏色從外面到裡面是：紅、橙、黃、綠、藍、靛、紫。最外面是紅色。">
+      <button data-right>🔴 紅色</button><button>🟢 綠色</button><button>🟣 紫色</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+var COLORS = [['紅', '#e53935'], ['橙', '#fb8c00'], ['黃', '#fdd835'], ['綠', '#43a047'], ['藍', '#1e88e5'], ['靛', '#3949ab'], ['紫', '#7b3fb0']];
+function arcs(svg, anim) {
+  var h = '';
+  COLORS.forEach(function (c, i) {
+    var r = 210 - i * 13;
+    h += '<path class="arc" d="M ' + (260 - r) + ' 250 A ' + r + ' ' + r + ' 0 0 1 ' + (260 + r) + ' 250" stroke="' + c[1] + '"' + (anim ? ' style="animation-delay:' + (1.2 + i * 0.15) + 's"' : '') + '/>';
+  });
+  svg.innerHTML = h;
+}
+function rain(box, n) {
+  var h = '';
+  for (var i = 0; i < n; i++) h += '<i style="left:' + (Math.random() * 100) + '%;animation-delay:' + (Math.random()).toFixed(2) + 's;animation-duration:' + (0.8 + Math.random() * 0.5).toFixed(2) + 's"></i>';
+  box.innerHTML = h;
+}
+// 第 1 頁
+var sky0 = document.getElementById('sky0'), rainT = null;
+arcs(sky0.querySelector('svg'), true);
+function play0() {
+  clearTimeout(rainT);
+  sky0.classList.remove('go'); rain(document.getElementById('rain0'), 26); void sky0.offsetWidth;
+  rainT = setTimeout(function () { document.getElementById('rain0').innerHTML = ''; sky0.classList.add('go'); }, 1800);
+}
+document.getElementById('replay0').onclick = function () { play0(); say('雨停了，太陽出來，彩虹出現了！'); };
+// 第 3 頁：三稜鏡
+var fan = '';
+COLORS.forEach(function (c, i) { fan += '<line class="beam b2" x1="262" y1="118" x2="450" y2="' + (70 + i * 18) + '" stroke="' + c[1] + '" stroke-width="7" stroke-linecap="round"/>'; });
+document.getElementById('fan').innerHTML = fan;
+function play2() { var p = document.getElementById('pr'); p.classList.remove('go'); void p.offsetWidth; p.classList.add('go'); }
+document.getElementById('replay2').onclick = function () { play2(); say('白白的光進去，出來變成彩色的光。'); };
+// 第 4 頁：七種顏色
+var bh = '';
+COLORS.forEach(function (c, i) { bh += '<button class="band" style="background:' + c[1] + '" data-say="' + c[0] + '色，彩虹的第' + '一二三四五六七'[i] + '圈。"><span>' + c[0] + '</span><span>' + (i === 0 ? '最外面' : i === 6 ? '最裡面' : '') + '</span></button>'; });
+document.getElementById('bands').innerHTML = bh;
+document.getElementById('bands').addEventListener('click', function (e) { var b = e.target.closest('.band'); if (!b) return; [].forEach.call(this.children, function (x) { x.classList.toggle('on', x === b); }); });
+// 第 5 頁：實驗
+var lab = document.getElementById('lab'), sunOn = false, rainOn = false;
+arcs(lab.querySelector('svg'), false);
+function upd(speak) {
+  document.getElementById('tSun').classList.toggle('on', sunOn);
+  document.getElementById('tRain').classList.toggle('on', rainOn);
+  document.getElementById('lsun').style.opacity = sunOn ? 1 : 0;
+  lab.style.background = sunOn ? '' : 'linear-gradient(#9fb3c4, #d5dde4)';
+  if (rainOn) { if (!document.getElementById('rain1').innerHTML) rain(document.getElementById('rain1'), 18); } else document.getElementById('rain1').innerHTML = '';
+  var ok = sunOn && rainOn, msg;
+  lab.classList.toggle('off', !ok);
+  if (ok) msg = '🌈 彩虹出現了！陽光加上小水滴！';
+  else if (sunOn) msg = '只有陽光，沒有小水滴，看不到彩虹。';
+  else if (rainOn) msg = '只有小水滴，沒有陽光，看不到彩虹。';
+  else msg = '現在看不到彩虹';
+  document.getElementById('ls').textContent = msg;
+  if (speak) say(msg.replace('🌈 ', ''));
+}
+document.getElementById('tSun').onclick = function () { sunOn = !sunOn; upd(true); };
+document.getElementById('tRain').onclick = function () { rainOn = !rainOn; upd(true); };
+upd(false);
+window.onStep = function (i) { if (i === 0) play0(); if (i === 2) play2(); };
+
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

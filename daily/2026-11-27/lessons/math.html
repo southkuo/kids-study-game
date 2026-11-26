@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>連續進位和連續退位</title>
+<!--
+  教學老師的教材範本（每天複製這個檔案到 daily/日期/lessons/科目.html 再改內容）
+  規則：
+  - 一個檔案就是一個完整教材，CSS、JS、圖都寫在裡面，不能載入任何外部網址。
+  - 每一個 <section class="step"> 是一頁，下方會自動出現「上一步／下一步」和進度點。
+  - data-auto="要念的話"：進到這一頁時自動朗讀（data-lang="en-US" 用英文念）。
+  - 任何元素加上 data-say="要念的話"（可加 data-lang="en-US"），點了就會念。
+  - 小測驗：<div class="quiz" data-why="答對時的補充說明"> 裡面放按鈕，正確的按鈕加 data-right，後面放 <div class="fb"></div>。
+  - 需要每頁自己的動畫：寫 window.onStep = function (index, section) { … }，換頁時會呼叫。
+  - 只改「教材內容」區塊和自訂樣式；下面的共用程式不要改壞。
+-->
+<style>
+:root { --c: #ff7043; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式（這一份教材自己的動畫）寫在這裡 ===== */
+:root { --c: #2f8fd8; }
+.odo { display: flex; gap: 10px; justify-content: center; position: relative; padding-top: 34px; }
+.odo .d { position: relative; width: 74px; height: 96px; border-radius: 16px; background: #eaf4fd; box-shadow: inset 0 -5px 0 #b9d9f5; display: flex; align-items: center; justify-content: center; font-size: 64px; font-weight: 900; color: #1e6fb8; }
+.odo .d.flip { animation: flip .45s ease-out; background: #fff3b0; }
+@keyframes flip { 0% { transform: rotateX(90deg); } 100% { transform: rotateX(0); } }
+.odo .hop { position: absolute; top: -34px; left: 50%; margin-left: -18px; font-size: 28px; font-weight: 900; color: #e53935; animation: hop .6s ease-out forwards; }
+@keyframes hop { 0% { transform: translate(84px, 40px); opacity: 0; } 30% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translate(0, 0); opacity: 0; } }
+.lab3 { display: flex; gap: 10px; justify-content: center; font-size: 17px; font-weight: 900; color: #6a5536; }
+.lab3 span { width: 74px; text-align: center; }
+.ctrl { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 8px; }
+.ctrl button { min-width: 96px; min-height: 56px; padding: 0 16px; border: 0; border-radius: 999px; font: inherit; font-size: 19px; font-weight: 900; background: #e3f2fd; box-shadow: 0 4px 0 #90caf9; color: #0d47a1; cursor: pointer; }
+.ctrl button.on { background: #2f8fd8; color: #fff; box-shadow: 0 4px 0 #1a5f9a; }
+.ctrl button.reset { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: #5a4632; }
+.ctrl button:active { transform: translateY(2px); }
+.ctrl button:disabled { opacity: .4; }
+.msg { min-height: 1.6em; text-align: center; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: #c0392b; }
+.col { display: grid; grid-template-columns: 48px repeat(3, 70px); gap: 2px 6px; justify-content: center; font-weight: 900; }
+.col div { text-align: center; }
+.col .hd { font-size: 17px; color: #6a5536; }
+.col .mk { font-size: 22px; color: #e53935; min-height: 28px; }
+.col .mk.new { animation: pop .4s ease-out; }
+.col .dg { font-size: 46px; line-height: 1.15; border-radius: 10px; transition: background .3s; }
+.col .dg s { color: #9e9e9e; text-decoration-color: #e53935; text-decoration-thickness: 3px; }
+.col .op { font-size: 40px; color: #2f8fd8; }
+.col .ln { grid-column: 1 / -1; height: 5px; background: #2b2112; border-radius: 3px; margin: 2px 0; }
+.col .res { color: #2f8fd8; }
+.col .res.new { animation: pop .4s ease-out; }
+.col .hot { background: #fff3b0; }
+@keyframes pop { from { transform: scale(0); } }
+.explain { min-height: 3.2em; text-align: center; font-size: clamp(19px, 5vw, 23px); font-weight: 900; color: #4a3a20; line-height: 1.55; }
+.kids { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; width: 100%; }
+.kid { min-width: 220px; font-size: 24px; font-weight: 900; }
+.kid b { font-size: 44px; }
+.kid.ok { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; }
+.kid.bad { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; }
+.chk { width: 100%; min-height: 2.6em; text-align: center; font-size: clamp(20px, 5.2vw, 25px); font-weight: 900; line-height: 1.5; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容：每一頁一個 section.step ===== -->
+  <section class="step" data-auto="看！二百九十六一直加一。加到二百九十九再加一，個位滿十進到十位，十位也滿十，又進到百位，變成三百！一次進好幾位，這就是連續進位。">
+    <h1>⚡ 連續進位</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="lab3"><span>百位</span><span>十位</span><span>個位</span></div>
+      <div class="odo" id="odo"></div>
+      <div class="msg" id="om"></div>
+    </div>
+    <p class="center"><button class="say" id="oplay">▶️ 再看一次</button></p>
+    <p class="big">滿十就進一，<br>進到下一位又滿十，就要<b style="color:#e53935">再進一</b>！</p>
+  </section>
+
+  <section class="step" data-auto="加法直式，從個位開始。這一題個位要進位，十位加上進位的一，又滿十，要再進位到百位。選一題，按下一步。">
+    <h1>➕ 連續進位的加法</h1>
+    <div class="ctrl"><button id="a1" class="on">167 + 258</button><button id="a2">386 + 147</button></div>
+    <div class="stage" style="flex-direction:column"><div class="col" id="ca"></div></div>
+    <div class="explain" id="ea"></div>
+    <div class="ctrl"><button id="ga">👉 下一步</button><button class="reset" id="ra">🔄 重來</button></div>
+    <p class="small">進位的 1 寫在上面小小的，加的時候別忘了它！</p>
+  </section>
+
+  <section class="step" data-auto="減法直式，也從個位開始。個位不夠減，向十位借一；十位被借走以後又不夠減，再向百位借一。這就是連續退位。">
+    <h1>➖ 連續退位的減法</h1>
+    <div class="stage" style="flex-direction:column"><div class="col" id="cs"></div></div>
+    <div class="explain" id="es"></div>
+    <div class="ctrl"><button id="gs">👉 下一步</button><button class="reset" id="rs">🔄 重來</button></div>
+    <p class="small">被借走的那一位要先減 1，再算！</p>
+  </section>
+
+  <section class="step" data-auto="遇到零怎麼借？十位是零，沒有東西可以借，就要先向百位借一個百，換成十個十，十位再借一個十給個位。所以十位會變成九。">
+    <h1>0️⃣ 遇到 0 怎麼借？</h1>
+    <div class="ctrl"><button id="z1" class="on">300 − 128</button><button id="z2">502 − 245</button></div>
+    <div class="stage" style="flex-direction:column"><div class="col" id="cz"></div></div>
+    <div class="explain" id="ez"></div>
+    <div class="ctrl"><button id="gz">👉 下一步</button><button class="reset" id="rz">🔄 重來</button></div>
+    <p class="small">1 個百 ＝ 10 個十，借走 1 個十，十位就剩 9。</p>
+  </section>
+
+  <section class="step" data-auto="減完可以用加法檢查：答案加上減掉的數，要等於原來的數。小安和小米都算了四百三十一減一百八十五，點他們的答案，檢查看看誰算對了。">
+    <h1>🔍 用加法來檢查</h1>
+    <p class="big">431 − 185 = ？</p>
+    <div class="stage" style="min-height:200px">
+      <div class="kids">
+        <button class="card kid" id="k1">👦 小安<b>256</b>點我檢查</button>
+        <button class="card kid" id="k2">👧 小米<b>246</b>點我檢查</button>
+      </div>
+      <div class="chk" id="kc">答案 ＋ 減掉的數 ＝ 原來的數？</div>
+    </div>
+  </section>
+
+  <section class="step" data-auto="小測驗！三百六十七加二百五十八，等於多少？">
+    <h1>✏️ 小測驗 1</h1>
+    <p class="big" style="font-size:clamp(32px,9vw,46px)">367 + 258 = ？</p>
+    <div class="quiz" data-why="個位 7 加 8 等於 15，寫 5 進 1；十位 6 加 5 再加 1 等於 12，寫 2 進 1；百位 3 加 2 再加 1 等於 6。答案是 625。">
+      <button>515</button><button data-right>625</button><button>615</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗！六百減二百七十四，等於多少？">
+    <h1>✏️ 小測驗 2</h1>
+    <p class="big" style="font-size:clamp(32px,9vw,46px)">600 − 274 = ？</p>
+    <div class="quiz" data-why="十位和個位都是 0，先向百位借：百位剩 5，十位剩 9，個位變 10。10 減 4 等於 6，9 減 7 等於 2，5 減 2 等於 3。答案是 326。可以用 326 加 274 等於 600 來檢查。">
+      <button>436</button><button>336</button><button data-right>326</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+var ZH = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+function readZh(n) {
+  var h = Math.floor(n / 100), t = Math.floor(n / 10) % 10, o = n % 10;
+  if (n === 0) return '零';
+  var s = '';
+  if (h) s += ZH[h] + '百';
+  if (t) s += (t === 1 && !h ? '' : ZH[t]) + '十'; else if (h && o) s += '零';
+  if (o) s += ZH[o];
+  return s;
+}
+function digits(n) { return [n % 10, Math.floor(n / 10) % 10, Math.floor(n / 100)]; }
+var NAMES = ['個位', '十位', '百位'];
+
+// 第 1 頁：計數器 296 → 300
+var odoTimer = null;
+function drawOdo(n, changed, hopFrom) {
+  var d = digits(n), box = document.getElementById('odo'), h = '';
+  for (var p = 2; p >= 0; p--) h += '<div class="d' + (changed.indexOf(p) >= 0 ? ' flip' : '') + '">' + d[p] + (hopFrom.indexOf(p) >= 0 ? '<span class="hop">+1</span>' : '') + '</div>';
+  box.innerHTML = h;
+}
+function playOdo() {
+  clearTimeout(odoTimer);
+  var n = 296; drawOdo(n, [], []); document.getElementById('om').textContent = '';
+  function tick() {
+    if (n >= 300) return;
+    var before = digits(n); n++; var after = digits(n), ch = [], hop = [];
+    for (var p = 0; p < 3; p++) if (before[p] !== after[p]) ch.push(p);
+    for (p = 1; p < 3; p++) if (ch.indexOf(p) >= 0) hop.push(p);
+    drawOdo(n, ch, hop);
+    document.getElementById('om').textContent = n === 300 ? '個位進十位，十位又進百位！連續進位！' : '';
+    if (n < 300) odoTimer = setTimeout(tick, 1100);
+  }
+  odoTimer = setTimeout(tick, 1400);
+}
+document.getElementById('oplay').onclick = function () { playOdo(); say('二百九十六，一直加一，看看會發生什麼事。'); };
+
+// 直式：先把每一小步算好，存成快照
+function makePlan(a, b, op) {
+  var A = digits(a), B = digits(b), cur = A.slice(), changed = [0, 0, 0], res = ['', '', ''], mark = ['', '', ''], snaps = [], c = 0;
+  function snap(hot, txt, sp, newMark) { snaps.push({ cur: cur.slice(), changed: changed.slice(), res: res.slice(), mark: mark.slice(), hot: hot, txt: txt, sp: sp, newMark: newMark }); }
+  for (var p = 0; p < 3; p++) {
+    if (op === '+') {
+      var s = A[p] + B[p] + c;
+      res[p] = s % 10;
+      var txt = NAMES[p] + '：' + A[p] + ' + ' + B[p] + (c ? ' + 1（進位）' : '') + ' = ' + s;
+      var sp = NAMES[p] + '，' + A[p] + '加' + B[p] + (c ? '，再加進位的一' : '') + '，等於' + s;
+      c = s >= 10 ? 1 : 0;
+      if (c) { mark[p + 1] = '1'; txt += '，寫 ' + res[p] + '，進 1 到' + NAMES[p + 1]; sp += '。寫' + res[p] + '，進一到' + NAMES[p + 1]; }
+      snap(p, txt, sp, c ? p + 1 : -1);
+    } else {
+      if (cur[p] < B[p]) {
+        var q = p + 1; while (cur[q] === 0) q++;
+        var t2, s2, oldTop = cur[p];
+        if (q === p + 1) {
+          cur[q] -= 1; changed[q] = 1; cur[p] += 10; changed[p] = 1;
+          t2 = NAMES[p] + ' ' + oldTop + ' 不夠減 ' + B[p] + '，向' + NAMES[q] + '借 1：' + NAMES[q] + '剩 ' + cur[q] + '，' + NAMES[p] + '變成 ' + cur[p] + '。';
+          s2 = NAMES[p] + oldTop + '不夠減' + B[p] + '，向' + NAMES[q] + '借一。' + NAMES[q] + '剩' + cur[q] + '，' + NAMES[p] + '變成' + cur[p] + '。';
+        } else {
+          cur[q] -= 1; changed[q] = 1; cur[p + 1] = 9; changed[p + 1] = 1; cur[p] += 10; changed[p] = 1;
+          t2 = NAMES[p] + ' ' + oldTop + ' 不夠減 ' + B[p] + '，' + NAMES[p + 1] + '是 0 沒得借，先向' + NAMES[q] + '借 1（' + NAMES[q] + '剩 ' + cur[q] + '），' + NAMES[p + 1] + '變 10；' + NAMES[p + 1] + '再借 1 給' + NAMES[p] + '，剩 9，' + NAMES[p] + '變成 ' + cur[p] + '。';
+          s2 = NAMES[p] + oldTop + '不夠減' + B[p] + '。' + NAMES[p + 1] + '是零，沒得借，先向' + NAMES[q] + '借一，' + NAMES[q] + '剩' + cur[q] + '，' + NAMES[p + 1] + '變成十。' + NAMES[p + 1] + '再借一給' + NAMES[p] + '，剩九，' + NAMES[p] + '變成' + cur[p] + '。';
+        }
+        snap(p, t2, s2, -2);
+      }
+      res[p] = cur[p] - B[p];
+      snap(p, NAMES[p] + '：' + cur[p] + ' − ' + B[p] + ' = ' + res[p], NAMES[p] + '，' + cur[p] + '減' + B[p] + '等於' + res[p], -1);
+    }
+  }
+  return snaps;
+}
+function Column(boxId, expId, goId, op) {
+  this.box = document.getElementById(boxId); this.exp = document.getElementById(expId); this.go = document.getElementById(goId); this.op = op;
+  var self = this; this.go.onclick = function () { self.next(); };
+}
+Column.prototype.load = function (a, b) {
+  this.a = a; this.b = b; this.k = -1; this.snaps = makePlan(a, b, this.op);
+  this.render(); this.exp.textContent = '先對齊百位、十位、個位，從個位開始。'; this.go.disabled = false;
+};
+Column.prototype.render = function () {
+  var A = digits(this.a), B = digits(this.b), S = this.k >= 0 ? this.snaps[this.k] : null, prevS = this.k > 0 ? this.snaps[this.k - 1] : null, h = '';
+  var cell = function (cls, v) { return '<div class="' + cls + '">' + v + '</div>'; };
+  var hot = function (p) { return S && S.hot === p ? ' hot' : ''; };
+  h += cell('hd', '') + cell('hd', '百') + cell('hd', '十') + cell('hd', '個');
+  h += cell('mk', '');
+  for (var p = 2; p >= 0; p--) {
+    var m = '', isNew = false;
+    if (S && this.op === '+') { m = S.mark[p]; isNew = S.newMark === p; }
+    if (S && this.op === '−' && S.changed[p]) { m = String(S.cur[p]); isNew = !prevS || prevS.cur[p] !== S.cur[p]; }
+    h += cell('mk' + (isNew ? ' new' : ''), m);
+  }
+  h += cell('dg', '');
+  for (p = 2; p >= 0; p--) h += cell('dg' + hot(p), S && this.op === '−' && S.changed[p] ? '<s>' + A[p] + '</s>' : A[p]);
+  h += cell('op', this.op);
+  for (p = 2; p >= 0; p--) h += cell('dg' + hot(p), B[p]);
+  h += '<div class="ln"></div>' + cell('dg', '');
+  for (p = 2; p >= 0; p--) {
+    var v = S ? S.res[p] : '', nw = S && v !== '' && (!prevS || prevS.res[p] === '');
+    h += cell('dg res' + hot(p) + (nw ? ' new' : ''), v);
+  }
+  this.box.innerHTML = h;
+};
+Column.prototype.next = function () {
+  if (this.k >= this.snaps.length - 1) return;
+  this.k++; this.render();
+  var s = this.snaps[this.k], ans = this.op === '+' ? this.a + this.b : this.a - this.b;
+  if (this.k === this.snaps.length - 1) {
+    this.exp.textContent = s.txt + '。答案是 ' + ans + '！';
+    say(s.sp + '。答案是' + readZh(ans) + '！');
+    this.go.disabled = true;
+  } else { this.exp.textContent = s.txt; say(s.sp); }
+};
+function pair(btnIds, col, probs) {
+  var curP = probs[0];
+  btnIds.forEach(function (id, i) {
+    document.getElementById(id).onclick = function () {
+      curP = probs[i]; btnIds.forEach(function (x, j) { document.getElementById(x).classList.toggle('on', i === j); });
+      col.load(curP[0], curP[1]);
+    };
+  });
+  return function () { col.load(curP[0], curP[1]); };
+}
+var colA = new Column('ca', 'ea', 'ga', '+'), colS = new Column('cs', 'es', 'gs', '−'), colZ = new Column('cz', 'ez', 'gz', '−');
+document.getElementById('ra').onclick = pair(['a1', 'a2'], colA, [[167, 258], [386, 147]]);
+document.getElementById('rz').onclick = pair(['z1', 'z2'], colZ, [[300, 128], [502, 245]]);
+document.getElementById('rs').onclick = function () { colS.load(523, 167); };
+colA.load(167, 258); colS.load(523, 167); colZ.load(300, 128);
+
+// 第 5 頁：用加法檢查
+function check(btn, ans) {
+  var sum = ans + 185, ok = sum === 431, box = document.getElementById('kc');
+  btn.classList.remove('ok', 'bad'); btn.classList.add(ok ? 'ok' : 'bad');
+  box.style.color = ok ? '#0e6b2e' : '#a0161b';
+  box.innerHTML = ans + ' + 185 = ' + sum + (ok ? ' ✅<br>等於原來的 431，算對了！' : ' ❌<br>不是 431，算錯了！');
+  say(readZh(ans) + '加一百八十五，等於' + readZh(sum) + (ok ? '，等於原來的四百三十一，算對了！' : '，不是四百三十一，算錯了！'));
+}
+document.getElementById('k1').onclick = function () { check(this, 256); };
+document.getElementById('k2').onclick = function () { check(this, 246); };
+
+window.onStep = function (i) { if (i === 0) playOdo(); else clearTimeout(odoTimer); };
+
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>
