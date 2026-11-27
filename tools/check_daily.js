@@ -29,7 +29,7 @@ function checkQuestions(where, hw) {
 }
 function checkBattle(where, b) {
   {
-    const THEMES = ['space', 'garden', 'underworld', 'jungle', 'deepsea', 'sky', 'river', 'volcano', 'prehistoric', 'forest', 'storm', 'savanna', 'swamp'], ART = ['mantis-king', 'skeleton-general', 'steel-tiger', 'big-shark', 'eagle', 'water-dragon', 'fire-dragon', 'trex', 'tree-demon', 'thunder-leopard', 'armor-rhino', 'croc-king'];
+    const THEMES = ['space', 'garden', 'underworld', 'jungle', 'deepsea', 'sky', 'river', 'volcano', 'prehistoric', 'forest', 'storm', 'savanna', 'swamp', 'autumn'], ART = ['mantis-king', 'skeleton-general', 'steel-tiger', 'big-shark', 'eagle', 'water-dragon', 'fire-dragon', 'trex', 'tree-demon', 'thunder-leopard', 'armor-rhino', 'croc-king', 'fox-king'];
     if (b.theme != null && !THEMES.includes(b.theme)) err(where, `battle.theme 只能是 ${THEMES.join('／')}（或不寫）`);
     if (b.foe != null) {
       if (!isStr(b.foe.name)) err(where, 'battle.foe 需要 name');
@@ -38,7 +38,7 @@ function checkBattle(where, b) {
       else if (!b.foe.icon.startsWith('svg:') && b.foe.icon.length > 8) err(where, 'battle.foe.icon 應該是一個 emoji');
     }
     ['moves', 'foeMoves'].forEach((k) => { if (b[k] != null && (!Array.isArray(b[k]) || !b[k].length || b[k].some((m) => !Array.isArray(m) || !isStr(m[0]) || !isStr(m[1])))) err(where, `battle.${k} 要是 [["招式名稱", "emoji"], …]`); });
-    if (b.fx != null && !['punch', 'arrow'].includes(b.fx)) err(where, 'battle.fx 只能是 "punch"（拳頭）、"arrow"（射箭）或不寫');
+    if (b.fx != null && !['punch', 'arrow', 'sling'].includes(b.fx)) err(where, 'battle.fx 只能是 "punch"（拳頭）、"arrow"（射箭）、"sling"（彈弓）或不寫');
     if (b.special != null && (!Array.isArray(b.special) || !isStr(b.special[0]) || !isStr(b.special[1]))) err(where, 'battle.special 要是 ["必殺技名稱", "emoji"]');
   }
 }

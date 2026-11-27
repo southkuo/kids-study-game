@@ -406,6 +406,25 @@
       + '<circle cx="8" cy="55" r="1.3" fill="#33691e"/>'
       + '<path d="M22 44 L24 32 L28 38 L31 28 L34 38 L38 32 L40 44 Z" fill="#ffca28" stroke="#c77800" stroke-width="1.6" stroke-linejoin="round"/><circle cx="31" cy="39" r="2" fill="#e53935"/><circle cx="25" cy="40" r="1.3" fill="#42a5f5"/><circle cx="37" cy="40" r="1.3" fill="#42a5f5"/>'
       + '<g class="waves"><ellipse cx="52" cy="76" rx="48" ry="6" fill="#4e9a7a" opacity=".7"/><path d="M8 76 Q18 72 28 76 M40 77 Q50 73 60 77 M72 76 Q82 72 92 76" stroke="#b2dfdb" stroke-width="2" fill="none" stroke-linecap="round"/></g></svg>',
+    'fox-king': '<svg class="foe-svg big" viewBox="0 0 100 100" aria-hidden="true">'
+      + '<g class="tails" stroke="#bf5f00" stroke-width="2" stroke-linejoin="round">'
+      + '<path d="M70 70 Q96 66 96 40 Q86 50 74 56 Z" fill="#fb8c00"/><path d="M96 40 Q92 46 86 48 Q94 44 96 40 Z" fill="#fff"/>'
+      + '<path d="M72 74 Q100 82 98 58 Q88 66 76 66 Z" fill="#ef6c00"/><path d="M98 58 Q96 64 90 66 Q96 62 98 58 Z" fill="#fff"/>'
+      + '<path d="M70 66 Q88 44 76 22 Q74 36 66 50 Z" fill="#fb8c00"/><path d="M76 22 Q78 30 74 34 Q76 28 76 22 Z" fill="#fff"/></g>'
+      + '<path d="M34 46 Q54 40 74 46 L82 94 Q54 100 26 94 Z" fill="#6a1b9a" stroke="#38006b" stroke-width="2" stroke-linejoin="round"/>'
+      + '<path d="M34 46 Q54 40 74 46 L72 52 Q54 47 36 52 Z" fill="#ffca28" stroke="#c77800" stroke-width="1.4"/>'
+      + '<ellipse cx="54" cy="70" rx="15" ry="18" fill="#fb8c00" stroke="#bf5f00" stroke-width="2"/><ellipse cx="54" cy="74" rx="9" ry="12" fill="#fff3e0"/>'
+      + '<g fill="#fb8c00" stroke="#bf5f00" stroke-width="2"><rect x="42" y="84" width="9" height="10" rx="4"/><rect x="57" y="84" width="9" height="10" rx="4"/></g>'
+      + '<g fill="#4e342e"><ellipse cx="46.5" cy="94" rx="5" ry="2.5"/><ellipse cx="61.5" cy="94" rx="5" ry="2.5"/></g>'
+      + '<path d="M22 10 L30 30 L16 28 Z" fill="#fb8c00" stroke="#bf5f00" stroke-width="2" stroke-linejoin="round"/><path d="M22 15 L27 27 L19 26 Z" fill="#3e2723"/>'
+      + '<path d="M52 10 L48 30 L60 26 Z" fill="#fb8c00" stroke="#bf5f00" stroke-width="2" stroke-linejoin="round"/><path d="M52 15 L50 27 L56 25 Z" fill="#3e2723"/>'
+      + '<path d="M16 28 Q36 20 58 28 Q60 40 50 46 L28 52 Q8 50 4 44 Q12 38 16 28 Z" fill="#fb8c00" stroke="#bf5f00" stroke-width="2" stroke-linejoin="round"/>'
+      + '<path d="M4 44 Q12 40 22 44 Q32 50 50 46 L28 52 Q8 50 4 44 Z" fill="#fff3e0"/>'
+      + '<circle cx="4.5" cy="44" r="2.6" fill="#212121"/>'
+      + '<path d="M20 35 Q26 31 32 35" stroke="#3e2723" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M38 34 Q44 30 50 34" stroke="#3e2723" stroke-width="2.6" fill="none" stroke-linecap="round"/>'
+      + '<path d="M18 31 L30 29 M40 29 L52 31" stroke="#3e2723" stroke-width="1.8" stroke-linecap="round"/>'
+      + '<path d="M12 47 Q22 52 32 46" stroke="#3e2723" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M28 47 L30 50 L31 46.5" fill="#fff" stroke="#9e9e9e" stroke-width=".6"/>'
+      + '<path d="M24 14 L27 4 L32 11 L36 2 L40 11 L45 4 L48 14 Z" fill="#ffca28" stroke="#c77800" stroke-width="1.5" stroke-linejoin="round"/><circle cx="36" cy="10" r="1.8" fill="#8e24aa"/></svg>',
   };
   const artHTML = (icon) => (String(icon).startsWith('svg:') ? (BATTLE_ART[icon.slice(4)] || '❓') : esc(icon));
   // 太空主題：主角坐在太空飛行船裡
@@ -443,6 +462,10 @@
   const archerHTML = () => '<span class="archer">' + HERO.avatar + '<svg class="bow-svg" viewBox="0 0 40 100" aria-hidden="true">'
     + '<path d="M8 4 Q40 50 8 96" stroke="#6d4c41" stroke-width="6" fill="none" stroke-linecap="round"/>'
     + '<path d="M8 4 L8 96" stroke="#eceff1" stroke-width="1.6"/></svg></span>';
+  // 彈弓：主角拿 Y 字形彈弓
+  const slingHTML = () => '<span class="archer">' + HERO.avatar + '<svg class="sling-svg" viewBox="0 0 40 60" aria-hidden="true">'
+    + '<path d="M20 58 L20 32 M20 32 L8 8 M20 32 L32 8" stroke="#8d6e63" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'
+    + '<path d="M8 8 Q20 22 32 8" stroke="#e53935" stroke-width="2.4" fill="none"/><circle cx="20" cy="15" r="3.6" fill="#9e9e9e" stroke="#616161" stroke-width="1"/></svg></span>';
   const ARROW_SVG = '<svg class="arrow-svg" viewBox="0 0 100 20" aria-hidden="true"><path d="M14 10 L84 10" stroke="#6d4c41" stroke-width="4" stroke-linecap="round"/>'
     + '<path d="M80 3 L98 10 L80 17 Z" fill="#b0bec5" stroke="#546e7a" stroke-width="1.4" stroke-linejoin="round"/>'
     + '<path d="M2 3 L16 10 L2 17 L8 10 Z" fill="#e53935" stroke="#8e0000" stroke-width="1" stroke-linejoin="round"/></svg>';
@@ -456,6 +479,7 @@
     forest: { moves: [['烈焰劍', '🔥'], ['斧頭劈砍', '🪓'], ['陽光之劍', '☀️']], special: ['火鳳凰大爆發', '🔥'], foeMoves: [['樹根纏繞', '🌿'], ['落葉飛刀', '🍂'], ['巨木重擊', '🪵']] },
     storm: { moves: [['大地之錘', '🔨'], ['旋風斬', '🌪️'], ['避雷神劍', '🗡️']], special: ['雷霆萬鈞斬', '⚡'], foeMoves: [['閃電爪', '⚡'], ['雷光衝刺', '💨'], ['雷電吼', '🌩️']] },
     savanna: { moves: [['破甲重錘', '🔨'], ['穿甲長槍', '🔱'], ['雷霆一擊', '⚡']], special: ['鋼鐵粉碎拳', '💥'], foeMoves: [['犀角衝撞', '💢'], ['鐵甲頂撞', '🛡️'], ['塵土狂奔', '💨']] },
+    autumn: {},
     swamp: { moves: [['蘆葦飛鏢', '🎯'], ['荷葉盾擊', '🍃'], ['泥巴炸彈', '💣']], special: ['沼澤大漩渦', '🌀'], foeMoves: [['鱷魚大咬', '🦷'], ['甩尾水花', '🌊'], ['死亡翻滾', '🌀']] },
     prehistoric: { moves: [['飛石彈弓', '🪨'], ['巨木衝撞', '🪵'], ['藤蔓纏繞', '🌿']], special: ['遠古大隕石', '☄️'], foeMoves: [['恐龍大咬', '🦷'], ['甩尾重擊', '💢'], ['震地大吼', '📢']] },
     river: { moves: [['激流水砲', '💦'], ['漩渦旋轉', '🌀'], ['浪花飛刀', '🌊']], special: ['大河奔流', '🌊'], foeMoves: [['蛟龍吐水', '💧'], ['龍尾掃浪', '🌊'], ['龍捲水柱', '🌪️']], boat: true },
@@ -475,8 +499,8 @@
     b = b || {};
     const th = BATTLE_THEMES[b.theme] || {};
     return {
-      theme: (BATTLE_THEMES[b.theme] ? b.theme : '') + (b.fx === 'punch' || b.fx === 'arrow' ? ' fx-' + b.fx : ''),
-      heroHTML: th.ship ? shipHTML() : th.sub ? subHTML() : th.boat ? boatHTML() : b.fx === 'arrow' ? archerHTML() : null,
+      theme: (BATTLE_THEMES[b.theme] ? b.theme : '') + (['punch', 'arrow', 'sling'].includes(b.fx) ? ' fx-' + b.fx : ''),
+      heroHTML: th.ship ? shipHTML() : th.sub ? subHTML() : th.boat ? boatHTML() : b.fx === 'arrow' ? archerHTML() : b.fx === 'sling' ? slingHTML() : null,
       st: { moves: b.moves || th.moves || base.moves, special: b.special || th.special || base.special, foeMoves: b.foeMoves || th.foeMoves || base.foeMoves },
       foe: b.foe && b.foe.name ? { name: b.foe.name, icon: b.foe.icon || '👾' } : defFoe,
     };
@@ -709,6 +733,7 @@
     const p = document.createElement('span');
     p.className = `proj ${from === 'hero' ? 'to-r' : 'to-l'} ${big ? 'big' : ''}`;
     if (from === 'hero' && arena.classList.contains('fx-arrow')) p.innerHTML = big ? ARROW_SVG.repeat(3) : ARROW_SVG; // 射箭：真的箭，必殺技一次三支
+    else if (from === 'hero' && big && arena.classList.contains('fx-sling')) p.innerHTML = `<span>${fx}</span><span>${fx}</span><span>${fx}</span>`; // 彈弓必殺技：一次三顆
     else p.textContent = fx;
     arena.appendChild(p);
     if (big) { const f = arena.querySelector('#flash'); f.classList.remove('on'); void f.offsetWidth; f.classList.add('on'); }

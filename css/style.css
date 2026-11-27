@@ -557,3 +557,18 @@ body:has(.hw) { background: #fffaf0; }
 .arena.th-savanna .foe.ko .body, .arena.th-swamp .foe.ko .body { animation: koFall 1.1s ease-in forwards; }
 .foe-svg.big.wide { width: 2.5em; height: 1.55em; vertical-align: -0.3em; }
 .treasure .foe-svg.big.wide { width: 1.8em; height: 1.1em; }
+
+/* 秋天樹林、狐狸、彈弓 */
+.arena.th-autumn { background: radial-gradient(ellipse at 50% 106%, #a1663a 0 33%, transparent 34%), linear-gradient(#ffcc80, #ffab91 55%, #d7a86e); }
+.arena.th-autumn::before { content: "🍁　　🍂　　　　🍁　　　🍂"; position: absolute; left: 0; right: 0; top: -30px; font-size: 22px; text-align: center; pointer-events: none; animation: leaves 5s linear infinite; }
+@keyframes leaves { from { transform: translateY(0) rotate(0); opacity: 0; } 15% { opacity: 1; } to { transform: translateY(240px) rotate(40deg); opacity: .3; } }
+.arena.th-autumn::after { content: "🌳　🍄　　　　　🍂　🌳"; position: absolute; left: 0; right: 0; bottom: 2px; font-size: 22px; text-align: center; opacity: .85; pointer-events: none; }
+.foe-svg .tails { animation: tailwag 1.2s ease-in-out infinite alternate; transform-origin: 70px 70px; }
+@keyframes tailwag { to { transform: rotate(8deg); } }
+.arena.th-autumn .foe .body { animation: swim 2.4s ease-in-out infinite; }
+.arena.th-autumn .foe.hit .body { animation: hitR .5s; }
+.arena.th-autumn .foe.ko .body { animation: koFall 1.1s ease-in forwards; }
+.sling-svg { position: absolute; right: -0.3em; top: 0.25em; width: .4em; height: .6em; }
+.arena.fx-sling .proj.to-r { font-size: 34px; animation: slingR .6s cubic-bezier(.3, 0, .7, 1) forwards; }
+.arena.fx-sling .proj.big.to-r { display: flex; gap: 6px; font-size: 40px; }
+@keyframes slingR { 0% { transform: translate(0, 0) scale(.8); } 50% { transform: translate(min(23vw, 160px), -70px) scale(1.1); } 100% { transform: translate(min(46vw, 320px), 0) scale(1.2); } }
