@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>蝴蝶的一生</title>
+<!--
+  教學老師的教材範本（每天複製這個檔案到 daily/日期/lessons/科目.html 再改內容）
+  規則：
+  - 一個檔案就是一個完整教材，CSS、JS、圖都寫在裡面，不能載入任何外部網址。
+  - 每一個 <section class="step"> 是一頁，下方會自動出現「上一步／下一步」和進度點。
+  - data-auto="要念的話"：進到這一頁時自動朗讀（data-lang="en-US" 用英文念）。
+  - 任何元素加上 data-say="要念的話"（可加 data-lang="en-US"），點了就會念。
+  - 小測驗：<div class="quiz" data-why="答對時的補充說明"> 裡面放按鈕，正確的按鈕加 data-right，後面放 <div class="fb"></div>。
+  - 需要每頁自己的動畫：寫 window.onStep = function (index, section) { … }，換頁時會呼叫。
+  - 只改「教材內容」區塊和自訂樣式；下面的共用程式不要改壞。
+-->
+<style>
+:root { --c: #ff7043; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式（這一份教材自己的動畫）寫在這裡 ===== */
+:root { --c: #2e9d5b; }
+.garden { position: relative; width: 100%; height: 220px; background: linear-gradient(#e8f8ff 0 70%, #c8ecc0 70%); border-radius: 18px; }
+.garden .cat { position: absolute; bottom: 22%; left: -60px; font-size: 46px; animation: crawl 3s linear forwards; }
+@keyframes crawl { to { left: 42%; } }
+.garden .bf { position: absolute; left: 44%; bottom: 24%; font-size: 52px; opacity: 0; animation: fly 3.4s ease-in-out 3.2s forwards; }
+@keyframes fly { 0% { opacity: 0; transform: translate(0, 0) scale(.4); } 15% { opacity: 1; transform: translate(0, -20px) scale(1); } 40% { transform: translate(-60px, -90px); } 70% { transform: translate(70px, -120px); } 100% { opacity: 1; transform: translate(20px, -110px); } }
+.garden .cat.gone { animation: crawl 3s linear forwards, vanish .6s 3s forwards; }
+@keyframes vanish { to { opacity: 0; transform: scale(.3); } }
+.garden .fl { position: absolute; bottom: 20%; font-size: 36px; }
+.cycle { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; }
+.cycle .pic { width: 200px; height: 170px; display: flex; align-items: center; justify-content: center; font-size: 96px; animation: pop .5s ease-out; }
+@keyframes pop { from { transform: scale(0); } }
+.cycle .name { font-size: clamp(26px, 7vw, 34px); font-weight: 900; color: #2e9d5b; }
+.cycle .desc { min-height: 3.2em; text-align: center; font-size: clamp(19px, 5vw, 23px); font-weight: 900; color: #3a4a2a; line-height: 1.5; }
+.dots { display: flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: wrap; font-size: 17px; font-weight: 900; color: #9e9e9e; }
+.dots span.on { color: #2e9d5b; }
+.ctrl { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 8px; }
+.ctrl button { min-width: 96px; min-height: 56px; padding: 0 16px; border: 0; border-radius: 999px; font: inherit; font-size: 19px; font-weight: 900; background: #dff3e6; box-shadow: 0 4px 0 #8fd0a8; color: #1b6b3c; cursor: pointer; }
+.ctrl button:active { transform: translateY(2px); }
+.slots { display: flex; gap: 6px; justify-content: center; width: 100%; flex-wrap: wrap; }
+.slots div { width: 78px; height: 84px; border: 3px dashed #a5d6b5; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 40px; }
+.slots div small { font-size: 15px; font-weight: 900; color: #2e9d5b; }
+.slots div.fill { border-style: solid; background: #e9f8ee; animation: pop .4s ease-out; }
+.pick { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; width: 100%; }
+.pick button { width: 96px; height: 100px; border: 0; border-radius: 18px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; font-size: 44px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.pick button small { font-size: 16px; font-weight: 900; color: #5a4632; }
+.pick button.used { visibility: hidden; }
+.pick button.no { animation: shake .4s; background: #ffe1e1; }
+@keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+.msg { min-height: 1.6em; width: 100%; text-align: center; font-size: clamp(19px, 5vw, 23px); font-weight: 900; color: #3a4a2a; }
+.eat { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; }
+.eat .card { min-width: 0; font-size: 18px; font-weight: 900; color: #3a4a2a; }
+.eat .card .e { font-size: 56px; }
+.bites { opacity: 0; transition: opacity .5s; }
+.bites.bit { opacity: 1; }
+#tongue { transition: d .8s; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容：每一頁一個 section.step ===== -->
+  <section class="step" data-auto="毛毛蟲慢慢爬，爬著爬著，咦？牠不見了，飛出一隻漂亮的蝴蝶！原來毛毛蟲長大會變成蝴蝶。我們來看看蝴蝶的一生！">
+    <h1>🦋 蝴蝶的一生</h1>
+    <div class="stage"><div class="garden" id="garden"></div></div>
+    <p class="big">毛毛蟲長大，<br>會變成蝴蝶！</p>
+    <p class="center"><button class="say" id="gplay">▶️ 再看一次</button></p>
+  </section>
+
+  <section class="step" data-auto="蝴蝶的一生有四個階段：卵、幼蟲、蛹、成蟲。按下一個階段，一個一個看。">
+    <h1>🔄 四個階段</h1>
+    <div class="stage">
+      <div class="cycle">
+        <div class="dots" id="cdots"></div>
+        <div class="pic" id="cpic"></div>
+        <div class="name" id="cname"></div>
+        <div class="desc" id="cdesc"></div>
+      </div>
+    </div>
+    <div class="ctrl"><button id="cnext">👉 下一個階段</button></div>
+  </section>
+
+  <section class="step" data-auto="排排看！照蝴蝶長大的順序，點下面的圖：先是什麼，再來是什麼？">
+    <h1>🧩 排排看</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="slots" id="slots"></div>
+      <div class="msg" id="om">第 1 個是什麼？</div>
+      <div class="pick" id="pick"></div>
+    </div>
+    <p class="center"><button class="say" id="oreset">🔄 再排一次</button></p>
+  </section>
+
+  <section class="step" data-auto="毛毛蟲和蝴蝶吃的東西不一樣喔！點一點牠們，看看牠們怎麼吃。">
+    <h1>🍃 牠們吃什麼？</h1>
+    <div class="eat">
+      <button class="card" id="eatc"><span class="e">🐛</span>
+        <svg width="110" height="70" viewBox="0 0 110 70"><path d="M5 35 Q55 -10 105 35 Q55 80 5 35Z" fill="#66bb6a"/><path d="M5 35 L105 35" stroke="#2e7d32" stroke-width="3"/><g id="leafp" class="bites"><circle cx="72" cy="16" r="11" fill="#fff7ec"/><circle cx="88" cy="22" r="10" fill="#fff7ec"/><circle cx="56" cy="12" r="9" fill="#fff7ec"/></g></svg>
+        毛毛蟲<br>用嘴巴咬葉子</button>
+      <button class="card" id="eatb"><span class="e">🦋</span>
+        <svg width="110" height="70" viewBox="0 0 110 70"><path id="tongue" d="M20 10 C40 10 40 30 30 30 C22 30 22 20 30 20" fill="none" stroke="#6d4c41" stroke-width="4" stroke-linecap="round"/><text x="88" y="62" font-size="30" text-anchor="middle">🌸</text></svg>
+        蝴蝶<br>用吸管一樣的口器吸花蜜</button>
+    </div>
+    <p class="small">蝴蝶的口器平常捲起來，吃東西時才伸長。</p>
+  </section>
+
+  <section class="step" data-auto="小測驗！蛹的下一個階段是什麼？">
+    <h1>✏️ 小測驗 1</h1>
+    <p class="big">蛹的下一個階段是什麼？</p>
+    <div class="quiz" data-why="蛹裡面的身體慢慢變化，最後蝴蝶從蛹裡鑽出來，這叫羽化。順序是卵、幼蟲、蛹、成蟲。">
+      <button>卵</button><button data-right>🦋 蝴蝶（成蟲）</button><button>🐛 毛毛蟲（幼蟲）</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗！毛毛蟲每天都在做什麼，所以長得很快？">
+    <h1>✏️ 小測驗 2</h1>
+    <p class="big">毛毛蟲每天都在做什麼，<br>所以長得很快？</p>
+    <div class="quiz" data-why="毛毛蟲一直吃葉子，吃得飽飽的，身體一直長大，還會脫掉舊的皮，這叫蛻皮。">
+      <button>吸花蜜</button><button data-right>吃葉子</button><button>在蛹裡睡覺</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+var EGG = '<svg width="150" height="120" viewBox="0 0 150 120"><path d="M10 70 Q75 0 140 70 Q75 130 10 70Z" fill="#81c784"/><path d="M10 70 L140 70" stroke="#2e7d32" stroke-width="3"/><ellipse cx="62" cy="52" rx="7" ry="9" fill="#fff59d" stroke="#c9b037" stroke-width="2"/><ellipse cx="80" cy="56" rx="7" ry="9" fill="#fff59d" stroke="#c9b037" stroke-width="2"/><ellipse cx="72" cy="84" rx="7" ry="9" fill="#fff59d" stroke="#c9b037" stroke-width="2"/></svg>';
+var PUPA = '<svg width="120" height="150" viewBox="0 0 120 150"><path d="M20 8 L100 8" stroke="#8d6e63" stroke-width="8" stroke-linecap="round"/><path d="M60 10 L60 26" stroke="#8d6e63" stroke-width="3"/><path d="M60 24 C88 34 88 100 60 140 C32 100 32 34 60 24Z" fill="#9ccc65" stroke="#558b2f" stroke-width="3"/><path d="M50 60 Q60 66 70 60 M48 80 Q60 88 72 80 M50 100 Q60 108 70 100" fill="none" stroke="#558b2f" stroke-width="2"/></svg>';
+var STAGES = [
+  [EGG, '① 卵', '蝴蝶媽媽把小小的卵產在葉子上。這種葉子，就是寶寶以後要吃的食物。'],
+  ['🐛', '② 幼蟲（毛毛蟲）', '卵孵出毛毛蟲。牠一直吃葉子，越長越大，還會脫掉舊的皮，叫做蛻皮。'],
+  [PUPA, '③ 蛹', '毛毛蟲長大後變成蛹。蛹不吃東西，也幾乎不動，身體在裡面慢慢變化。'],
+  ['🦋', '④ 成蟲（蝴蝶）', '蝴蝶從蛹裡鑽出來，叫做羽化。翅膀乾了以後，就可以飛了！']
+];
+
+// 第 1 頁
+function garden() {
+  document.getElementById('garden').innerHTML = '<span class="fl" style="left:8%">🌼</span><span class="fl" style="left:78%">🌷</span><span class="cat gone">🐛</span><span class="bf">🦋</span>';
+}
+document.getElementById('gplay').onclick = function () { garden(); say('毛毛蟲長大，會變成蝴蝶！'); };
+
+// 第 2 頁
+var cIdx = 0;
+function showStage(speak) {
+  var s = STAGES[cIdx], pic = document.getElementById('cpic');
+  pic.innerHTML = s[0]; pic.style.animation = 'none'; void pic.offsetWidth; pic.style.animation = '';
+  document.getElementById('cname').textContent = s[1];
+  document.getElementById('cdesc').textContent = s[2];
+  document.getElementById('cdots').innerHTML = ['卵', '幼蟲', '蛹', '成蟲'].map(function (n, i) { return '<span class="' + (i <= cIdx ? 'on' : '') + '">' + n + '</span>'; }).join(' → ');
+  document.getElementById('cnext').textContent = cIdx === 3 ? '🔄 蝴蝶又產卵，再一次' : '👉 下一個階段';
+  if (speak) say(s[1].replace(/[①②③④]\s/, '') + '。' + s[2]);
+}
+document.getElementById('cnext').onclick = function () { cIdx = (cIdx + 1) % 4; showStage(true); };
+
+// 第 3 頁：排順序
+var ORDER = [['🥚', '卵'], ['🐛', '幼蟲'], ['🫛', '蛹'], ['🦋', '成蟲']];
+var oIdx = 0;
+function startOrder() {
+  oIdx = 0;
+  document.getElementById('slots').innerHTML = ORDER.map(function () { return '<div></div>'; }).join('');
+  var mix = [2, 0, 3, 1];
+  document.getElementById('pick').innerHTML = mix.map(function (i) { return '<button data-i="' + i + '">' + (i === 2 ? PUPA.replace('width="120" height="150"', 'width="44" height="56"') : i === 0 ? EGG.replace('width="150" height="120"', 'width="56" height="45"') : ORDER[i][0]) + '<small>' + ORDER[i][1] + '</small></button>'; }).join('');
+  document.getElementById('om').textContent = '第 1 個是什麼？';
+}
+document.getElementById('pick').addEventListener('click', function (e) {
+  var b = e.target.closest('button'); if (!b || oIdx >= 4) return;
+  var i = +b.dataset.i;
+  if (i === oIdx) {
+    var slot = document.getElementById('slots').children[oIdx];
+    slot.innerHTML = b.innerHTML; slot.classList.add('fill');
+    b.classList.add('used');
+    oIdx++;
+    if (oIdx === 4) { document.getElementById('om').textContent = '🎉 排對了！卵 → 幼蟲 → 蛹 → 成蟲'; say('排對了！卵、幼蟲、蛹、成蟲。'); }
+    else { document.getElementById('om').textContent = '對！第 ' + (oIdx + 1) + ' 個是什麼？'; say('對！' + ORDER[i][1] + '。下一個是什麼？'); }
+  } else {
+    b.classList.remove('no'); void b.offsetWidth; b.classList.add('no');
+    document.getElementById('om').textContent = '還不是牠喔，再想想！'; say('還不是牠喔，再想想');
+  }
+});
+document.getElementById('oreset').onclick = function () { startOrder(); say('再排一次！'); };
+
+// 第 4 頁：吃東西
+var bit = false, open = false;
+document.getElementById('eatc').onclick = function () {
+  bit = !bit; document.getElementById('leafp').classList.toggle('bit', bit);
+  say(bit ? '喀滋喀滋！毛毛蟲用嘴巴把葉子咬下來吃。' : '新的葉子長出來了！再點一次看毛毛蟲吃葉子。');
+};
+document.getElementById('eatb').onclick = function () {
+  open = !open;
+  document.getElementById('tongue').setAttribute('d', open ? 'M20 10 C40 10 55 30 80 48' : 'M20 10 C40 10 40 30 30 30 C22 30 22 20 30 20');
+  say(open ? '蝴蝶把捲起來的口器伸長，像吸管一樣吸花蜜。' : '吃飽了，口器又捲起來了。');
+};
+function resetEat() { bit = false; open = false; document.getElementById('leafp').classList.remove('bit'); document.getElementById('tongue').setAttribute('d', 'M20 10 C40 10 40 30 30 30 C22 30 22 20 30 20'); }
+
+window.onStep = function (i) {
+  if (i === 0) garden();
+  if (i === 1) { cIdx = 0; showStage(false); }
+  if (i === 2) startOrder();
+  if (i === 3) resetEat();
+};
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>

@@ -426,5 +426,31 @@
         }
       ]
     }
-  }
+  },
+  "lessons": [
+    {
+      "subject": "chinese",
+      "title": "週末複習：部首、標點和成語",
+      "summary": "幫字找部首房子（木、艹、言、亻、日、忄），當標點小幫手，再聽井底之蛙的故事。",
+      "file": "daily/2026-11-28/lessons/chinese.html"
+    },
+    {
+      "subject": "english",
+      "title": "Helping at Home",
+      "summary": "學會用英文說家事：make my bed、set the table、wash the dishes，還有 Who cooks dinner? 和 I feel happy.",
+      "file": "daily/2026-11-28/lessons/english.html"
+    },
+    {
+      "subject": "math",
+      "title": "週末複習：長度、時間和加減",
+      "summary": "拉滑桿看 100 公分＝1 公尺、判斷公分或公尺、撥時鐘算經過多久，再一步一步算三位數加法。",
+      "file": "daily/2026-11-28/lessons/math.html"
+    },
+    {
+      "subject": "science",
+      "title": "蝴蝶的一生",
+      "summary": "看蝴蝶從卵、幼蟲、蛹到成蟲的四個階段，排排順序，也認識毛毛蟲和蝴蝶吃什麼。",
+      "file": "daily/2026-11-28/lessons/science.html"
+    }
+  ]
 }

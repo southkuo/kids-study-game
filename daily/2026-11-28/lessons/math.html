@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>週末複習：長度、時間和加減</title>
+<!--
+  教學老師的教材範本（每天複製這個檔案到 daily/日期/lessons/科目.html 再改內容）
+  規則：
+  - 一個檔案就是一個完整教材，CSS、JS、圖都寫在裡面，不能載入任何外部網址。
+  - 每一個 <section class="step"> 是一頁，下方會自動出現「上一步／下一步」和進度點。
+  - data-auto="要念的話"：進到這一頁時自動朗讀（data-lang="en-US" 用英文念）。
+  - 任何元素加上 data-say="要念的話"（可加 data-lang="en-US"），點了就會念。
+  - 小測驗：<div class="quiz" data-why="答對時的補充說明"> 裡面放按鈕，正確的按鈕加 data-right，後面放 <div class="fb"></div>。
+  - 需要每頁自己的動畫：寫 window.onStep = function (index, section) { … }，換頁時會呼叫。
+  - 只改「教材內容」區塊和自訂樣式；下面的共用程式不要改壞。
+-->
+<style>
+:root { --c: #ff7043; --ink: #2b2112; --bg: #fffaf0; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 14px 16px 120px; }
+.prog { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.prog i { width: 14px; height: 14px; border-radius: 50%; background: #e0d6c3; }
+.prog i.on { background: var(--c); }
+.step { display: none; }
+.step.on { display: block; animation: stepIn .45s ease-out; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(18px); } }
+h1 { margin: 6px 0 10px; font-size: clamp(26px, 6.5vw, 38px); text-align: center; color: var(--c); }
+.big { font-size: clamp(21px, 5.4vw, 29px); font-weight: 900; line-height: 1.55; text-align: center; margin: 8px 0; }
+.small { font-size: 17px; font-weight: 700; text-align: center; color: #6a5536; }
+.stage { position: relative; min-height: 240px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 12px 0; padding: 16px; border-radius: 24px; background: #fff; box-shadow: 0 5px 0 #eadfc8; overflow: hidden; }
+.say { display: inline-flex; align-items: center; gap: 6px; margin: 6px; padding: 10px 18px; border: 0; border-radius: 999px; background: #e3f2fd; box-shadow: 0 3px 0 #90caf9; font: inherit; font-size: 18px; font-weight: 900; color: #0d47a1; cursor: pointer; }
+.say:active { transform: translateY(2px); }
+.center { text-align: center; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 12px 14px; border: 0; border-radius: 20px; background: #fff7ec; box-shadow: 0 4px 0 #f0d9b5; font: inherit; cursor: pointer; }
+.card:active { transform: translateY(3px); }
+.quiz { display: grid; gap: 10px; margin-top: 12px; }
+.quiz button { min-height: 60px; padding: 8px 12px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 #d6c39a; font: inherit; font-size: clamp(19px, 5vw, 24px); font-weight: 900; color: var(--ink); cursor: pointer; }
+.quiz button.right { background: #d8f7e1; box-shadow: 0 4px 0 #2fb35a; color: #0e6b2e; }
+.quiz button.wrong { background: #ffe1e1; box-shadow: 0 4px 0 #e5484d; color: #a0161b; }
+.fb { min-height: 1.6em; margin-top: 10px; text-align: center; font-size: 20px; font-weight: 900; color: #0e6b2e; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,250,240,.96); box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.nav button { flex: 1; min-height: 56px; border: 0; border-radius: 999px; font: inherit; font-size: 20px; font-weight: 900; cursor: pointer; }
+#prev { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: var(--ink); }
+#next { background: linear-gradient(180deg, #ffe38a, #ffc93c 55%, #e09a12); box-shadow: 0 4px 0 #9a6608; color: #3a2208; }
+.nav button:disabled { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+/* ===== 自訂樣式（這一份教材自己的動畫）寫在這裡 ===== */
+:root { --c: #2f8fd8; }
+.ruler { position: relative; width: 100%; max-width: 560px; height: 150px; margin: 0 auto; }
+.ruler .bar { position: absolute; left: 0; right: 0; bottom: 10px; height: 54px; background: #ffe08a; border: 3px solid #c99a1c; border-radius: 8px; }
+.ruler .tk { position: absolute; bottom: 10px; width: 2px; background: #6b4e00; }
+.ruler .nm { position: absolute; bottom: 30px; font-size: 15px; font-weight: 900; color: #6b4e00; transform: translateX(-50%); }
+.ruler .pen { position: absolute; left: 0; bottom: 74px; height: 30px; width: 0; border-radius: 4px 16px 16px 4px; background: linear-gradient(90deg, #ef9a9a 0 12%, #42a5f5 12% 86%, #ffcc80 86%); animation: grow 2.4s ease-out .3s forwards; }
+@keyframes grow { to { width: 85%; } }
+.ruler .lab { position: absolute; left: 50%; top: 0; transform: translateX(-50%); font-size: 22px; font-weight: 900; color: #1e6fb8; opacity: 0; animation: fadein .5s 2.6s forwards; white-space: nowrap; }
+@keyframes fadein { to { opacity: 1; } }
+.tape { width: 100%; }
+.tape .track { position: relative; height: 46px; border-radius: 10px; background: #eaf4fd; overflow: hidden; }
+.tape .fill { position: absolute; left: 0; top: 0; bottom: 0; background: repeating-linear-gradient(90deg, #2f8fd8 0 calc(5% - 2px), #8cc4f0 calc(5% - 2px) 5%); transition: width .2s; }
+.tape .mid { position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; margin-left: -2px; background: #e53935; }
+.tape .ends { display: flex; justify-content: space-between; font-size: 17px; font-weight: 900; color: #6a5536; }
+input[type=range] { width: 100%; height: 48px; accent-color: #2f8fd8; }
+.read { min-height: 2.8em; text-align: center; font-size: clamp(22px, 6vw, 30px); font-weight: 900; color: #1e6fb8; line-height: 1.4; }
+.read small { display: block; font-size: 18px; color: #c0392b; }
+.things { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; }
+.things .card { min-width: 0; font-size: 19px; font-weight: 900; }
+.things .card .e { font-size: 44px; }
+.things .card .u { font-size: 21px; color: #9e9e9e; }
+.things .card.open .u { color: #1e6fb8; animation: pop .4s ease-out; }
+@keyframes pop { from { transform: scale(0); } }
+.clockbox { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; }
+.ctrl { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 8px; }
+.ctrl button { min-width: 96px; min-height: 56px; padding: 0 16px; border: 0; border-radius: 999px; font: inherit; font-size: 19px; font-weight: 900; background: #e3f2fd; box-shadow: 0 4px 0 #90caf9; color: #0d47a1; cursor: pointer; }
+.ctrl button.reset { background: #fff; box-shadow: 0 4px 0 #d7c3ad; color: #5a4632; }
+.ctrl button:active { transform: translateY(2px); }
+.ctrl button:disabled { opacity: .4; }
+.col { display: grid; grid-template-columns: 48px repeat(3, 70px); gap: 2px 6px; justify-content: center; font-weight: 900; }
+.col div { text-align: center; }
+.col .hd { font-size: 17px; color: #6a5536; }
+.col .mk { font-size: 22px; color: #e53935; min-height: 28px; }
+.col .dg { font-size: 46px; line-height: 1.15; border-radius: 10px; }
+.col .op { font-size: 40px; color: #2f8fd8; }
+.col .ln { grid-column: 1 / -1; height: 5px; background: #2b2112; border-radius: 3px; margin: 2px 0; }
+.col .res { color: #2f8fd8; }
+.col .new { animation: pop .4s ease-out; }
+.col .hot { background: #fff3b0; }
+.explain { min-height: 3.2em; text-align: center; font-size: clamp(19px, 5vw, 23px); font-weight: 900; color: #4a3a20; line-height: 1.55; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="prog"></div>
+
+  <!-- ===== 教材內容：每一頁一個 section.step ===== -->
+  <section class="step" data-auto="週末複習！這個星期我們學了量長度、看時鐘，還有三位數的加減。先看，用尺量一量鉛筆有多長？">
+    <h1>📏 週末數學大複習</h1>
+    <div class="stage"><div class="ruler" id="ruler"></div></div>
+    <p class="big">量長度、看時鐘、算加減，<br>一起複習！</p>
+    <p class="center"><button class="say" id="rplay">▶️ 再量一次</button></p>
+  </section>
+
+  <section class="step" data-auto="拉拉看下面的滑桿，看看長度變多少。拉到中間紅線，就是一百公分，也就是一公尺！">
+    <h1>📐 100 公分 = 1 公尺</h1>
+    <div class="stage" style="flex-direction:column">
+      <div class="tape">
+        <div class="track"><div class="fill" id="tf"></div><div class="mid"></div></div>
+        <div class="ends"><span>0</span><span>100 公分</span><span>200 公分</span></div>
+      </div>
+      <input type="range" id="tr" min="0" max="200" step="5" value="40" aria-label="長度">
+      <div class="read" id="trd"></div>
+    </div>
+    <p class="small">每一小格是 10 公分，10 格就是 100 公分。</p>
+  </section>
+
+  <section class="step" data-auto="公分還是公尺？小的東西用公分，很長很高的東西用公尺。點卡片，看看答案。">
+    <h1>🤔 公分還是公尺？</h1>
+    <div class="things" id="things">
+      <button class="card" data-say="鉛筆大約長十八公分。"><span class="e">✏️</span>鉛筆大約長 18<span class="u">？</span></button>
+      <button class="card" data-say="書桌大約高七十公分。"><span class="e">🪑</span>書桌大約高 70<span class="u">？</span></button>
+      <button class="card" data-say="教室的門大約高二公尺。"><span class="e">🚪</span>教室的門大約高 2<span class="u">？</span></button>
+      <button class="card" data-say="公車大約長十二公尺。"><span class="e">🚌</span>公車大約長 12<span class="u">？</span></button>
+    </div>
+  </section>
+
+  <section class="step" data-auto="小米兩時十分開始掃地。按加五分鐘，長針走一大格，看看時間怎麼變，經過了幾分鐘。">
+    <h1>⏰ 經過多久？</h1>
+    <div class="stage">
+      <div class="clockbox">
+        <svg id="clk" width="210" height="210" viewBox="0 0 120 120" aria-label="時鐘"></svg>
+        <div class="read" id="crd"></div>
+      </div>
+    </div>
+    <div class="ctrl"><button id="c5">⏩ ＋5 分鐘</button><button class="reset" id="cr">🔄 重來</button></div>
+    <p class="small">長針走一大格是 5 分鐘，走一整圈是 60 分鐘＝1 小時。</p>
+  </section>
+
+  <section class="step" data-auto="三位數加法，從個位開始算，滿十要進一。按下一步，一位一位算。">
+    <h1>➕ 三位數加法</h1>
+    <div class="stage" style="flex-direction:column"><div class="col" id="ca"></div></div>
+    <div class="explain" id="ea"></div>
+    <div class="ctrl"><button id="ga">👉 下一步</button><button class="reset" id="ra">🔄 重來</button></div>
+  </section>
+
+  <section class="step" data-auto="小測驗！一公尺長的緞帶，剪掉三十公分，還剩幾公分？">
+    <h1>✏️ 小測驗 1</h1>
+    <p class="big">1 公尺長的緞帶，剪掉 30 公分，<br>還剩幾公分？</p>
+    <div class="quiz" data-why="1 公尺是 100 公分。100 減 30 等於 70，所以還剩 70 公分。">
+      <button>130 公分</button><button data-right>70 公分</button><button>29 公分</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗！阿寶三時五十分開始澆花，澆了二十分鐘，幾時幾分澆完？">
+    <h1>✏️ 小測驗 2</h1>
+    <p class="big">阿寶 3 時 50 分開始澆花，<br>澆了 20 分鐘，幾時幾分澆完？</p>
+    <div class="quiz" data-why="3 時 50 分再過 10 分鐘是 4 時整，再過 10 分鐘是 4 時 10 分。">
+      <button>3 時 70 分</button><button data-right>4 時 10 分</button><button>4 時 20 分</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+
+  <section class="step" data-auto="小測驗！五百減一百六十三，等於多少？">
+    <h1>✏️ 小測驗 3</h1>
+    <p class="big" style="font-size:clamp(32px,9vw,46px)">500 − 163 = ？</p>
+    <div class="quiz" data-why="十位和個位都是 0，先向百位借：百位剩 4，十位變 9，個位變 10。10 減 3 等於 7，9 減 6 等於 3，4 減 1 等於 3，答案是 337。檢查：337 加 163 等於 500。">
+      <button>463</button><button data-right>337</button><button>447</button>
+    </div>
+    <div class="fb"></div>
+  </section>
+  <!-- ===== 教材內容結束 ===== -->
+</main>
+<script>
+var ZH = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+function readZh(n) {
+  if (n === 0) return '零';
+  var h = Math.floor(n / 100), t = Math.floor(n / 10) % 10, o = n % 10, s = '';
+  if (h) s += ZH[h] + '百';
+  if (t) s += (t === 1 && !h ? '' : ZH[t]) + '十'; else if (h && o) s += '零';
+  if (o) s += ZH[o];
+  return s;
+}
+
+// 第 1 頁：尺量鉛筆（尺 0～20 公分，鉛筆 17 公分）
+function drawRuler() {
+  var r = document.getElementById('ruler'), h = '<div class="bar"></div>';
+  for (var i = 0; i <= 20; i++) {
+    var x = i * 5;
+    h += '<div class="tk" style="left:calc(' + x + '% - 1px);height:' + (i % 5 === 0 ? 30 : 16) + 'px"></div>';
+    if (i % 5 === 0) h += '<div class="nm" style="left:' + Math.min(x, 97) + '%">' + i + '</div>';
+  }
+  h += '<div class="pen"></div><div class="lab">鉛筆長 17 公分</div>';
+  r.innerHTML = h;
+}
+document.getElementById('rplay').onclick = function () { drawRuler(); say('從零開始量，鉛筆的尾巴對到十七，所以鉛筆長十七公分。'); };
+
+// 第 2 頁：滑桿
+var tr = document.getElementById('tr');
+function showTape(speak) {
+  var v = +tr.value, m = Math.floor(v / 100), c = v % 100, t;
+  document.getElementById('tf').style.width = (v / 2) + '%';
+  var zh = readZh(v) + '公分';
+  if (v >= 100) {
+    t = v + ' 公分<small>＝ ' + m + ' 公尺' + (c ? ' ' + c + ' 公分' : '') + (v === 100 ? '　剛好 1 公尺！' : '') + '</small>';
+    zh += '，等於' + ZH[m] + '公尺' + (c ? readZh(c) + '公分' : '');
+  } else t = v + ' 公分<small>還不到 1 公尺</small>';
+  document.getElementById('trd').innerHTML = t;
+  if (speak) say(zh);
+}
+tr.addEventListener('input', function () { showTape(false); });
+tr.addEventListener('change', function () { showTape(true); });
+
+// 第 3 頁：公分還是公尺
+var UNITS = ['公分', '公分', '公尺', '公尺'];
+[].forEach.call(document.querySelectorAll('#things .card'), function (c, i) {
+  c.addEventListener('click', function () { c.classList.add('open'); c.querySelector('.u').textContent = ' ' + UNITS[i]; });
+});
+function resetThings() { [].forEach.call(document.querySelectorAll('#things .card'), function (c) { c.classList.remove('open'); c.querySelector('.u').textContent = '？'; }); }
+
+// 第 4 頁：時鐘
+var START = 2 * 60 + 10, mins = START;
+function drawClock(t) {
+  var h = Math.floor(t / 60) % 12, m = t % 60, s = '<circle cx="60" cy="60" r="56" fill="#fffdf5" stroke="#2f8fd8" stroke-width="4"/>';
+  for (var i = 1; i <= 12; i++) {
+    var a = i * Math.PI / 6;
+    s += '<text x="' + (60 + 44 * Math.sin(a)).toFixed(1) + '" y="' + (60 - 44 * Math.cos(a) + 4.5).toFixed(1) + '" text-anchor="middle" font-size="12" font-weight="900" fill="#2b2112">' + i + '</text>';
+  }
+  var ha = (h * 30 + m * 0.5) * Math.PI / 180, ma = m * 6 * Math.PI / 180;
+  s += '<line x1="60" y1="60" x2="' + (60 + 26 * Math.sin(ha)).toFixed(1) + '" y2="' + (60 - 26 * Math.cos(ha)).toFixed(1) + '" stroke="#e53935" stroke-width="6" stroke-linecap="round"/>';
+  s += '<line x1="60" y1="60" x2="' + (60 + 40 * Math.sin(ma)).toFixed(1) + '" y2="' + (60 - 40 * Math.cos(ma)).toFixed(1) + '" stroke="#1e6fb8" stroke-width="4" stroke-linecap="round"/>';
+  s += '<circle cx="60" cy="60" r="4" fill="#2b2112"/>';
+  document.getElementById('clk').innerHTML = s;
+}
+function hm(t) { var h = Math.floor(t / 60) % 12 || 12, m = t % 60; return [h, m]; }
+function zhMin(m) { return m === 0 ? '' : readZh(m) + '分'; }
+function showClock(speak) {
+  drawClock(mins);
+  var x = hm(mins), d = mins - START;
+  document.getElementById('crd').innerHTML = x[0] + ' 時' + (x[1] ? ' ' + x[1] + ' 分' : '整') + '<small style="color:#0e6b2e">' + (d ? '經過了 ' + d + ' 分鐘' : '開始掃地！') + '</small>';
+  document.getElementById('c5').disabled = d >= 60;
+  if (speak) say((x[0] === 2 ? '兩' : readZh(x[0])) + '時' + (x[1] ? zhMin(x[1]) : '整') + '，經過了' + readZh(d) + '分鐘' + (d === 60 ? '，就是一小時！' : ''));
+}
+document.getElementById('c5').onclick = function () { if (mins - START < 60) { mins += 5; showClock(true); } };
+document.getElementById('cr').onclick = function () { mins = START; showClock(false); say('兩時十分，開始掃地！'); };
+
+// 第 5 頁：358 + 275 直式
+var A = 358, B = 275, aStep = 0;
+function dg(n) { return [Math.floor(n / 100), Math.floor(n / 10) % 10, n % 10]; }
+var PLAN = (function () {
+  var a = dg(A), b = dg(B), res = ['', '', ''], car = ['', '', ''], steps = [{ res: res.slice(), car: car.slice(), hot: -1, t: '358 加 275，從個位開始。按下一步。' }], c = 0, names = ['百位', '十位', '個位'];
+  for (var p = 2; p >= 0; p--) {
+    var s = a[p] + b[p] + c, txt = names[p] + '：' + a[p] + ' + ' + b[p] + (c ? ' + 1（進位）' : '') + ' = ' + s;
+    if (s >= 10 && p > 0) { res[p] = s - 10; car[p - 1] = '1'; txt += '，寫 ' + (s - 10) + '，進 1 到' + names[p - 1] + '。'; c = 1; }
+    else { res[p] = s; txt += '，寫 ' + s + '。'; c = 0; }
+    steps.push({ res: res.slice(), car: car.slice(), hot: p, t: txt });
+  }
+  steps.push({ res: res.slice(), car: car.slice(), hot: -1, t: '答案是 ' + (A + B) + '！' });
+  return steps;
+})();
+function drawAdd() {
+  var st = PLAN[aStep], a = dg(A), b = dg(B), h = '<div class="hd"></div><div class="hd">百</div><div class="hd">十</div><div class="hd">個</div><div></div>';
+  for (var p = 0; p < 3; p++) h += '<div class="mk' + (st.car[p] ? ' new' : '') + '">' + (st.car[p] ? '1' : '') + '</div>';
+  h += '<div></div>'; for (p = 0; p < 3; p++) h += '<div class="dg' + (st.hot === p ? ' hot' : '') + '">' + a[p] + '</div>';
+  h += '<div class="op">+</div>'; for (p = 0; p < 3; p++) h += '<div class="dg' + (st.hot === p ? ' hot' : '') + '">' + b[p] + '</div>';
+  h += '<div class="ln"></div><div></div>'; for (p = 0; p < 3; p++) h += '<div class="dg res' + (st.hot === p ? ' new hot' : '') + '">' + st.res[p] + '</div>';
+  document.getElementById('ca').innerHTML = h;
+  document.getElementById('ea').textContent = st.t;
+  document.getElementById('ga').disabled = aStep >= PLAN.length - 1;
+}
+document.getElementById('ga').onclick = function () { if (aStep < PLAN.length - 1) { aStep++; drawAdd(); say(PLAN[aStep].t.replace(/\+/g, '加').replace(/=/g, '等於')); } };
+document.getElementById('ra').onclick = function () { aStep = 0; drawAdd(); };
+
+window.onStep = function (i) {
+  if (i === 0) drawRuler();
+  if (i === 1) showTape(false);
+  if (i === 2) resetThings();
+  if (i === 3) { mins = START; showClock(false); }
+  if (i === 4) { aStep = 0; drawAdd(); }
+};
+</script>
+<nav class="nav"><button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button></nav>
+<script>
+/* ===== 共用程式（不要改） ===== */
+function pickVoice(lang, want) {
+  var BAD = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|eloquence/i;
+  var GOOD = ['samantha', 'ava', 'allison', 'susan', 'zoe', 'nicky', 'joelle', 'evan', 'nathan', 'tom', 'aaron', 'google us english', 'microsoft aria', 'microsoft jenny', 'microsoft guy'];
+  var all = speechSynthesis.getVoices(), best = null, bestScore = -1;
+  for (var i = 0; i < all.length; i++) {
+    var v = all[i], l = v.lang.replace('_', '-').toLowerCase();
+    if (l.indexOf(lang.toLowerCase().slice(0, 2)) !== 0) continue;
+    if (want && v.name === want) return v;
+    if (BAD.test(v.name)) continue;
+    var n = v.name.toLowerCase(), sc = l.indexOf(lang.toLowerCase()) === 0 ? 5 : 0;
+    if (/premium/.test(n)) sc += 30;
+    if (/enhanced|neural|natural/.test(n)) sc += 20;
+    for (var g = 0; g < GOOD.length; g++) if (n.indexOf(GOOD[g]) >= 0) { sc += 15 - g * 0.5; break; }
+    if (sc > bestScore) { best = v; bestScore = sc; }
+  }
+  return best;
+}
+function say(t, lang, rate) {
+  try {
+    speechSynthesis.cancel();
+    var P = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) P[p[0]] = decodeURIComponent(p[1] || ''); });
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = lang || 'zh-TW';
+    var en = u.lang.indexOf('en') === 0;
+    u.rate = rate || (en ? (parseFloat(P.rate) || 0.75) : 0.9);
+    var v = pickVoice(u.lang, en ? P.voice : '');
+    if (v) { u.voice = v; u.lang = v.lang; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+var steps = [].slice.call(document.querySelectorAll('.step')), cur = 0, prog = document.querySelector('.prog');
+steps.forEach(function () { prog.appendChild(document.createElement('i')); });
+function go(n) {
+  cur = Math.max(0, Math.min(steps.length - 1, n));
+  steps.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+  [].forEach.call(prog.children, function (d, i) { d.classList.toggle('on', i <= cur); });
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').textContent = cur === steps.length - 1 ? '🎉 學完了' : '下一步 ▶';
+  window.scrollTo(0, 0);
+  var s = steps[cur];
+  if (s.dataset.auto) say(s.dataset.auto, s.dataset.lang);
+  if (window.onStep) window.onStep(cur, s);
+}
+document.getElementById('prev').onclick = function () { go(cur - 1); };
+document.getElementById('next').onclick = function () {
+  if (cur < steps.length - 1) return go(cur + 1);
+  document.querySelector('.wrap').innerHTML = '<h1 style="margin-top:40px">🎉 學完了！</h1><p class="big">Ivan勇士好棒！<br>按左上角的 ✕ 回到今日任務。</p><p class="center" style="font-size:90px">🏆</p>';
+  document.querySelector('.nav').remove();
+  say('學完了！Ivan勇士好棒！');
+};
+document.addEventListener('click', function (e) { var b = e.target.closest('[data-say]'); if (b) say(b.dataset.say, b.dataset.lang); });
+[].forEach.call(document.querySelectorAll('.quiz'), function (q) {
+  q.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || q.dataset.done) return;
+    var fb = q.parentNode.querySelector('.fb'), ok = b.hasAttribute('data-right');
+    b.classList.add(ok ? 'right' : 'wrong');
+    if (ok) { q.dataset.done = 1; fb.style.color = '#0e6b2e'; fb.textContent = '🎉 答對了！' + (q.dataset.why || ''); say('答對了！' + (q.dataset.why || '')); }
+    else { fb.style.color = '#a0161b'; fb.textContent = '再想想看！'; say('再想想看'); }
+  });
+});
+go(0);
+</script>
+</body>
+</html>
